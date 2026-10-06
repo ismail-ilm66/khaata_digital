@@ -1,7 +1,8 @@
 // On-device check that a bill reminder is actually delivered (M3
-// acceptance). Needs a real Android phone or emulator:
+// acceptance). Needs a real device, emulator or iOS simulator:
 //
-//   adb shell pm grant com.example.khaata_digital android.permission.POST_NOTIFICATIONS
+//   Android: adb shell pm grant com.example.khaata_digital android.permission.POST_NOTIFICATIONS
+//   iOS: tap "Allow" on the first run's notification prompt.
 //   flutter test integration_test/reminder_test.dart -d <device-id>
 //
 // The timing rule (9 am on the due day, etc.) is unit-tested in
