@@ -8,6 +8,7 @@ import 'core/l10n/gen/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/presentation/cubit/locale_cubit.dart';
+import 'features/settings/presentation/cubit/preference_cubits.dart';
 import 'features/settings/presentation/cubit/theme_cubit.dart';
 
 class KharchaApp extends StatefulWidget {
@@ -32,6 +33,9 @@ class _KharchaAppState extends State<KharchaApp> {
       providers: [
         BlocProvider.value(value: getIt<ThemeCubit>()),
         BlocProvider.value(value: getIt<LocaleCubit>()),
+        BlocProvider.value(value: getIt<HideBalanceCubit>()),
+        BlocProvider.value(value: getIt<BudgetCycleCubit>()),
+        BlocProvider.value(value: getIt<CurrencyCubit>()),
       ],
       child: Builder(
         builder: (context) {

@@ -35,7 +35,7 @@ class MoneyFormat {
     final decimals = money.currency.decimals;
     final abs = money.minor.abs();
     final unit = FixedPoint.pow10(decimals);
-    final whole = _group((abs ~/ unit).toString());
+    final whole = groupDigits((abs ~/ unit).toString());
     final frac = abs % unit;
     var number = frac == 0
         ? whole
@@ -48,11 +48,12 @@ class MoneyFormat {
     return MoneyParts(sign, money.currency.symbol, number);
   }
 
-  /// "−₨ 2,520" style single string.
+  /// "−Rs 2,520" style single string.
   String format(Money money, {bool signed = false}) =>
       parts(money, signed: signed).toString();
 
-  static String _group(String digits) {
+  /// Inserts thousands separators: "1234567" → "1,234,567".
+  static String groupDigits(String digits) {
     final out = StringBuffer();
     for (var i = 0; i < digits.length; i++) {
       if (i > 0 && (digits.length - i) % 3 == 0) out.write(',');

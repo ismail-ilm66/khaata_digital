@@ -41,7 +41,7 @@ abstract final class AccountPresets {
     name: 'Cash',
     type: AccountType.cash,
     color: 0xFF5F6B7A,
-    monogram: '₨',
+    monogram: 'Rs',
   );
 
   static const List<AccountPreset> all = [
@@ -139,6 +139,13 @@ abstract final class AccountPresets {
       aliases: ['Standard Chartered Bank', 'SCB'],
     ),
   ];
+
+  static AccountPreset? byKey(String? key) {
+    for (final p in all) {
+      if (p.key == key) return p;
+    }
+    return null;
+  }
 
   static AccountPreset? match(String accountName) {
     for (final p in all) {

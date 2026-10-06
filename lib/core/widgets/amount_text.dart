@@ -8,7 +8,7 @@ import '../theme/context_x.dart';
 /// The one way amounts are drawn: tabular figures, with the sign and
 /// currency symbol set smaller and quieter than the number.
 ///
-/// Always laid out left-to-right so "−₨ 2,520" reads correctly in Urdu.
+/// Always laid out left-to-right so "−Rs 2,520" reads correctly in Urdu.
 class AmountText extends StatelessWidget {
   const AmountText(
     this.money, {

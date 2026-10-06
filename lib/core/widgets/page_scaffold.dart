@@ -3,11 +3,15 @@ import 'package:flutter/services.dart';
 
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
+import 'ambient_background.dart';
+import 'app_icons.dart';
 import 'glass_nav_bar.dart';
 
-/// The layout every tab uses: a large title that scrolls away with the
-/// content, a transparent background (so the shell's ambient glow shows),
-/// and bottom padding that clears the floating glass nav bar.
+/// The layout every page uses: a large title that scrolls away with the
+/// content over the ambient background, and bottom padding that clears the
+/// floating glass nav bar when the page sits under it.
+///
+/// Pages are opaque so push/pop transitions never show the page beneath.
 class PageScaffold extends StatelessWidget {
   const PageScaffold({
     super.key,
@@ -30,25 +34,26 @@ class PageScaffold extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          bottom: false,
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: PageHeader(
-                  title: title,
-                  subtitle: subtitle,
-                  trailing: trailing,
+        body: AmbientBackground(
+          child: SafeArea(
+            bottom: false,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: PageHeader(
+                    title: title,
+                    subtitle: subtitle,
+                    trailing: trailing,
+                  ),
                 ),
-              ),
-              ...slivers,
-              SliverPadding(
-                padding: EdgeInsets.only(
-                  bottom: GlassNavBar.clearance(context),
+                ...slivers,
+                SliverPadding(
+                  padding: EdgeInsets.only(
+                    bottom: GlassNavBar.clearance(context),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -70,10 +75,11 @@ class PageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canPop = ModalRoute.of(context)?.impliesAppBarDismissal ?? false;
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         AppSpacing.page + AppSpacing.xs,
-        AppSpacing.xl,
+        canPop ? AppSpacing.xs : AppSpacing.xl,
         AppSpacing.page,
         AppSpacing.l,
       ),
@@ -84,6 +90,24 @@ class PageHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (canPop)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.s),
+                    child: IconButton.filledTonal(
+                      onPressed: () => Navigator.maybePop(context),
+                      style: IconButton.styleFrom(
+                        backgroundColor: context.colors.surface,
+                      ),
+                      tooltip: MaterialLocalizations.of(
+                        context,
+                      ).backButtonTooltip,
+                      icon: DirectionalIcon(
+                        AppIcons.back,
+                        size: 18,
+                        color: context.colors.ink,
+                      ),
+                    ),
+                  ),
                 if (subtitle != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.xs),

@@ -11,7 +11,7 @@ import 'package:khaata_digital/features/reports/presentation/reports_screen.dart
 import 'package:khaata_digital/features/settings/presentation/cubit/locale_cubit.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/theme_cubit.dart';
 import 'package:khaata_digital/features/settings/presentation/more_screen.dart';
-import 'package:khaata_digital/features/transactions/presentation/add_transaction_sheet.dart';
+import 'package:khaata_digital/features/transactions/presentation/form/entry_editor_screen.dart';
 import 'package:khaata_digital/features/transactions/presentation/transactions_screen.dart';
 
 import 'helpers/test_app.dart';
@@ -57,7 +57,7 @@ void main() {
     expect(find.byType(HomeScreen), findsOneWidget);
   });
 
-  testWidgets('Add tab opens the sheet without leaving the current tab', (
+  testWidgets('+ opens the editor; closing returns to the same tab', (
     tester,
   ) async {
     await pumpApp(tester);
@@ -66,8 +66,10 @@ void main() {
 
     await tester.tap(find.bySemanticsLabel('Add'));
     await tester.pumpAndSettle();
-    expect(find.byType(AddTransactionSheet), findsOneWidget);
+    expect(find.byType(EntryEditorScreen), findsOneWidget);
 
+    await tester.tap(find.byKey(const Key('closeEditor')));
+    await tester.pumpAndSettle();
     final nav = tester.widget<GlassNavBar>(find.byType(GlassNavBar));
     expect(nav.selectedIndex, 2, reason: 'Reports stays selected');
   });

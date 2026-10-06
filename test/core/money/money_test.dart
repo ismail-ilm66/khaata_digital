@@ -18,7 +18,7 @@ void main() {
       expect((a - b).minor, -10);
     });
 
-    test('summing 10,000 × ₨0.01 is exactly ₨100', () {
+    test('summing 10,000 × Rs0.01 is exactly Rs100', () {
       final sum = Money.sum(List.filled(10000, const Money(1, pkr)), pkr);
       expect(sum, Money.major(100, pkr));
     });
@@ -51,7 +51,7 @@ void main() {
     });
 
     test('rounds half away from zero, both signs', () {
-      // ₨0.01 × 0.5 = 0.005 → rounds to 0.01
+      // Rs0.01 × 0.5 = 0.005 → rounds to 0.01
       expect(const Money(1, pkr).convert(500000, pkr).minor, 1);
       expect(const Money(-1, pkr).convert(500000, pkr).minor, -1);
       expect(const Money(1, pkr).convert(499999, pkr).minor, 0);
@@ -72,10 +72,10 @@ void main() {
     const f = MoneyFormat();
 
     test('groups thousands and hides a zero fraction', () {
-      expect(f.format(Money.major(2520, pkr)), '₨ 2,520');
-      expect(f.format(Money.major(1234567, pkr)), '₨ 1,234,567');
-      expect(f.format(const Money(5, pkr)), '₨ 0.05');
-      expect(f.format(const Money(125050, pkr)), '₨ 1,250.50');
+      expect(f.format(Money.major(2520, pkr)), 'Rs 2,520');
+      expect(f.format(Money.major(1234567, pkr)), 'Rs 1,234,567');
+      expect(f.format(const Money(5, pkr)), 'Rs 0.05');
+      expect(f.format(const Money(125050, pkr)), 'Rs 1,250.50');
     });
 
     test('negative uses a true minus; signed adds plus', () {

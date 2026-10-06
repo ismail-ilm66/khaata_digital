@@ -47,6 +47,48 @@ abstract final class AppIcons {
     PhosphorIconsFill.lightning,
   );
 
+  // Actions & chrome
+  static const IconData chevronDown = PhosphorIconsBold.caretDown;
+  static const IconData chevronRight = PhosphorIconsBold.caretRight;
+  static const IconData back = PhosphorIconsBold.arrowLeft;
+  static const IconData close = PhosphorIconsBold.x;
+  static const IconData check = PhosphorIconsBold.check;
+  static const IconData backspace = PhosphorIconsRegular.backspace;
+  static const IconData dragHandle = PhosphorIconsBold.dotsSixVertical;
+  static const IconData arrowRight = PhosphorIconsBold.arrowRight;
+  static const IconData search = PhosphorIconsRegular.magnifyingGlass;
+  static const IconData filter = PhosphorIconsRegular.faders;
+  static const IconData calendar = PhosphorIconsRegular.calendarBlank;
+  static const IconData note = PhosphorIconsRegular.notePencil;
+  static const IconData camera = PhosphorIconsRegular.camera;
+  static const IconData gallery = PhosphorIconsRegular.images;
+  static const IconData receipt = PhosphorIconsRegular.receipt;
+  static const IconData edit = PhosphorIconsRegular.pencilSimple;
+  static const IconData delete = PhosphorIconsRegular.trash;
+  static const IconData archive = PhosphorIconsRegular.archive;
+  static const IconData restore = PhosphorIconsRegular.arrowCounterClockwise;
+  static const IconData show = PhosphorIconsRegular.eye;
+  static const IconData hide = PhosphorIconsRegular.eyeSlash;
+  static const IconData plus = PhosphorIconsBold.plus;
+  static const IconData tag = PhosphorIconsRegular.tag;
+  static const IconData transfer = PhosphorIconsBold.arrowsLeftRight;
+  static const accounts = AppIcon(
+    PhosphorIconsRegular.wallet,
+    PhosphorIconsFill.wallet,
+  );
+
+  /// Account types → icon, for accounts without a preset monogram.
+  static const Map<String, AppIcon> accountTypes = {
+    'cash': AppIcon(PhosphorIconsRegular.money, PhosphorIconsFill.money),
+    'bank': AppIcon(PhosphorIconsRegular.bank, PhosphorIconsFill.bank),
+    'wallet': AppIcon(PhosphorIconsRegular.wallet, PhosphorIconsFill.wallet),
+    'card': AppIcon(
+      PhosphorIconsRegular.creditCard,
+      PhosphorIconsFill.creditCard,
+    ),
+    'savings': AppIcon(PhosphorIconsRegular.vault, PhosphorIconsFill.vault),
+  };
+
   // Categories — keys are the stable values stored in `categories.icon`.
   static const fallback = AppIcon(
     PhosphorIconsRegular.tag,
@@ -179,4 +221,22 @@ abstract final class AppIcons {
   };
 
   static AppIcon of(String? key) => byKey[key] ?? fallback;
+}
+
+/// An arrow/chevron that points the right way in both LTR and RTL layouts.
+class DirectionalIcon extends StatelessWidget {
+  const DirectionalIcon(this.icon, {super.key, this.size, this.color});
+
+  final IconData icon;
+  final double? size;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    return Transform.flip(
+      flipX: rtl,
+      child: Icon(icon, size: size, color: color),
+    );
+  }
 }

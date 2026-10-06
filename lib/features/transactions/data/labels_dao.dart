@@ -53,6 +53,39 @@ class LabelsDao extends DatabaseAccessor<AppDatabase> with _$LabelsDaoMixin {
     });
   }
 
+  /// Tag names for each of [transactionIds], alphabetical.
+  Future<Map<String, List<String>>> tagNamesFor(
+    Iterable<String> transactionIds,
+  ) async {
+    final ids = transactionIds.toSet();
+    if (ids.isEmpty) return const {};
+    final q =
+        select(
+            transactionTags,
+          ).join([innerJoin(tags, tags.id.equalsExp(transactionTags.tagId))])
+          ..where(transactionTags.transactionId.isIn(ids))
+          ..orderBy([OrderingTerm.asc(tags.name)]);
+    final out = <String, List<String>>{};
+    for (final r in await q.get()) {
+      out
+          .putIfAbsent(r.readTable(transactionTags).transactionId, () => [])
+          .add(r.readTable(tags).name);
+    }
+    return out;
+  }
+
+  /// Names of tags attached to at least one live transaction.
+  Future<List<String>> usedTagNames() async {
+    final rows = await customSelect(
+      'SELECT DISTINCT g.name AS name FROM tags g '
+      'JOIN transaction_tags tt ON tt.tag_id = g.id '
+      'JOIN transactions t ON t.id = tt.transaction_id '
+      'WHERE t.deleted_at IS NULL ORDER BY g.name COLLATE NOCASE',
+      readsFrom: {tags, transactionTags},
+    ).get();
+    return [for (final r in rows) r.read<String>('name')];
+  }
+
   Future<List<TagRow>> tagsFor(String transactionId) {
     final q =
         select(tags).join([

@@ -9,6 +9,7 @@ import '../../features/categories/domain/category_kind.dart';
 import '../../features/people/data/people_dao.dart';
 import '../../features/recurring/domain/recurrence.dart';
 import '../../features/settings/data/settings_dao.dart';
+import '../../features/transactions/data/attachments_dao.dart';
 import '../../features/transactions/data/labels_dao.dart';
 import '../../features/transactions/data/transactions_dao.dart';
 import '../../features/transactions/domain/transaction_type.dart';
@@ -45,6 +46,7 @@ part 'app_database.g.dart';
     PeopleDao,
     TransactionsDao,
     LabelsDao,
+    AttachmentsDao,
     BudgetsDao,
     SettingsDao,
   ],

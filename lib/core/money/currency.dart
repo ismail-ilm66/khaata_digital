@@ -11,7 +11,7 @@ class Currency {
   /// Number of minor-unit digits (2 for PKR paisa, 3 for KWD fils).
   final int decimals;
 
-  static const pkr = Currency('PKR', '₨', 2);
+  static const pkr = Currency('PKR', 'Rs', 2);
   static const usd = Currency('USD', r'$', 2);
 
   /// Currencies Pakistani users most often hold or earn in.

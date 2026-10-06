@@ -43,8 +43,14 @@ class GlassNavBar extends StatelessWidget {
   static const double _bottomGap = AppSpacing.s;
 
   /// Space scrollable content must leave at the bottom so its last item
-  /// can scroll clear of the floating bar.
+  /// can scroll clear of the floating bar. Pages outside the tab shell
+  /// (pushed full-screen) only need the safe-area inset.
   static double clearance(BuildContext context) =>
+      GlassNavBarScope.isPresent(context)
+      ? _shellClearance(context)
+      : AppSpacing.xl + MediaQuery.paddingOf(context).bottom;
+
+  static double _shellClearance(BuildContext context) =>
       _barHeight +
       _bottomGap +
       AppSpacing.l +
@@ -84,6 +90,18 @@ class GlassNavBar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Marks the subtree that sits under the floating [GlassNavBar] (the tab
+/// pages), so they reserve room for it while full-screen pages don't.
+class GlassNavBarScope extends InheritedWidget {
+  const GlassNavBarScope({super.key, required super.child});
+
+  static bool isPresent(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<GlassNavBarScope>() != null;
+
+  @override
+  bool updateShouldNotify(GlassNavBarScope oldWidget) => false;
 }
 
 class _NavTab extends StatelessWidget {

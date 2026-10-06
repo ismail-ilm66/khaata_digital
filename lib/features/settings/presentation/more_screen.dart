@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/page_scaffold.dart';
@@ -11,8 +13,8 @@ import 'cubit/locale_cubit.dart';
 import 'cubit/theme_cubit.dart';
 import '../../../core/widgets/app_icons.dart';
 
-/// More/Settings tab (spec 3.2 #10). Appearance for now; the rest of the
-/// settings land in M6.
+/// More/Settings tab (spec 3.2 #10). Accounts and appearance for now; the
+/// rest of the settings land with their milestones.
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
 
@@ -26,6 +28,20 @@ class MoreScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
           sliver: SliverList.list(
             children: [
+              Section(
+                title: l10n.yourMoney,
+                child: SurfaceCard(
+                  children: [
+                    SettingTile(
+                      key: const Key('accountsTile'),
+                      icon: AppIcons.accounts.filled,
+                      title: l10n.accounts,
+                      subtitle: l10n.accountsSubtitle,
+                      onTap: () => context.push(Routes.accounts),
+                    ),
+                  ],
+                ),
+              ),
               Section(
                 title: l10n.settingsAppearance,
                 child: SurfaceCard(

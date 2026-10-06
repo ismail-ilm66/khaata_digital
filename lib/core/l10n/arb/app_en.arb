@@ -19,5 +19,136 @@
   "transactionsEmpty": "Every expense, income and transfer, grouped by day.",
   "reportsEmpty": "Charts for any date range, with your full history.",
   "addEmpty": "Log an expense in three taps.",
-  "settingsAppearance": "Appearance"
+  "settingsAppearance": "Appearance",
+  "typeExpense": "Expense",
+  "typeIncome": "Income",
+  "typeTransfer": "Transfer",
+  "save": "Save",
+  "done": "Done",
+  "clear": "Clear",
+  "cancel": "Cancel",
+  "undo": "Undo",
+  "edit": "Edit",
+  "delete": "Delete",
+  "saved": "Saved",
+  "deleted": "Transaction deleted",
+  "noCategory": "No category",
+  "category": "Category",
+  "account": "Account",
+  "fromAccount": "From",
+  "toAccount": "To",
+  "date": "Date",
+  "note": "Note",
+  "notePlaceholder": "Add a note",
+  "tags": "Tags",
+  "tagsHint": "Comma separated, e.g. office, lunch",
+  "receipts": "Receipts",
+  "addReceipt": "Add receipt",
+  "takePhoto": "Take photo",
+  "chooseFromGallery": "Choose from gallery",
+  "receives": "Receives",
+  "rateLabel": "1 {from} = {rate} {to}",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "problemAmount": "Enter an amount",
+  "problemAccount": "Choose an account",
+  "problemDestination": "Choose where the money goes",
+  "problemSameAccount": "Pick two different accounts",
+  "problemConversion": "Enter the amount received",
+  "receiptFailed": "Couldn't attach that image. Try another photo.",
+  "search": "Search",
+  "searchHint": "Note, amount, category or tag",
+  "filterType": "Type",
+  "filterAccount": "Account",
+  "filterCategory": "Category",
+  "filterTag": "Tag",
+  "noTransactions": "No transactions yet",
+  "noTransactionsBody": "Tap + to log your first expense.",
+  "noMatches": "Nothing matches",
+  "noMatchesBody": "Try a different search or clear the filters.",
+  "addTransaction": "Add transaction",
+  "editTransaction": "Edit transaction",
+  "transferTitle": "Transfer",
+  "exchangeRate": "Exchange rate",
+  "accounts": "Accounts",
+  "addAccount": "Add account",
+  "newAccount": "New account",
+  "editAccount": "Edit account",
+  "accountName": "Name",
+  "accountType": "Type",
+  "currency": "Currency",
+  "openingBalance": "Opening balance",
+  "excludeFromTotal": "Exclude from net worth",
+  "excludeFromTotalHint": "For savings or money you don't spend from",
+  "archive": "Archive",
+  "archived": "Archived",
+  "restore": "Restore",
+  "netWorth": "Net worth",
+  "custom": "Custom",
+  "customHint": "Any other bank, wallet or cash",
+  "duplicateAccountName": "You already have an account called {name}",
+  "nameRequired": "Give it a name",
+  "invalidAmount": "Enter a valid amount",
+  "notInTotal": "Not in total",
+  "accountTypeCash": "Cash",
+  "accountTypeBank": "Bank",
+  "accountTypeWallet": "Wallet",
+  "accountTypeCard": "Card",
+  "accountTypeSavings": "Savings",
+  "chooseAccount": "Choose an account",
+  "chooseCategory": "Choose a category",
+  "thisCycle": "This month",
+  "income": "Income",
+  "spent": "Spent",
+  "left": "Left",
+  "recent": "Recent",
+  "seeAll": "See all",
+  "manage": "Manage",
+  "hideBalances": "Hide balances",
+  "showBalances": "Show balances",
+  "yourMoney": "Your money",
+  "accountsSubtitle": "Banks, wallets and cash",
+  "accountArchived": "Account archived",
+  "@rateLabel": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "@duplicateAccountName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveExpense": "Save expense",
+  "saveIncome": "Save income",
+  "saveTransfer": "Save transfer",
+  "allCategories": "All",
+  "swapAccounts": "Swap accounts",
+  "tagCount": "{count, plural, =1{1 tag} other{{count} tags}}",
+  "receiptCount": "{count, plural, =1{1 receipt} other{{count} receipts}}",
+  "receipt": "Receipt",
+  "@tagCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@receiptCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -6,7 +6,8 @@ enum SettingKey {
   locale('en'),
   hideBalance('false'),
   lockEnabled('false'),
-  urduDigits('false');
+  urduDigits('false'),
+  lastAccountId('');
 
   const SettingKey(this.defaultValue);
 
@@ -21,5 +22,6 @@ enum SettingKey {
     hideBalance => 'hide_balance',
     lockEnabled => 'lock_enabled',
     urduDigits => 'urdu_digits',
+    lastAccountId => 'last_account_id',
   };
 }

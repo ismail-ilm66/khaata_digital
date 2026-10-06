@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
+import 'app_icons.dart';
+import 'tinted_badge.dart';
 
 /// A rounded surface that groups related content. Children are separated by
 /// hairline dividers inset from the leading edge (iOS-style grouped list).
@@ -40,47 +42,129 @@ class SurfaceCard extends StatelessWidget {
   }
 }
 
-/// A labelled row inside a [SurfaceCard]: leading icon, title, and a
-/// control (or value) below or beside it.
+/// A row inside a [SurfaceCard]: tinted icon badge, title, optional
+/// subtitle and trailing widget; with [control], a full-width control sits
+/// underneath. Tappable when [onTap] is given (shows a chevron).
 class SettingTile extends StatelessWidget {
   const SettingTile({
     super.key,
     required this.icon,
     required this.title,
+    this.subtitle,
+    this.trailing,
     this.control,
+    this.onTap,
   });
 
   final IconData icon;
   final String title;
+  final String? subtitle;
+  final Widget? trailing;
 
   /// Full-width control shown under the title (e.g. a [SegmentedPicker]).
   final Widget? control;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    final row = Row(
       children: [
-        Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: c.brand.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(AppRadii.s),
-              ),
-              child: Icon(icon, size: 18, color: c.brand),
-            ),
-            const SizedBox(width: AppSpacing.m),
-            Expanded(child: Text(title, style: context.text.titleSmall)),
-          ],
+        TintedBadge(icon: icon, size: 32),
+        const SizedBox(width: AppSpacing.m),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: context.text.titleSmall),
+              if (subtitle != null)
+                Text(subtitle!, style: context.text.bodySmall),
+            ],
+          ),
         ),
-        if (control != null) ...[
-          const SizedBox(height: AppSpacing.m),
-          control!,
-        ],
+        ?trailing,
+        if (onTap != null && trailing == null)
+          DirectionalIcon(AppIcons.chevronRight, size: 16, color: c.inkMuted),
+      ],
+    );
+    final content = control == null
+        ? row
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              row,
+              const SizedBox(height: AppSpacing.m),
+              control!,
+            ],
+          );
+    if (onTap == null) return content;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(AppRadii.s),
+      child: content,
+    );
+  }
+}
+
+/// A read-only fact inside a [SurfaceCard]: small muted label over a
+/// prominent value (detail screens).
+class InfoTile extends StatelessWidget {
+  const InfoTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final Widget value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TintedBadge(icon: icon, size: 32),
+        const SizedBox(width: AppSpacing.m),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: context.text.bodySmall),
+              const SizedBox(height: 2),
+              DefaultTextStyle.merge(
+                style: context.text.bodyLarge,
+                child: value,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A labelled figure for summary rows (Income / Spent / Left).
+class StatTile extends StatelessWidget {
+  const StatTile({super.key, required this.label, required this.value});
+
+  final String label;
+  final Widget value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label, style: context.text.bodySmall),
+        const SizedBox(height: AppSpacing.xs),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: AlignmentDirectional.centerStart,
+          child: value,
+        ),
       ],
     );
   }

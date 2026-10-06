@@ -65,11 +65,17 @@ ORDER BY a.sort_order, a.name
   Future<List<AccountBalance>> balances() => _balances().get();
   Stream<List<AccountBalance>> watchBalances() => _balances().watch();
 
-  Future<List<AccountRow>> archived() =>
-      (select(accounts)
-            ..where((a) => a.deletedAt.isNotNull())
-            ..orderBy([(a) => OrderingTerm.asc(a.name)]))
-          .get();
+  SimpleSelectStatement<$AccountsTable, AccountRow> _archived() =>
+      select(accounts)
+        ..where((a) => a.deletedAt.isNotNull())
+        ..orderBy([(a) => OrderingTerm.asc(a.name)]);
+
+  Future<List<AccountRow>> archived() => _archived().get();
+  Stream<List<AccountRow>> watchArchived() => _archived().watch();
+
+  /// Any account, archived or not (history still references archived ones).
+  Future<AccountRow?> byId(String id) =>
+      (select(accounts)..where((a) => a.id.equals(id))).getSingleOrNull();
 
   /// Adds an account at the end of the list and returns its id.
   Future<String> create({

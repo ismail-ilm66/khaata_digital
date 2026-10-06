@@ -31,6 +31,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Kharcha uses the camera to photograph receipts you attach to transactions.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Kharcha opens your photos so you can attach a receipt to a transaction.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

@@ -5851,6 +5851,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this as AppDatabase,
   );
   late final LabelsDao labelsDao = LabelsDao(this as AppDatabase);
+  late final AttachmentsDao attachmentsDao = AttachmentsDao(
+    this as AppDatabase,
+  );
   late final BudgetsDao budgetsDao = BudgetsDao(this as AppDatabase);
   late final SettingsDao settingsDao = SettingsDao(this as AppDatabase);
   @override

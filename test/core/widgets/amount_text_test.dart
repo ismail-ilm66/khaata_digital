@@ -28,7 +28,7 @@ List<TextSpan> _spans(TextSpan span) => span.children!.cast<TextSpan>();
 void main() {
   testWidgets('renders symbol and number as separate spans', (tester) async {
     final rt = await _pump(tester, AmountText(Money.major(2520, Currency.pkr)));
-    expect(rt.toPlainText(), '₨ 2,520');
+    expect(rt.toPlainText(), 'Rs 2,520');
     final spans = _spans(rt);
     expect(spans.first.style!.fontSize, lessThan(spans.last.style!.fontSize!));
   });
@@ -61,7 +61,7 @@ void main() {
       tester,
       const AmountText(Money(-999999, Currency.pkr), masked: true),
     );
-    expect(rt.toPlainText(), '₨ ${AmountText.maskedDigits}');
+    expect(rt.toPlainText(), 'Rs ${AmountText.maskedDigits}');
   });
 
   testWidgets('stays left-to-right inside RTL layouts', (tester) async {

@@ -1,22 +1,29 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/accounts/presentation/account_form_screen.dart';
+import '../../features/accounts/presentation/accounts_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/reports/presentation/reports_screen.dart';
 import '../../features/settings/presentation/more_screen.dart';
+import '../../features/transactions/presentation/entry_detail_screen.dart';
+import '../../features/transactions/presentation/form/entry_editor_screen.dart';
+import '../../features/transactions/presentation/search_screen.dart';
 import '../../features/transactions/presentation/transactions_screen.dart';
 import 'app_shell.dart';
+import 'routes.dart';
 
-abstract final class AppRoutes {
-  static const home = '/home';
-  static const transactions = '/transactions';
-  static const reports = '/reports';
-  static const more = '/more';
-}
-
-/// Builds a fresh router. Branch order must match [AppShell]'s tab mapping.
+/// Builds a fresh router.
+///
+/// The four tabs are branches of a [StatefulShellRoute] (order must match
+/// [AppShell]). Every other page is a top-level route on the root
+/// navigator: it slides in over the whole app — glass nav bar included —
+/// from any tab, without switching tabs underneath.
 GoRouter createRouter() {
+  final root = GlobalKey<NavigatorState>(debugLabel: 'root');
   return GoRouter(
-    initialLocation: AppRoutes.home,
+    navigatorKey: root,
+    initialLocation: Routes.home,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(shell: shell),
@@ -24,7 +31,7 @@ GoRouter createRouter() {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.home,
+                path: Routes.home,
                 builder: (context, state) => const HomeScreen(),
               ),
             ],
@@ -32,7 +39,7 @@ GoRouter createRouter() {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.transactions,
+                path: Routes.transactions,
                 builder: (context, state) => const TransactionsScreen(),
               ),
             ],
@@ -40,7 +47,7 @@ GoRouter createRouter() {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.reports,
+                path: Routes.reports,
                 builder: (context, state) => const ReportsScreen(),
               ),
             ],
@@ -48,10 +55,46 @@ GoRouter createRouter() {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.more,
+                path: Routes.more,
                 builder: (context, state) => const MoreScreen(),
               ),
             ],
+          ),
+        ],
+      ),
+      // Add / edit slides up as a full-screen task.
+      GoRoute(
+        path: Routes.addEntry,
+        pageBuilder: (context, state) => const MaterialPage(
+          fullscreenDialog: true,
+          child: EntryEditorScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.editEntryPattern,
+        pageBuilder: (context, state) => MaterialPage(
+          fullscreenDialog: true,
+          child: EntryEditorScreen(editId: state.pathParameters['id']),
+        ),
+      ),
+      GoRoute(
+        path: Routes.search,
+        builder: (context, state) => const SearchScreen(),
+      ),
+      GoRoute(
+        path: Routes.entryPattern,
+        builder: (context, state) =>
+            EntryDetailScreen(id: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: Routes.accounts,
+        builder: (context, state) => const AccountsScreen(),
+        routes: [
+          GoRoute(
+            path: 'form',
+            builder: (context, state) => AccountFormScreen(
+              args: state.extra as AccountFormArgs? ?? const AccountFormArgs(),
+            ),
           ),
         ],
       ),
