@@ -1369,6 +1369,648 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Export everything'**
   String get exportEverything;
+
+  /// No description provided for @backupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & restore'**
+  String get backupTitle;
+
+  /// No description provided for @backupTileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your records safe on your phone and in your Drive'**
+  String get backupTileHint;
+
+  /// No description provided for @lastBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup'**
+  String get lastBackup;
+
+  /// No description provided for @lastBackupAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {place}'**
+  String lastBackupAt(String date, String place);
+
+  /// No description provided for @noBackupYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No backup yet'**
+  String get noBackupYet;
+
+  /// No description provided for @noBackupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now so a lost or reset phone never costs you your records.'**
+  String get noBackupBody;
+
+  /// No description provided for @placeFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get placeFile;
+
+  /// No description provided for @placeDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive'**
+  String get placeDrive;
+
+  /// No description provided for @placeDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone'**
+  String get placeDevice;
+
+  /// No description provided for @backupNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up now'**
+  String get backupNow;
+
+  /// No description provided for @backupToFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Save backup to a file'**
+  String get backupToFile;
+
+  /// No description provided for @backupToFileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it anywhere: Downloads, a USB drive, email'**
+  String get backupToFileHint;
+
+  /// No description provided for @backupToDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up to Google Drive'**
+  String get backupToDrive;
+
+  /// No description provided for @backupToDriveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Into a “Kharcha Backups” folder in your own Drive'**
+  String get backupToDriveHint;
+
+  /// No description provided for @encryptBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Protect with a passphrase'**
+  String get encryptBackup;
+
+  /// No description provided for @encryptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'AES-256. A forgotten passphrase can\'t be recovered.'**
+  String get encryptHint;
+
+  /// No description provided for @passphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get passphrase;
+
+  /// No description provided for @passphraseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'At least 6 characters'**
+  String get passphraseHint;
+
+  /// No description provided for @backupSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved'**
+  String get backupSaved;
+
+  /// No description provided for @backupUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Backed up to Google Drive'**
+  String get backupUploaded;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The backup didn\'t finish. Your data is unchanged; try again.'**
+  String get backupFailed;
+
+  /// No description provided for @autoBackupSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic'**
+  String get autoBackupSection;
+
+  /// No description provided for @autoBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly backup'**
+  String get autoBackup;
+
+  /// No description provided for @autoBackupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'To Google Drive when connected, plus a copy on this phone'**
+  String get autoBackupHint;
+
+  /// No description provided for @wifiOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Wi-Fi only'**
+  String get wifiOnly;
+
+  /// No description provided for @wifiOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t use mobile data for Drive backups'**
+  String get wifiOnlyHint;
+
+  /// No description provided for @driveConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect Google Drive'**
+  String get driveConnect;
+
+  /// No description provided for @driveConnectHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Kharcha can only see the backups it creates'**
+  String get driveConnectHint;
+
+  /// No description provided for @driveDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect'**
+  String get driveDisconnect;
+
+  /// No description provided for @driveUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Google Drive isn\'t set up in this build. File backups work everywhere.'**
+  String get driveUnavailable;
+
+  /// No description provided for @driveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t reach Google Drive. Check your connection and try again.'**
+  String get driveFailed;
+
+  /// No description provided for @restoreSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restoreSection;
+
+  /// No description provided for @restoreFromFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from a file'**
+  String get restoreFromFile;
+
+  /// No description provided for @restoreFromDrive.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from Google Drive'**
+  String get restoreFromDrive;
+
+  /// No description provided for @restoreFromDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Copies on this phone'**
+  String get restoreFromDevice;
+
+  /// No description provided for @restoreFromDeviceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Made automatically each week and before imports and restores'**
+  String get restoreFromDeviceHint;
+
+  /// No description provided for @noBackupsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No backups found'**
+  String get noBackupsFound;
+
+  /// No description provided for @restoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restoreTitle;
+
+  /// No description provided for @restoreMade.
+  ///
+  /// In en, this message translates to:
+  /// **'Made'**
+  String get restoreMade;
+
+  /// No description provided for @restoreEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries'**
+  String get restoreEntries;
+
+  /// No description provided for @restoreDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Dates'**
+  String get restoreDates;
+
+  /// No description provided for @restoreApp.
+  ///
+  /// In en, this message translates to:
+  /// **'App version'**
+  String get restoreApp;
+
+  /// No description provided for @encryptedBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase protected'**
+  String get encryptedBackup;
+
+  /// No description provided for @restoreMode.
+  ///
+  /// In en, this message translates to:
+  /// **'How to restore'**
+  String get restoreMode;
+
+  /// No description provided for @modeReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get modeReplace;
+
+  /// No description provided for @modeReplaceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone\'s data is replaced by the backup.'**
+  String get modeReplaceHint;
+
+  /// No description provided for @modeMerge.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge'**
+  String get modeMerge;
+
+  /// No description provided for @modeMergeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep this phone\'s data and add what\'s missing from the backup. Where both have the same entry, the newer edit wins.'**
+  String get modeMergeHint;
+
+  /// No description provided for @restoreReplaceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace my data'**
+  String get restoreReplaceButton;
+
+  /// No description provided for @restoreMergeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Merge into my data'**
+  String get restoreMergeButton;
+
+  /// No description provided for @safetyCopyNote.
+  ///
+  /// In en, this message translates to:
+  /// **'A copy of your current data is kept on this phone first.'**
+  String get safetyCopyNote;
+
+  /// No description provided for @restoring.
+  ///
+  /// In en, this message translates to:
+  /// **'Restoring…'**
+  String get restoring;
+
+  /// No description provided for @restoreDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore complete'**
+  String get restoreDone;
+
+  /// No description provided for @restoreVerified.
+  ///
+  /// In en, this message translates to:
+  /// **'Every file matched its checksum and the database passed its integrity check.'**
+  String get restoreVerified;
+
+  /// No description provided for @restoreSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{accounts} accounts · {entries} entries · {receipts} receipts'**
+  String restoreSummary(int accounts, int entries, int receipts);
+
+  /// No description provided for @failNotBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'This isn\'t a Kharcha backup file.'**
+  String get failNotBackup;
+
+  /// No description provided for @failNewer.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is from a newer Kharcha. Update the app, then try again.'**
+  String get failNewer;
+
+  /// No description provided for @failPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'That passphrase doesn\'t open this backup.'**
+  String get failPassphrase;
+
+  /// No description provided for @failDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup is damaged: a checksum doesn\'t match. Your data is unchanged.'**
+  String get failDamaged;
+
+  /// No description provided for @failIntegrity.
+  ///
+  /// In en, this message translates to:
+  /// **'The database in this backup is damaged. Your data is unchanged.'**
+  String get failIntegrity;
+
+  /// No description provided for @failConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t merge this backup. Your data is unchanged; try Replace instead.'**
+  String get failConflict;
+
+  /// No description provided for @importTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importTitle;
+
+  /// No description provided for @importTile.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Hysab Kytab'**
+  String get importTile;
+
+  /// No description provided for @importTileHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Also Kharcha exports and other CSV files'**
+  String get importTileHint;
+
+  /// No description provided for @importIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'In Hysab Kytab, open More → Export → Export All, then choose that file here. Kharcha exports and CSV files from other apps work too.'**
+  String get importIntro;
+
+  /// No description provided for @chooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose file'**
+  String get chooseFile;
+
+  /// No description provided for @reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading…'**
+  String get reading;
+
+  /// No description provided for @importUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read this file. Choose an Excel (.xls, .xlsx) or CSV file.'**
+  String get importUnreadable;
+
+  /// No description provided for @importEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries found in this file.'**
+  String get importEmpty;
+
+  /// No description provided for @mapColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Match the columns'**
+  String get mapColumns;
+
+  /// No description provided for @mapColumnsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell Kharcha which column holds what. Negative amounts are expenses unless there\'s a type column.'**
+  String get mapColumnsHint;
+
+  /// No description provided for @colAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get colAmount;
+
+  /// No description provided for @colType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get colType;
+
+  /// No description provided for @notInFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in file'**
+  String get notInFile;
+
+  /// No description provided for @dateOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Date order'**
+  String get dateOrder;
+
+  /// No description provided for @defaultAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account for rows without one'**
+  String get defaultAccount;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @importReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to import'**
+  String get importReady;
+
+  /// No description provided for @importNew.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No new entries} =1{1 new entry} other{{count} new entries}}'**
+  String importNew(int count);
+
+  /// No description provided for @importAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 already imported} other{{count} already imported}}'**
+  String importAlready(int count);
+
+  /// No description provided for @importWarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row needs a look} other{{count} rows need a look}}'**
+  String importWarnings(int count);
+
+  /// No description provided for @warnUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: couldn\'t read the date or amount, so it\'s skipped'**
+  String warnUnreadable(int row);
+
+  /// No description provided for @warnUnpaired.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: a transfer with no matching row, kept as an adjustment on {account}'**
+  String warnUnpaired(int row, String account);
+
+  /// No description provided for @namesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts and people'**
+  String get namesTitle;
+
+  /// No description provided for @namesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hysab Kytab keeps people as accounts. Mark who\'s a person and their transfers become udhaar.'**
+  String get namesHint;
+
+  /// No description provided for @roleAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get roleAccount;
+
+  /// No description provided for @rolePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get rolePerson;
+
+  /// No description provided for @nameExisting.
+  ///
+  /// In en, this message translates to:
+  /// **'Already in Kharcha'**
+  String get nameExisting;
+
+  /// No description provided for @nameEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Opening balance only} =1{1 entry} other{{count} entries}}'**
+  String nameEntries(int count);
+
+  /// No description provided for @importButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import'**
+  String get importButton;
+
+  /// No description provided for @importing.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing…'**
+  String get importing;
+
+  /// No description provided for @importDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Import complete'**
+  String get importDone;
+
+  /// No description provided for @reportImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported'**
+  String get reportImported;
+
+  /// No description provided for @reportDuplicates.
+  ///
+  /// In en, this message translates to:
+  /// **'Already there'**
+  String get reportDuplicates;
+
+  /// No description provided for @reportSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Not imported'**
+  String get reportSkipped;
+
+  /// No description provided for @reportAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'New accounts'**
+  String get reportAccounts;
+
+  /// No description provided for @reportPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'New people'**
+  String get reportPeople;
+
+  /// No description provided for @reportCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'New categories'**
+  String get reportCategories;
+
+  /// No description provided for @skipBetweenPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: a transfer between two people isn\'t imported'**
+  String skipBetweenPeople(int row);
+
+  /// No description provided for @skipPersonAdjustment.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: an unpaired transfer on a person isn\'t imported'**
+  String skipPersonAdjustment(int row);
+
+  /// No description provided for @importNothingNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in this file is already in Kharcha.'**
+  String get importNothingNew;
+
+  /// No description provided for @importFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The import didn\'t finish. Nothing was changed; try again.'**
+  String get importFailed;
+
+  /// No description provided for @backupNudgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your data'**
+  String get backupNudgeTitle;
+
+  /// No description provided for @backupNudgeNever.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t made a backup yet.'**
+  String get backupNudgeNever;
+
+  /// No description provided for @backupNudgeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Last backup {days} days ago.'**
+  String backupNudgeDays(int days);
+
+  /// No description provided for @integrityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data needs attention'**
+  String get integrityTitle;
+
+  /// No description provided for @integrityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'A safety check found damage. Restore from a backup to be safe.'**
+  String get integrityBody;
 }
 
 class _AppLocalizationsDelegate

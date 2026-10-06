@@ -21,6 +21,9 @@ abstract final class Routes {
   static const recurring = '/recurring';
   static const addEntry = '/add';
   static const editEntryPattern = '/edit/:id';
+  static const backup = '/backup';
+  static const restore = '/restore';
+  static const importData = '/import';
 
   static String entry(String id) => '/entry/$id';
   static String editEntry(String id) => '/edit/$id';

@@ -91,7 +91,9 @@ void main() {
 
     test('CSV bytes', () {
       final bytes = SpreadsheetCodec.encodeCsv(HkSheet.write(records));
-      final back = HkSheet.read(SpreadsheetCodec.activities(bytes, csv: true));
+      final back = HkSheet.read(
+        SpreadsheetCodec.activities(SpreadsheetCodec.decode(bytes)),
+      );
       expect(back.records, records);
     });
 
@@ -107,7 +109,9 @@ void main() {
       ]);
       final sheets = SpreadsheetCodec.decodeXlsx(bytes);
       expect(sheets.map((s) => s.name), ['ACTIVITIES', 'ACCOUNT']);
-      final back = HkSheet.read(SpreadsheetCodec.activities(bytes, csv: false));
+      final back = HkSheet.read(
+        SpreadsheetCodec.activities(SpreadsheetCodec.decode(bytes)),
+      );
       expect(back.records, records);
     });
   });

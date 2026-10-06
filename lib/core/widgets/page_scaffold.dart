@@ -19,6 +19,7 @@ class PageScaffold extends StatelessWidget {
     required this.slivers,
     this.subtitle,
     this.trailing,
+    this.bottom,
   });
 
   final String title;
@@ -28,32 +29,53 @@ class PageScaffold extends StatelessWidget {
   final Widget? trailing;
   final List<Widget> slivers;
 
+  /// Pinned under the content (a page's main action, e.g. "Import").
+  final Widget? bottom;
+
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    final scroll = CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: PageHeader(
+            title: title,
+            subtitle: subtitle,
+            trailing: trailing,
+          ),
+        ),
+        ...slivers,
+        SliverPadding(
+          padding: EdgeInsets.only(
+            bottom: bottom == null
+                ? GlassNavBar.clearance(context)
+                : AppSpacing.l,
+          ),
+        ),
+      ],
+    );
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
         body: AmbientBackground(
           child: SafeArea(
-            bottom: false,
-            child: CustomScrollView(
-              slivers: [
-                SliverToBoxAdapter(
-                  child: PageHeader(
-                    title: title,
-                    subtitle: subtitle,
-                    trailing: trailing,
+            bottom: bottom != null,
+            child: bottom == null
+                ? scroll
+                : Column(
+                    children: [
+                      Expanded(child: scroll),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.page,
+                          AppSpacing.s,
+                          AppSpacing.page,
+                          AppSpacing.l,
+                        ),
+                        child: bottom,
+                      ),
+                    ],
                   ),
-                ),
-                ...slivers,
-                SliverPadding(
-                  padding: EdgeInsets.only(
-                    bottom: GlassNavBar.clearance(context),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

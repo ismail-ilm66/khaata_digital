@@ -13,6 +13,7 @@ import '../../features/transactions/data/attachments_dao.dart';
 import '../../features/transactions/data/labels_dao.dart';
 import '../../features/transactions/data/transactions_dao.dart';
 import '../../features/transactions/domain/transaction_type.dart';
+import 'app_database.steps.dart';
 import 'columns.dart';
 import 'seed.dart';
 import 'tables.dart';
@@ -39,6 +40,7 @@ part 'app_database.g.dart';
     RecurringRules,
     Settings,
     BackupMeta,
+    ImportHashes,
   ],
   daos: [
     AccountsDao,
@@ -65,7 +67,7 @@ class AppDatabase extends _$AppDatabase {
   );
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -73,11 +75,12 @@ class AppDatabase extends _$AppDatabase {
       await m.createAll();
       await seedDatabase(this);
     },
-    onUpgrade: (m, from, to) async {
-      // No upgrades exist yet. Each future version adds a step here via
-      // the generated `stepByStep` helper.
-      throw UnsupportedError('No migration path from v$from to v$to');
-    },
+    onUpgrade: stepByStep(
+      // v2: import idempotency (spec 3.3).
+      from1To2: (m, schema) async {
+        await m.createTable(schema.importHashes);
+      },
+    ),
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
       await customStatement('PRAGMA journal_mode = WAL');

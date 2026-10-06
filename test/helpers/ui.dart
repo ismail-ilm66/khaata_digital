@@ -20,3 +20,21 @@ Future<void> revealAndTap(WidgetTester t, Finder f) async {
   await t.tap(f);
   await t.pumpAndSettle();
 }
+
+/// Waits for real async work (isolates, file I/O) that fake time can't
+/// advance, pumping frames until [f] appears.
+Future<void> waitFor(
+  WidgetTester t,
+  Finder f, {
+  Duration timeout = const Duration(seconds: 30),
+}) async {
+  final end = DateTime.now().add(timeout);
+  while (f.evaluate().isEmpty) {
+    if (DateTime.now().isAfter(end)) fail('Timed out waiting for $f');
+    await t.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 30)),
+    );
+    await t.pump();
+  }
+  await t.pump(const Duration(milliseconds: 400));
+}

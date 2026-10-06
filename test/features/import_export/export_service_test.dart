@@ -108,8 +108,7 @@ void main() {
       () async {
         final file = await exporter.export(const EntryQuery(), format);
         final rows = SpreadsheetCodec.activities(
-          file.bytes,
-          csv: format == ExportFormat.csv,
+          SpreadsheetCodec.decode(file.bytes),
         );
         final back = HkSheet.read(rows);
         expect(back.warnings, isEmpty);
@@ -127,7 +126,7 @@ void main() {
       label: 'Income · Sep',
     );
     final back = HkSheet.read(
-      SpreadsheetCodec.activities(file.bytes, csv: true),
+      SpreadsheetCodec.activities(SpreadsheetCodec.decode(file.bytes)),
     );
     expect(back.records, await expected(q.copyWith(limit: 1000)));
     expect(back.records.every((x) => x.type == TransactionType.income), isTrue);

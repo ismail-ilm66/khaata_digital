@@ -7,7 +7,14 @@ enum SettingKey {
   hideBalance('false'),
   lockEnabled('false'),
   urduDigits('false'),
-  lastAccountId('');
+  lastAccountId(''),
+
+  /// Weekly automatic backup (spec 3.4).
+  autoBackup('false'),
+  autoBackupWifiOnly('true'),
+
+  /// The Google account backups go to; empty when Drive isn't connected.
+  driveAccount('');
 
   const SettingKey(this.defaultValue);
 
@@ -23,5 +30,8 @@ enum SettingKey {
     lockEnabled => 'lock_enabled',
     urduDigits => 'urdu_digits',
     lastAccountId => 'last_account_id',
+    autoBackup => 'auto_backup',
+    autoBackupWifiOnly => 'auto_backup_wifi_only',
+    driveAccount => 'drive_account',
   };
 }

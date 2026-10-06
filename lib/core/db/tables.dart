@@ -191,3 +191,23 @@ class BackupMeta extends Table {
   /// JSON object of table name → row count.
   TextColumn get rowCounts => text()();
 }
+
+/// Schema v2. One row per imported source record (spec 3.3: imports are
+/// idempotent). [hash] is the SHA-256 of the record's source cells plus
+/// its occurrence number in the file, so re-importing the same file finds
+/// every record already here.
+@DataClassName('ImportHashRow')
+class ImportHashes extends Table {
+  TextColumn get hash => text().withLength(min: 64, max: 64)();
+
+  /// The entry created; null once that entry is purged.
+  TextColumn get transactionId => text().nullable().references(
+    Transactions,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+  IntColumn get importedAt => integer().map(const UtcMillisConverter())();
+
+  @override
+  Set<Column<Object>> get primaryKey => {hash};
+}

@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 /// Semantic colours that Material's [ColorScheme] has no slot for.
 ///
 /// Colour carries meaning only: income is [income], expenses stay neutral
-/// ink, and [warning]/[danger] are reserved for budget thresholds.
+/// ink, and [warning]/[danger] are reserved for status: budget thresholds and
+/// things that need the user's attention (e.g. no backup yet).
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
   const AppColors({

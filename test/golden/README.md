@@ -13,7 +13,8 @@ gate: a migration that breaks any fixture cannot ship.
 2. `dart run drift_dev make-migrations` — snapshots the new schema into
    `drift_schemas/` and generates step-by-step helpers and migration tests.
 3. Write the migration step in `AppDatabase.migration.onUpgrade`.
-4. Add `generate_golden_vN_test.dart` (copy the previous generator, use the
-   new columns), run it once with `KHARCHA_GENERATE_GOLDEN=1`, hand-compute
-   `expected.json`, and commit both.
+4. In `generate_golden_test.dart`, add rows that use the new columns or
+   tables (shared rows live in `golden_rows.dart`). Run it once with
+   `KHARCHA_GENERATE_GOLDEN=1` to write `vN/kharcha.db`, hand-compute
+   `vN/expected.json`, and commit both.
 5. Never edit or regenerate an older fixture.

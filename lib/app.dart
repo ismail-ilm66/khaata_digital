@@ -29,7 +29,12 @@ class _KharchaAppState extends State<KharchaApp> {
   @override
   void initState() {
     super.initState();
-    _lifecycle = AppLifecycleListener(onResume: catchUpRecurring);
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        catchUpRecurring();
+        runAutoBackup();
+      },
+    );
   }
 
   @override

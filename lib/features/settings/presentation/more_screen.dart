@@ -72,6 +72,20 @@ class MoreScreen extends StatelessWidget {
                 child: SurfaceCard(
                   children: [
                     SettingTile(
+                      key: const Key('backupTile'),
+                      icon: AppIcons.backup.filled,
+                      title: l10n.backupTitle,
+                      subtitle: l10n.backupTileHint,
+                      onTap: () => context.push(Routes.backup),
+                    ),
+                    SettingTile(
+                      key: const Key('importTile'),
+                      icon: AppIcons.importFile,
+                      title: l10n.importTile,
+                      subtitle: l10n.importTileHint,
+                      onTap: () => context.push(Routes.importData),
+                    ),
+                    SettingTile(
                       key: const Key('exportTile'),
                       icon: AppIcons.download,
                       title: l10n.exportEverything,

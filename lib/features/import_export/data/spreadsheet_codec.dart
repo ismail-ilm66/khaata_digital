@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
 
+import 'xls_reader.dart';
+
 /// A named table of text cells (first row = header).
 typedef Sheet = ({String name, List<List<String>> rows});
 
@@ -59,16 +61,30 @@ abstract final class SpreadsheetCodec {
     ];
   }
 
-  /// The activities table from any supported spreadsheet: the ACTIVITIES
-  /// worksheet of an `.xlsx` (or its first sheet), or a whole CSV.
-  static List<List<String>> activities(List<int> bytes, {required bool csv}) {
-    if (csv) return decodeCsv(bytes);
-    final sheets = decodeXlsx(bytes);
-    return sheets
-        .firstWhere(
-          (s) => s.name.toUpperCase() == activitiesSheet,
-          orElse: () => sheets.first,
-        )
-        .rows;
+  /// Every sheet in any supported file, detected from its bytes: legacy
+  /// `.xls` (Hysab Kytab's own export), `.xlsx`, or CSV (one sheet named
+  /// [activitiesSheet]). Throws [FormatException] when unreadable.
+  static List<Sheet> decode(List<int> bytes) {
+    if (XlsReader.looksLikeXls(bytes)) return XlsReader.read(bytes);
+    if (bytes.length > 2 && bytes[0] == 0x50 && bytes[1] == 0x4B) {
+      try {
+        return decodeXlsx(bytes);
+      } catch (e) {
+        throw FormatException('Unreadable Excel file: $e');
+      }
+    }
+    return [(name: activitiesSheet, rows: decodeCsv(bytes))];
   }
+
+  /// The sheet called [name] (any case), or null.
+  static Sheet? named(List<Sheet> sheets, String name) {
+    for (final s in sheets) {
+      if (s.name.toUpperCase() == name.toUpperCase()) return s;
+    }
+    return null;
+  }
+
+  /// The ACTIVITIES table, or the first sheet when none is named so.
+  static List<List<String>> activities(List<Sheet> sheets) =>
+      (named(sheets, activitiesSheet) ?? sheets.first).rows;
 }

@@ -311,5 +311,201 @@
     }
   },
   "settingsData": "Data",
-  "exportEverything": "Export everything"
+  "exportEverything": "Export everything",
+  "backupTitle": "Backup & restore",
+  "backupTileHint": "Keep your records safe on your phone and in your Drive",
+  "lastBackup": "Last backup",
+  "lastBackupAt": "{date} · {place}",
+  "@lastBackupAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "noBackupYet": "No backup yet",
+  "noBackupBody": "Back up now so a lost or reset phone never costs you your records.",
+  "placeFile": "File",
+  "placeDrive": "Google Drive",
+  "placeDevice": "This phone",
+  "backupNow": "Back up now",
+  "backupToFile": "Save backup to a file",
+  "backupToFileHint": "Keep it anywhere: Downloads, a USB drive, email",
+  "backupToDrive": "Back up to Google Drive",
+  "backupToDriveHint": "Into a “Kharcha Backups” folder in your own Drive",
+  "encryptBackup": "Protect with a passphrase",
+  "encryptHint": "AES-256. A forgotten passphrase can't be recovered.",
+  "passphrase": "Passphrase",
+  "passphraseHint": "At least 6 characters",
+  "backupSaved": "Backup saved",
+  "backupUploaded": "Backed up to Google Drive",
+  "backupFailed": "The backup didn't finish. Your data is unchanged; try again.",
+  "autoBackupSection": "Automatic",
+  "autoBackup": "Weekly backup",
+  "autoBackupHint": "To Google Drive when connected, plus a copy on this phone",
+  "wifiOnly": "Wi-Fi only",
+  "wifiOnlyHint": "Don't use mobile data for Drive backups",
+  "driveConnect": "Connect Google Drive",
+  "driveConnectHint": "Kharcha can only see the backups it creates",
+  "driveDisconnect": "Disconnect",
+  "driveUnavailable": "Google Drive isn't set up in this build. File backups work everywhere.",
+  "driveFailed": "Couldn't reach Google Drive. Check your connection and try again.",
+  "restoreSection": "Restore",
+  "restoreFromFile": "Restore from a file",
+  "restoreFromDrive": "Restore from Google Drive",
+  "restoreFromDevice": "Copies on this phone",
+  "restoreFromDeviceHint": "Made automatically each week and before imports and restores",
+  "noBackupsFound": "No backups found",
+  "restoreTitle": "Restore",
+  "restoreMade": "Made",
+  "restoreEntries": "Entries",
+  "restoreDates": "Dates",
+  "restoreApp": "App version",
+  "encryptedBackup": "Passphrase protected",
+  "restoreMode": "How to restore",
+  "modeReplace": "Replace",
+  "modeReplaceHint": "This phone's data is replaced by the backup.",
+  "modeMerge": "Merge",
+  "modeMergeHint": "Keep this phone's data and add what's missing from the backup. Where both have the same entry, the newer edit wins.",
+  "restoreReplaceButton": "Replace my data",
+  "restoreMergeButton": "Merge into my data",
+  "safetyCopyNote": "A copy of your current data is kept on this phone first.",
+  "restoring": "Restoring…",
+  "restoreDone": "Restore complete",
+  "restoreVerified": "Every file matched its checksum and the database passed its integrity check.",
+  "restoreSummary": "{accounts} accounts · {entries} entries · {receipts} receipts",
+  "@restoreSummary": {
+    "placeholders": {
+      "accounts": {
+        "type": "int"
+      },
+      "entries": {
+        "type": "int"
+      },
+      "receipts": {
+        "type": "int"
+      }
+    }
+  },
+  "failNotBackup": "This isn't a Kharcha backup file.",
+  "failNewer": "This backup is from a newer Kharcha. Update the app, then try again.",
+  "failPassphrase": "That passphrase doesn't open this backup.",
+  "failDamaged": "This backup is damaged: a checksum doesn't match. Your data is unchanged.",
+  "failIntegrity": "The database in this backup is damaged. Your data is unchanged.",
+  "failConflict": "Couldn't merge this backup. Your data is unchanged; try Replace instead.",
+  "importTitle": "Import",
+  "importTile": "Import from Hysab Kytab",
+  "importTileHint": "Also Kharcha exports and other CSV files",
+  "importIntro": "In Hysab Kytab, open More → Export → Export All, then choose that file here. Kharcha exports and CSV files from other apps work too.",
+  "chooseFile": "Choose file",
+  "reading": "Reading…",
+  "importUnreadable": "Couldn't read this file. Choose an Excel (.xls, .xlsx) or CSV file.",
+  "importEmpty": "No entries found in this file.",
+  "mapColumns": "Match the columns",
+  "mapColumnsHint": "Tell Kharcha which column holds what. Negative amounts are expenses unless there's a type column.",
+  "colAmount": "Amount",
+  "colType": "Type",
+  "notInFile": "Not in file",
+  "dateOrder": "Date order",
+  "defaultAccount": "Account for rows without one",
+  "continueLabel": "Continue",
+  "importReady": "Ready to import",
+  "importNew": "{count, plural, =0{No new entries} =1{1 new entry} other{{count} new entries}}",
+  "@importNew": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importAlready": "{count, plural, =1{1 already imported} other{{count} already imported}}",
+  "@importAlready": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importWarnings": "{count, plural, =1{1 row needs a look} other{{count} rows need a look}}",
+  "@importWarnings": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "warnUnreadable": "Row {row}: couldn't read the date or amount, so it's skipped",
+  "@warnUnreadable": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      }
+    }
+  },
+  "warnUnpaired": "Row {row}: a transfer with no matching row, kept as an adjustment on {account}",
+  "@warnUnpaired": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "namesTitle": "Accounts and people",
+  "namesHint": "Hysab Kytab keeps people as accounts. Mark who's a person and their transfers become udhaar.",
+  "roleAccount": "Account",
+  "rolePerson": "Person",
+  "nameExisting": "Already in Kharcha",
+  "nameEntries": "{count, plural, =0{Opening balance only} =1{1 entry} other{{count} entries}}",
+  "@nameEntries": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importButton": "Import",
+  "importing": "Importing…",
+  "importDone": "Import complete",
+  "reportImported": "Imported",
+  "reportDuplicates": "Already there",
+  "reportSkipped": "Not imported",
+  "reportAccounts": "New accounts",
+  "reportPeople": "New people",
+  "reportCategories": "New categories",
+  "skipBetweenPeople": "Row {row}: a transfer between two people isn't imported",
+  "@skipBetweenPeople": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      }
+    }
+  },
+  "skipPersonAdjustment": "Row {row}: an unpaired transfer on a person isn't imported",
+  "@skipPersonAdjustment": {
+    "placeholders": {
+      "row": {
+        "type": "int"
+      }
+    }
+  },
+  "importNothingNew": "Everything in this file is already in Kharcha.",
+  "importFailed": "The import didn't finish. Nothing was changed; try again.",
+  "backupNudgeTitle": "Back up your data",
+  "backupNudgeNever": "You haven't made a backup yet.",
+  "backupNudgeDays": "Last backup {days} days ago.",
+  "@backupNudgeDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "integrityTitle": "Your data needs attention",
+  "integrityBody": "A safety check found damage. Restore from a backup to be safe."
 }

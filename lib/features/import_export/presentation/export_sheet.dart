@@ -1,13 +1,11 @@
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/di/injection.dart';
+import '../../../core/files/file_gateway.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/app_icons.dart';
@@ -80,12 +78,12 @@ class _ExportSheetState extends State<_ExportSheet> {
   Future<void> _save(ExportFile file) async {
     final messenger = ScaffoldMessenger.of(context);
     final l = context.l10n;
-    final saved = await FilePicker.saveFile(
-      fileName: file.name,
-      bytes: Uint8List.fromList(file.bytes),
-      mimeType: file.mime,
+    final saved = await getIt<FileGateway>().save(
+      name: file.name,
+      bytes: file.bytes,
+      mime: file.mime,
     );
-    if (saved == null) return; // cancelled
+    if (!saved) return; // cancelled
     if (mounted) Navigator.pop(context);
     messenger.toast(l.savedFile(file.name));
   }

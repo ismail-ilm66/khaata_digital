@@ -102,6 +102,21 @@ abstract final class AppIcons {
   static const IconData arrowUpRight = PhosphorIconsBold.arrowUpRight;
   static const IconData arrowDownLeft = PhosphorIconsBold.arrowDownLeft;
 
+  // Backup, restore and import.
+  static const backup = AppIcon(
+    PhosphorIconsRegular.cloudArrowUp,
+    PhosphorIconsFill.cloudArrowUp,
+  );
+  static const IconData drive = PhosphorIconsRegular.googleDriveLogo;
+  static const IconData file = PhosphorIconsRegular.fileArrowDown;
+  static const IconData importFile = PhosphorIconsRegular.fileArrowUp;
+  static const IconData device = PhosphorIconsRegular.deviceMobile;
+  static const IconData lock = PhosphorIconsRegular.lockSimple;
+  static const IconData shield = PhosphorIconsRegular.shieldCheck;
+  static const IconData warning = PhosphorIconsRegular.warningCircle;
+  static const IconData history = PhosphorIconsRegular.clockCounterClockwise;
+  static const IconData wifi = PhosphorIconsRegular.wifiHigh;
+
   /// Account types → icon, for accounts without a preset monogram.
   static const Map<String, AppIcon> accountTypes = {
     'cash': AppIcon(PhosphorIconsRegular.money, PhosphorIconsFill.money),

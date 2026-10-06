@@ -202,6 +202,8 @@ Future<String?> editTextSheet(
   String? hint,
   IconData? icon,
   int maxLines = 1,
+  bool secret = false,
+  int minLength = 0,
 }) {
   return showAppSheet<String>(
     context,
@@ -211,7 +213,9 @@ Future<String?> editTextSheet(
       doneLabel: doneLabel,
       hint: hint,
       icon: icon,
-      maxLines: maxLines,
+      maxLines: secret ? 1 : maxLines,
+      secret: secret,
+      minLength: minLength,
     ),
   );
 }
@@ -221,6 +225,8 @@ class _TextSheet extends StatefulWidget {
     required this.initial,
     required this.doneLabel,
     required this.maxLines,
+    required this.secret,
+    required this.minLength,
     this.hint,
     this.icon,
   });
@@ -230,6 +236,12 @@ class _TextSheet extends StatefulWidget {
   final String? hint;
   final IconData? icon;
   final int maxLines;
+
+  /// Passphrases: hidden, never trimmed or auto-corrected.
+  final bool secret;
+
+  /// Done stays disabled until the text is at least this long.
+  final int minLength;
 
   @override
   State<_TextSheet> createState() => _TextSheetState();
@@ -244,7 +256,14 @@ class _TextSheetState extends State<_TextSheet> {
     super.dispose();
   }
 
-  void _done() => Navigator.pop(context, _controller.text.trim());
+  String get _value =>
+      widget.secret ? _controller.text : _controller.text.trim();
+
+  bool get _valid => _value.length >= widget.minLength;
+
+  void _done() {
+    if (_valid) Navigator.pop(context, _value);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +284,12 @@ class _TextSheetState extends State<_TextSheet> {
             autofocus: true,
             minLines: 1,
             maxLines: widget.maxLines,
-            textCapitalization: TextCapitalization.sentences,
+            obscureText: widget.secret,
+            autocorrect: !widget.secret,
+            enableSuggestions: !widget.secret,
+            textCapitalization: widget.secret
+                ? TextCapitalization.none
+                : TextCapitalization.sentences,
             textInputAction: widget.maxLines == 1
                 ? TextInputAction.done
                 : TextInputAction.newline,
@@ -276,10 +300,13 @@ class _TextSheetState extends State<_TextSheet> {
             onSubmitted: (_) => _done(),
           ),
           const SizedBox(height: AppSpacing.l),
-          FilledButton(
-            key: const Key('sheetDone'),
-            onPressed: _done,
-            child: Text(widget.doneLabel),
+          ListenableBuilder(
+            listenable: _controller,
+            builder: (context, _) => FilledButton(
+              key: const Key('sheetDone'),
+              onPressed: _valid ? _done : null,
+              child: Text(widget.doneLabel),
+            ),
           ),
         ],
       ),

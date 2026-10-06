@@ -1,3 +1,6 @@
+import 'package:khaata_digital/features/backup/data/backup_service.dart';
+import 'package:khaata_digital/core/files/file_gateway.dart';
+import 'package:khaata_digital/features/backup/domain/cloud_backup_store.dart';
 import 'package:injectable/injectable.dart';
 import 'package:khaata_digital/bootstrap.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
@@ -6,6 +9,8 @@ import 'package:khaata_digital/features/transactions/data/receipt_store.dart';
 
 import 'package:khaata_digital/features/recurring/domain/recurring_rule.dart';
 
+import 'fake_cloud.dart';
+import 'fake_files.dart';
 import 'fake_reminders.dart';
 import 'test_db.dart';
 import 'test_receipts.dart';
@@ -19,8 +24,14 @@ Future<AppDatabase> setUpTestApp({AppDatabase? reuse}) async {
   getIt
     ..registerSingleton<AppDatabase>(db, dispose: (d) => d.close())
     ..registerSingleton<ReceiptStore>(testReceiptStore())
-    ..registerSingleton<ReminderScheduler>(FakeReminderScheduler());
+    ..registerSingleton<ReminderScheduler>(FakeReminderScheduler())
+    ..registerSingleton<CloudBackupStore>(FakeCloudStore())
+    ..registerSingleton<FileGateway>(FakeFileGateway());
   configureDependencies(environment: Environment.test);
+  // No platform channels in widget tests; fast passphrase derivation.
+  getIt<BackupService>()
+    ..appVersion = (() async => 'test')
+    ..iterations = 1000;
   await bootstrap();
   return db;
 }

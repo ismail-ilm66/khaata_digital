@@ -3,8 +3,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/accounts/presentation/account_form_screen.dart';
 import '../../features/accounts/presentation/accounts_screen.dart';
+import '../../features/backup/presentation/backup_screen.dart';
+import '../../features/backup/presentation/restore_screen.dart';
 import '../../features/budgets/presentation/budgets_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/import_export/presentation/import_screen.dart';
 import '../../features/people/presentation/people_screen.dart';
 import '../../features/people/presentation/person_screen.dart';
 import '../../features/recurring/presentation/recurring_screen.dart';
@@ -15,6 +18,7 @@ import '../../features/transactions/presentation/entry_detail_screen.dart';
 import '../../features/transactions/presentation/form/entry_editor_screen.dart';
 import '../../features/transactions/presentation/search_screen.dart';
 import '../../features/transactions/presentation/transactions_screen.dart';
+import '../files/file_gateway.dart';
 import 'app_shell.dart';
 import 'routes.dart';
 
@@ -105,6 +109,19 @@ GoRouter createRouter() {
       GoRoute(
         path: Routes.recurring,
         builder: (context, state) => const RecurringScreen(),
+      ),
+      GoRoute(
+        path: Routes.backup,
+        builder: (context, state) => const BackupScreen(),
+      ),
+      GoRoute(
+        path: Routes.restore,
+        builder: (context, state) =>
+            RestoreScreen(file: state.extra! as PickedFile),
+      ),
+      GoRoute(
+        path: Routes.importData,
+        builder: (context, state) => const ImportScreen(),
       ),
       GoRoute(
         path: Routes.search,

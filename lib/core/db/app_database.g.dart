@@ -5782,6 +5782,293 @@ class BackupMetaCompanion extends UpdateCompanion<BackupMetaRow> {
   }
 }
 
+class $ImportHashesTable extends ImportHashes
+    with TableInfo<$ImportHashesTable, ImportHashRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ImportHashesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _hashMeta = const VerificationMeta('hash');
+  @override
+  late final GeneratedColumn<String> hash = GeneratedColumn<String>(
+    'hash',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 64,
+      maxTextLength: 64,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _transactionIdMeta = const VerificationMeta(
+    'transactionId',
+  );
+  @override
+  late final GeneratedColumn<String> transactionId = GeneratedColumn<String>(
+    'transaction_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES transactions (id) ON DELETE SET NULL',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> importedAt =
+      GeneratedColumn<int>(
+        'imported_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<DateTime>($ImportHashesTable.$converterimportedAt);
+  @override
+  List<GeneratedColumn> get $columns => [hash, transactionId, importedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'import_hashes';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<ImportHashRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('hash')) {
+      context.handle(
+        _hashMeta,
+        hash.isAcceptableOrUnknown(data['hash']!, _hashMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_hashMeta);
+    }
+    if (data.containsKey('transaction_id')) {
+      context.handle(
+        _transactionIdMeta,
+        transactionId.isAcceptableOrUnknown(
+          data['transaction_id']!,
+          _transactionIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {hash};
+  @override
+  ImportHashRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImportHashRow(
+      hash: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hash'],
+      )!,
+      transactionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transaction_id'],
+      ),
+      importedAt: $ImportHashesTable.$converterimportedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}imported_at'],
+        )!,
+      ),
+    );
+  }
+
+  @override
+  $ImportHashesTable createAlias(String alias) {
+    return $ImportHashesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, int> $converterimportedAt =
+      const UtcMillisConverter();
+}
+
+class ImportHashRow extends DataClass implements Insertable<ImportHashRow> {
+  final String hash;
+
+  /// The entry created; null once that entry is purged.
+  final String? transactionId;
+  final DateTime importedAt;
+  const ImportHashRow({
+    required this.hash,
+    this.transactionId,
+    required this.importedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['hash'] = Variable<String>(hash);
+    if (!nullToAbsent || transactionId != null) {
+      map['transaction_id'] = Variable<String>(transactionId);
+    }
+    {
+      map['imported_at'] = Variable<int>(
+        $ImportHashesTable.$converterimportedAt.toSql(importedAt),
+      );
+    }
+    return map;
+  }
+
+  ImportHashesCompanion toCompanion(bool nullToAbsent) {
+    return ImportHashesCompanion(
+      hash: Value(hash),
+      transactionId: transactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transactionId),
+      importedAt: Value(importedAt),
+    );
+  }
+
+  factory ImportHashRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImportHashRow(
+      hash: serializer.fromJson<String>(json['hash']),
+      transactionId: serializer.fromJson<String?>(json['transactionId']),
+      importedAt: serializer.fromJson<DateTime>(json['importedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'hash': serializer.toJson<String>(hash),
+      'transactionId': serializer.toJson<String?>(transactionId),
+      'importedAt': serializer.toJson<DateTime>(importedAt),
+    };
+  }
+
+  ImportHashRow copyWith({
+    String? hash,
+    Value<String?> transactionId = const Value.absent(),
+    DateTime? importedAt,
+  }) => ImportHashRow(
+    hash: hash ?? this.hash,
+    transactionId: transactionId.present
+        ? transactionId.value
+        : this.transactionId,
+    importedAt: importedAt ?? this.importedAt,
+  );
+  ImportHashRow copyWithCompanion(ImportHashesCompanion data) {
+    return ImportHashRow(
+      hash: data.hash.present ? data.hash.value : this.hash,
+      transactionId: data.transactionId.present
+          ? data.transactionId.value
+          : this.transactionId,
+      importedAt: data.importedAt.present
+          ? data.importedAt.value
+          : this.importedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportHashRow(')
+          ..write('hash: $hash, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('importedAt: $importedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(hash, transactionId, importedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImportHashRow &&
+          other.hash == this.hash &&
+          other.transactionId == this.transactionId &&
+          other.importedAt == this.importedAt);
+}
+
+class ImportHashesCompanion extends UpdateCompanion<ImportHashRow> {
+  final Value<String> hash;
+  final Value<String?> transactionId;
+  final Value<DateTime> importedAt;
+  final Value<int> rowid;
+  const ImportHashesCompanion({
+    this.hash = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.importedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImportHashesCompanion.insert({
+    required String hash,
+    this.transactionId = const Value.absent(),
+    required DateTime importedAt,
+    this.rowid = const Value.absent(),
+  }) : hash = Value(hash),
+       importedAt = Value(importedAt);
+  static Insertable<ImportHashRow> custom({
+    Expression<String>? hash,
+    Expression<String>? transactionId,
+    Expression<int>? importedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (hash != null) 'hash': hash,
+      if (transactionId != null) 'transaction_id': transactionId,
+      if (importedAt != null) 'imported_at': importedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImportHashesCompanion copyWith({
+    Value<String>? hash,
+    Value<String?>? transactionId,
+    Value<DateTime>? importedAt,
+    Value<int>? rowid,
+  }) {
+    return ImportHashesCompanion(
+      hash: hash ?? this.hash,
+      transactionId: transactionId ?? this.transactionId,
+      importedAt: importedAt ?? this.importedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (hash.present) {
+      map['hash'] = Variable<String>(hash.value);
+    }
+    if (transactionId.present) {
+      map['transaction_id'] = Variable<String>(transactionId.value);
+    }
+    if (importedAt.present) {
+      map['imported_at'] = Variable<int>(
+        $ImportHashesTable.$converterimportedAt.toSql(importedAt.value),
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportHashesCompanion(')
+          ..write('hash: $hash, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('importedAt: $importedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -5800,6 +6087,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RecurringRulesTable recurringRules = $RecurringRulesTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
   late final $BackupMetaTable backupMeta = $BackupMetaTable(this);
+  late final $ImportHashesTable importHashes = $ImportHashesTable(this);
   late final Index accountsActiveName = Index(
     'accounts_active_name',
     'CREATE UNIQUE INDEX accounts_active_name ON accounts (name COLLATE NOCASE) WHERE deleted_at IS NULL',
@@ -5874,6 +6162,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recurringRules,
     settings,
     backupMeta,
+    importHashes,
     accountsActiveName,
     categoriesActiveName,
     peopleActiveName,
@@ -5922,6 +6211,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('attachments', kind: UpdateKind.delete)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'transactions',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('import_hashes', kind: UpdateKind.update)],
     ),
   ]);
 }

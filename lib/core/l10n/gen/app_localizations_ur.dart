@@ -693,4 +693,393 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get exportEverything => 'سب کچھ برآمد کریں';
+
+  @override
+  String get backupTitle => 'بیک اپ اور بحالی';
+
+  @override
+  String get backupTileHint => 'اپنا ریکارڈ فون اور ڈرائیو میں محفوظ رکھیں';
+
+  @override
+  String get lastBackup => 'آخری بیک اپ';
+
+  @override
+  String lastBackupAt(String date, String place) {
+    return '$date · $place';
+  }
+
+  @override
+  String get noBackupYet => 'ابھی کوئی بیک اپ نہیں';
+
+  @override
+  String get noBackupBody =>
+      'ابھی بیک اپ بنائیں تاکہ فون گم یا ری سیٹ ہونے پر بھی ریکارڈ محفوظ رہے۔';
+
+  @override
+  String get placeFile => 'فائل';
+
+  @override
+  String get placeDrive => 'گوگل ڈرائیو';
+
+  @override
+  String get placeDevice => 'یہ فون';
+
+  @override
+  String get backupNow => 'ابھی بیک اپ بنائیں';
+
+  @override
+  String get backupToFile => 'بیک اپ فائل میں محفوظ کریں';
+
+  @override
+  String get backupToFileHint => 'کہیں بھی رکھیں: ڈاؤن لوڈز، یو ایس بی، ای میل';
+
+  @override
+  String get backupToDrive => 'گوگل ڈرائیو پر بیک اپ';
+
+  @override
+  String get backupToDriveHint =>
+      'آپ کی اپنی ڈرائیو میں “Kharcha Backups” فولڈر میں';
+
+  @override
+  String get encryptBackup => 'پاس فریز سے محفوظ کریں';
+
+  @override
+  String get encryptHint => 'AES-256۔ بھولا ہوا پاس فریز واپس نہیں مل سکتا۔';
+
+  @override
+  String get passphrase => 'پاس فریز';
+
+  @override
+  String get passphraseHint => 'کم از کم 6 حروف';
+
+  @override
+  String get backupSaved => 'بیک اپ محفوظ ہو گیا';
+
+  @override
+  String get backupUploaded => 'گوگل ڈرائیو پر بیک اپ ہو گیا';
+
+  @override
+  String get backupFailed =>
+      'بیک اپ مکمل نہیں ہوا۔ آپ کا ڈیٹا محفوظ ہے، دوبارہ کوشش کریں۔';
+
+  @override
+  String get autoBackupSection => 'خودکار';
+
+  @override
+  String get autoBackup => 'ہفتہ وار بیک اپ';
+
+  @override
+  String get autoBackupHint =>
+      'ڈرائیو منسلک ہو تو وہاں، اور ایک کاپی اس فون پر';
+
+  @override
+  String get wifiOnly => 'صرف وائی فائی';
+
+  @override
+  String get wifiOnlyHint => 'ڈرائیو بیک اپ کے لیے موبائل ڈیٹا استعمال نہ کریں';
+
+  @override
+  String get driveConnect => 'گوگل ڈرائیو منسلک کریں';
+
+  @override
+  String get driveConnectHint => 'خرچہ صرف اپنے بنائے ہوئے بیک اپ دیکھ سکتا ہے';
+
+  @override
+  String get driveDisconnect => 'منقطع کریں';
+
+  @override
+  String get driveUnavailable =>
+      'اس ورژن میں گوگل ڈرائیو دستیاب نہیں۔ فائل بیک اپ ہر جگہ کام کرتا ہے۔';
+
+  @override
+  String get driveFailed =>
+      'گوگل ڈرائیو تک رسائی نہیں ہوئی۔ انٹرنیٹ چیک کر کے دوبارہ کوشش کریں۔';
+
+  @override
+  String get restoreSection => 'بحالی';
+
+  @override
+  String get restoreFromFile => 'فائل سے بحال کریں';
+
+  @override
+  String get restoreFromDrive => 'گوگل ڈرائیو سے بحال کریں';
+
+  @override
+  String get restoreFromDevice => 'اس فون پر موجود کاپیاں';
+
+  @override
+  String get restoreFromDeviceHint =>
+      'ہر ہفتے اور امپورٹ یا بحالی سے پہلے خود بنتی ہیں';
+
+  @override
+  String get noBackupsFound => 'کوئی بیک اپ نہیں ملا';
+
+  @override
+  String get restoreTitle => 'بحالی';
+
+  @override
+  String get restoreMade => 'بنایا گیا';
+
+  @override
+  String get restoreEntries => 'اندراجات';
+
+  @override
+  String get restoreDates => 'تاریخیں';
+
+  @override
+  String get restoreApp => 'ایپ ورژن';
+
+  @override
+  String get encryptedBackup => 'پاس فریز سے محفوظ';
+
+  @override
+  String get restoreMode => 'کیسے بحال کریں';
+
+  @override
+  String get modeReplace => 'تبدیل کریں';
+
+  @override
+  String get modeReplaceHint => 'اس فون کا ڈیٹا بیک اپ سے بدل دیا جائے گا۔';
+
+  @override
+  String get modeMerge => 'ملائیں';
+
+  @override
+  String get modeMergeHint =>
+      'اس فون کا ڈیٹا رکھیں اور بیک اپ سے جو نہیں ہے وہ شامل کریں۔ ایک جیسے اندراج میں نئی تبدیلی رہے گی۔';
+
+  @override
+  String get restoreReplaceButton => 'میرا ڈیٹا تبدیل کریں';
+
+  @override
+  String get restoreMergeButton => 'میرے ڈیٹا میں ملائیں';
+
+  @override
+  String get safetyCopyNote =>
+      'پہلے آپ کے موجودہ ڈیٹا کی ایک کاپی اس فون پر رکھی جاتی ہے۔';
+
+  @override
+  String get restoring => 'بحال ہو رہا ہے…';
+
+  @override
+  String get restoreDone => 'بحالی مکمل';
+
+  @override
+  String get restoreVerified =>
+      'ہر فائل کا چیک سم درست نکلا اور ڈیٹا بیس کی جانچ کامیاب رہی۔';
+
+  @override
+  String restoreSummary(int accounts, int entries, int receipts) {
+    return '$accounts اکاؤنٹس · $entries اندراجات · $receipts رسیدیں';
+  }
+
+  @override
+  String get failNotBackup => 'یہ خرچہ بیک اپ فائل نہیں ہے۔';
+
+  @override
+  String get failNewer =>
+      'یہ بیک اپ نئے خرچہ ورژن کا ہے۔ ایپ اپ ڈیٹ کر کے دوبارہ کوشش کریں۔';
+
+  @override
+  String get failPassphrase => 'اس پاس فریز سے یہ بیک اپ نہیں کھلا۔';
+
+  @override
+  String get failDamaged =>
+      'یہ بیک اپ خراب ہے: چیک سم میل نہیں کھاتا۔ آپ کا ڈیٹا محفوظ ہے۔';
+
+  @override
+  String get failIntegrity =>
+      'اس بیک اپ کا ڈیٹا بیس خراب ہے۔ آپ کا ڈیٹا محفوظ ہے۔';
+
+  @override
+  String get failConflict =>
+      'یہ بیک اپ ملایا نہیں جا سکا۔ آپ کا ڈیٹا محفوظ ہے؛ تبدیل کریں آزمائیں۔';
+
+  @override
+  String get importTitle => 'امپورٹ';
+
+  @override
+  String get importTile => 'حساب کتاب سے امپورٹ';
+
+  @override
+  String get importTileHint => 'خرچہ ایکسپورٹ اور دوسری CSV فائلیں بھی';
+
+  @override
+  String get importIntro =>
+      'حساب کتاب میں More → Export → Export All کھولیں، پھر وہ فائل یہاں منتخب کریں۔ خرچہ ایکسپورٹ اور دوسری ایپس کی CSV فائلیں بھی چلتی ہیں۔';
+
+  @override
+  String get chooseFile => 'فائل منتخب کریں';
+
+  @override
+  String get reading => 'پڑھا جا رہا ہے…';
+
+  @override
+  String get importUnreadable =>
+      'یہ فائل نہیں پڑھی جا سکی۔ ایکسل (.xls, .xlsx) یا CSV فائل منتخب کریں۔';
+
+  @override
+  String get importEmpty => 'اس فائل میں کوئی اندراج نہیں ملا۔';
+
+  @override
+  String get mapColumns => 'کالم ملائیں';
+
+  @override
+  String get mapColumnsHint =>
+      'بتائیں کون سا کالم کیا ہے۔ ٹائپ کالم نہ ہو تو منفی رقم خرچ سمجھی جائے گی۔';
+
+  @override
+  String get colAmount => 'رقم';
+
+  @override
+  String get colType => 'قسم';
+
+  @override
+  String get notInFile => 'فائل میں نہیں';
+
+  @override
+  String get dateOrder => 'تاریخ کی ترتیب';
+
+  @override
+  String get defaultAccount => 'بغیر اکاؤنٹ والی قطاروں کا اکاؤنٹ';
+
+  @override
+  String get continueLabel => 'جاری رکھیں';
+
+  @override
+  String get importReady => 'امپورٹ کے لیے تیار';
+
+  @override
+  String importNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count نئے اندراجات',
+      one: '1 نیا اندراج',
+      zero: 'کوئی نیا اندراج نہیں',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAlready(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count پہلے سے موجود',
+      one: '1 پہلے سے موجود',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count قطاریں دیکھ لیں',
+      one: '1 قطار دیکھ لیں',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String warnUnreadable(int row) {
+    return 'قطار $row: تاریخ یا رقم نہیں پڑھی جا سکی، چھوڑ دی گئی';
+  }
+
+  @override
+  String warnUnpaired(int row, String account) {
+    return 'قطار $row: بغیر جوڑ کی منتقلی، $account پر ایڈجسٹمنٹ کے طور پر رکھی گئی';
+  }
+
+  @override
+  String get namesTitle => 'اکاؤنٹس اور لوگ';
+
+  @override
+  String get namesHint =>
+      'حساب کتاب لوگوں کو اکاؤنٹ کے طور پر رکھتا ہے۔ جو شخص ہے اسے نشان زد کریں، اس کی منتقلیاں ادھار بن جائیں گی۔';
+
+  @override
+  String get roleAccount => 'اکاؤنٹ';
+
+  @override
+  String get rolePerson => 'شخص';
+
+  @override
+  String get nameExisting => 'پہلے سے خرچہ میں';
+
+  @override
+  String nameEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count اندراجات',
+      one: '1 اندراج',
+      zero: 'صرف ابتدائی بیلنس',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importButton => 'امپورٹ کریں';
+
+  @override
+  String get importing => 'امپورٹ ہو رہا ہے…';
+
+  @override
+  String get importDone => 'امپورٹ مکمل';
+
+  @override
+  String get reportImported => 'امپورٹ ہوئے';
+
+  @override
+  String get reportDuplicates => 'پہلے سے موجود';
+
+  @override
+  String get reportSkipped => 'امپورٹ نہیں ہوئے';
+
+  @override
+  String get reportAccounts => 'نئے اکاؤنٹس';
+
+  @override
+  String get reportPeople => 'نئے لوگ';
+
+  @override
+  String get reportCategories => 'نئی کیٹیگریز';
+
+  @override
+  String skipBetweenPeople(int row) {
+    return 'قطار $row: دو لوگوں کے درمیان منتقلی امپورٹ نہیں ہوئی';
+  }
+
+  @override
+  String skipPersonAdjustment(int row) {
+    return 'قطار $row: کسی شخص پر بغیر جوڑ کی منتقلی امپورٹ نہیں ہوئی';
+  }
+
+  @override
+  String get importNothingNew => 'اس فائل کا سب کچھ پہلے سے خرچہ میں ہے۔';
+
+  @override
+  String get importFailed =>
+      'امپورٹ مکمل نہیں ہوا۔ کچھ تبدیل نہیں ہوا، دوبارہ کوشش کریں۔';
+
+  @override
+  String get backupNudgeTitle => 'اپنے ڈیٹا کا بیک اپ بنائیں';
+
+  @override
+  String get backupNudgeNever => 'آپ نے ابھی تک بیک اپ نہیں بنایا۔';
+
+  @override
+  String backupNudgeDays(int days) {
+    return 'آخری بیک اپ $days دن پہلے۔';
+  }
+
+  @override
+  String get integrityTitle => 'آپ کے ڈیٹا پر توجہ درکار ہے';
+
+  @override
+  String get integrityBody =>
+      'حفاظتی جانچ میں خرابی ملی۔ احتیاطاً بیک اپ سے بحال کریں۔';
 }

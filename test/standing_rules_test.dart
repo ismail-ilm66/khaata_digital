@@ -16,6 +16,13 @@ void main() {
       .where((f) => f.path.endsWith('.dart') && !f.path.endsWith('.g.dart'));
 
   test('no `double` in money, dates, database, data or domain code', () {
+    // Reviewed exceptions, each with its reason.
+    const allowed = {
+      // Excel stores numeric cells as IEEE-754 doubles; the reader turns
+      // each into its shortest exact decimal text at once, and money is
+      // then parsed from that text into integer paisa.
+      'lib/features/import_export/data/xls_reader.dart',
+    };
     final dirs = [
       'lib/core/money',
       'lib/core/dates',
@@ -29,7 +36,9 @@ void main() {
     final offenders = [
       for (final dir in dirs)
         for (final file in dartFiles(dir))
-          if (RegExp(r'\bdouble\b').hasMatch(_code(file))) file.path,
+          if (!allowed.contains(file.path) &&
+              RegExp(r'\bdouble\b').hasMatch(_code(file)))
+            file.path,
     ];
     expect(offenders, isEmpty, reason: 'Money is integer minor units only');
   });

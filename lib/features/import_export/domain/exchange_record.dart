@@ -92,10 +92,14 @@ enum ExchangeWarningKind {
 }
 
 class ExchangeResult extends Equatable {
-  const ExchangeResult(this.records, this.warnings);
+  const ExchangeResult(this.records, this.warnings, {this.lines = const []});
 
   final List<ExchangeRecord> records;
   final List<ExchangeWarning> warnings;
+
+  /// For each record, the 1-based file rows it was read from (two for a
+  /// paired transfer). Used to fingerprint records for idempotent import.
+  final List<List<int>> lines;
 
   @override
   List<Object?> get props => [records, warnings];

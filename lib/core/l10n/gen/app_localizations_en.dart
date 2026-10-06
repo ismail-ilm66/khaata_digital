@@ -695,4 +695,397 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportEverything => 'Export everything';
+
+  @override
+  String get backupTitle => 'Backup & restore';
+
+  @override
+  String get backupTileHint =>
+      'Keep your records safe on your phone and in your Drive';
+
+  @override
+  String get lastBackup => 'Last backup';
+
+  @override
+  String lastBackupAt(String date, String place) {
+    return '$date · $place';
+  }
+
+  @override
+  String get noBackupYet => 'No backup yet';
+
+  @override
+  String get noBackupBody =>
+      'Back up now so a lost or reset phone never costs you your records.';
+
+  @override
+  String get placeFile => 'File';
+
+  @override
+  String get placeDrive => 'Google Drive';
+
+  @override
+  String get placeDevice => 'This phone';
+
+  @override
+  String get backupNow => 'Back up now';
+
+  @override
+  String get backupToFile => 'Save backup to a file';
+
+  @override
+  String get backupToFileHint =>
+      'Keep it anywhere: Downloads, a USB drive, email';
+
+  @override
+  String get backupToDrive => 'Back up to Google Drive';
+
+  @override
+  String get backupToDriveHint =>
+      'Into a “Kharcha Backups” folder in your own Drive';
+
+  @override
+  String get encryptBackup => 'Protect with a passphrase';
+
+  @override
+  String get encryptHint =>
+      'AES-256. A forgotten passphrase can\'t be recovered.';
+
+  @override
+  String get passphrase => 'Passphrase';
+
+  @override
+  String get passphraseHint => 'At least 6 characters';
+
+  @override
+  String get backupSaved => 'Backup saved';
+
+  @override
+  String get backupUploaded => 'Backed up to Google Drive';
+
+  @override
+  String get backupFailed =>
+      'The backup didn\'t finish. Your data is unchanged; try again.';
+
+  @override
+  String get autoBackupSection => 'Automatic';
+
+  @override
+  String get autoBackup => 'Weekly backup';
+
+  @override
+  String get autoBackupHint =>
+      'To Google Drive when connected, plus a copy on this phone';
+
+  @override
+  String get wifiOnly => 'Wi-Fi only';
+
+  @override
+  String get wifiOnlyHint => 'Don\'t use mobile data for Drive backups';
+
+  @override
+  String get driveConnect => 'Connect Google Drive';
+
+  @override
+  String get driveConnectHint => 'Kharcha can only see the backups it creates';
+
+  @override
+  String get driveDisconnect => 'Disconnect';
+
+  @override
+  String get driveUnavailable =>
+      'Google Drive isn\'t set up in this build. File backups work everywhere.';
+
+  @override
+  String get driveFailed =>
+      'Couldn\'t reach Google Drive. Check your connection and try again.';
+
+  @override
+  String get restoreSection => 'Restore';
+
+  @override
+  String get restoreFromFile => 'Restore from a file';
+
+  @override
+  String get restoreFromDrive => 'Restore from Google Drive';
+
+  @override
+  String get restoreFromDevice => 'Copies on this phone';
+
+  @override
+  String get restoreFromDeviceHint =>
+      'Made automatically each week and before imports and restores';
+
+  @override
+  String get noBackupsFound => 'No backups found';
+
+  @override
+  String get restoreTitle => 'Restore';
+
+  @override
+  String get restoreMade => 'Made';
+
+  @override
+  String get restoreEntries => 'Entries';
+
+  @override
+  String get restoreDates => 'Dates';
+
+  @override
+  String get restoreApp => 'App version';
+
+  @override
+  String get encryptedBackup => 'Passphrase protected';
+
+  @override
+  String get restoreMode => 'How to restore';
+
+  @override
+  String get modeReplace => 'Replace';
+
+  @override
+  String get modeReplaceHint => 'This phone\'s data is replaced by the backup.';
+
+  @override
+  String get modeMerge => 'Merge';
+
+  @override
+  String get modeMergeHint =>
+      'Keep this phone\'s data and add what\'s missing from the backup. Where both have the same entry, the newer edit wins.';
+
+  @override
+  String get restoreReplaceButton => 'Replace my data';
+
+  @override
+  String get restoreMergeButton => 'Merge into my data';
+
+  @override
+  String get safetyCopyNote =>
+      'A copy of your current data is kept on this phone first.';
+
+  @override
+  String get restoring => 'Restoring…';
+
+  @override
+  String get restoreDone => 'Restore complete';
+
+  @override
+  String get restoreVerified =>
+      'Every file matched its checksum and the database passed its integrity check.';
+
+  @override
+  String restoreSummary(int accounts, int entries, int receipts) {
+    return '$accounts accounts · $entries entries · $receipts receipts';
+  }
+
+  @override
+  String get failNotBackup => 'This isn\'t a Kharcha backup file.';
+
+  @override
+  String get failNewer =>
+      'This backup is from a newer Kharcha. Update the app, then try again.';
+
+  @override
+  String get failPassphrase => 'That passphrase doesn\'t open this backup.';
+
+  @override
+  String get failDamaged =>
+      'This backup is damaged: a checksum doesn\'t match. Your data is unchanged.';
+
+  @override
+  String get failIntegrity =>
+      'The database in this backup is damaged. Your data is unchanged.';
+
+  @override
+  String get failConflict =>
+      'Couldn\'t merge this backup. Your data is unchanged; try Replace instead.';
+
+  @override
+  String get importTitle => 'Import';
+
+  @override
+  String get importTile => 'Import from Hysab Kytab';
+
+  @override
+  String get importTileHint => 'Also Kharcha exports and other CSV files';
+
+  @override
+  String get importIntro =>
+      'In Hysab Kytab, open More → Export → Export All, then choose that file here. Kharcha exports and CSV files from other apps work too.';
+
+  @override
+  String get chooseFile => 'Choose file';
+
+  @override
+  String get reading => 'Reading…';
+
+  @override
+  String get importUnreadable =>
+      'Couldn\'t read this file. Choose an Excel (.xls, .xlsx) or CSV file.';
+
+  @override
+  String get importEmpty => 'No entries found in this file.';
+
+  @override
+  String get mapColumns => 'Match the columns';
+
+  @override
+  String get mapColumnsHint =>
+      'Tell Kharcha which column holds what. Negative amounts are expenses unless there\'s a type column.';
+
+  @override
+  String get colAmount => 'Amount';
+
+  @override
+  String get colType => 'Type';
+
+  @override
+  String get notInFile => 'Not in file';
+
+  @override
+  String get dateOrder => 'Date order';
+
+  @override
+  String get defaultAccount => 'Account for rows without one';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get importReady => 'Ready to import';
+
+  @override
+  String importNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new entries',
+      one: '1 new entry',
+      zero: 'No new entries',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importAlready(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count already imported',
+      one: '1 already imported',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String importWarnings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows need a look',
+      one: '1 row needs a look',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String warnUnreadable(int row) {
+    return 'Row $row: couldn\'t read the date or amount, so it\'s skipped';
+  }
+
+  @override
+  String warnUnpaired(int row, String account) {
+    return 'Row $row: a transfer with no matching row, kept as an adjustment on $account';
+  }
+
+  @override
+  String get namesTitle => 'Accounts and people';
+
+  @override
+  String get namesHint =>
+      'Hysab Kytab keeps people as accounts. Mark who\'s a person and their transfers become udhaar.';
+
+  @override
+  String get roleAccount => 'Account';
+
+  @override
+  String get rolePerson => 'Person';
+
+  @override
+  String get nameExisting => 'Already in Kharcha';
+
+  @override
+  String nameEntries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count entries',
+      one: '1 entry',
+      zero: 'Opening balance only',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get importButton => 'Import';
+
+  @override
+  String get importing => 'Importing…';
+
+  @override
+  String get importDone => 'Import complete';
+
+  @override
+  String get reportImported => 'Imported';
+
+  @override
+  String get reportDuplicates => 'Already there';
+
+  @override
+  String get reportSkipped => 'Not imported';
+
+  @override
+  String get reportAccounts => 'New accounts';
+
+  @override
+  String get reportPeople => 'New people';
+
+  @override
+  String get reportCategories => 'New categories';
+
+  @override
+  String skipBetweenPeople(int row) {
+    return 'Row $row: a transfer between two people isn\'t imported';
+  }
+
+  @override
+  String skipPersonAdjustment(int row) {
+    return 'Row $row: an unpaired transfer on a person isn\'t imported';
+  }
+
+  @override
+  String get importNothingNew =>
+      'Everything in this file is already in Kharcha.';
+
+  @override
+  String get importFailed =>
+      'The import didn\'t finish. Nothing was changed; try again.';
+
+  @override
+  String get backupNudgeTitle => 'Back up your data';
+
+  @override
+  String get backupNudgeNever => 'You haven\'t made a backup yet.';
+
+  @override
+  String backupNudgeDays(int days) {
+    return 'Last backup $days days ago.';
+  }
+
+  @override
+  String get integrityTitle => 'Your data needs attention';
+
+  @override
+  String get integrityBody =>
+      'A safety check found damage. Restore from a backup to be safe.';
 }

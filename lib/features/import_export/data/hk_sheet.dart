@@ -210,12 +210,14 @@ abstract final class HkSheet {
     }
 
     final records = <ExchangeRecord>[];
+    final lines = <List<int>>[];
     final used = <int>{};
     for (var i = 0; i < parsed.length; i++) {
       if (used.contains(i)) continue;
       final r = parsed[i];
       if (r.hkType != HkColumns.transfer) {
         records.add(r.single());
+        lines.add([r.line]);
         continue;
       }
       final j = _partner(parsed, i, used);
@@ -228,12 +230,14 @@ abstract final class HkSheet {
           ),
         );
         records.add(r.asAdjustment());
+        lines.add([r.line]);
         continue;
       }
       used.add(j);
       records.add(_Row.pair(r, parsed[j]));
+      lines.add([r.line, parsed[j].line]);
     }
-    return ExchangeResult(records, warnings);
+    return ExchangeResult(records, warnings, lines: lines);
   }
 
   /// The row completing the transfer at [i]: same Kharcha Id if present;
@@ -300,6 +304,7 @@ class _Row {
     required this.kharchaType,
     required this.id,
     required this.fxRateMicros,
+    required this.travel,
   });
 
   final int line;
@@ -319,6 +324,9 @@ class _Row {
   final TransactionType? kharchaType;
   final String? id;
   final int? fxRateMicros;
+
+  /// Hysab Kytab travel amount in its own currency ("100.0" + "\$").
+  final Money? travel;
 
   static _Row? parse(
     List<String> cells,
@@ -347,6 +355,11 @@ class _Row {
       time == null ? 12 : int.parse(time.group(1)!),
       time == null ? 0 : int.parse(time.group(2)!),
     );
+    // Impossible dates (31/02) would roll over; treat them as unreadable.
+    if (at.day != int.parse(date.group(1)!) ||
+        at.month != int.parse(date.group(2)!)) {
+      return null;
+    }
 
     // Hysab Kytab travel-currency fields on non-transfer rows describe a
     // foreign purchase; Kharcha keeps them in the note.
@@ -396,7 +409,14 @@ class _Row {
         Money.rateScale,
         round: true,
       ),
+      travel: _travel(get(HkColumns.travelSymbol), get(HkColumns.travelAmount)),
     );
+  }
+
+  static Money? _travel(String symbol, String amount) {
+    final currency = symbol.isEmpty ? null : Currency.fromSymbol(symbol);
+    if (currency == null || _isZero(amount)) return null;
+    return Money.parse(amount, currency, round: true)?.abs();
   }
 
   static bool _isZero(String s) =>
@@ -482,14 +502,21 @@ class _Row {
         person: person,
       );
     }
-    final cross = dest.amount.currency != src.amount.currency;
+    // Cross-currency: a Kharcha file states each side's currency; a
+    // Hysab Kytab file gives the received side as travel-currency fields.
+    final travel = src.travel ?? dest.travel;
+    final toAmount = dest.amount.currency != src.amount.currency
+        ? dest.amount.abs()
+        : travel != null && travel.currency != src.amount.currency
+        ? travel
+        : null;
     return src._record(
       type: TransactionType.transfer,
       amount: src.amount.abs(),
       account: src.account,
       toAccount: dest.account,
-      toAmount: cross ? dest.amount.abs() : null,
-      fx: cross ? src.fxRateMicros : null,
+      toAmount: toAmount,
+      fx: toAmount == null ? null : src.fxRateMicros ?? dest.fxRateMicros,
     );
   }
 }

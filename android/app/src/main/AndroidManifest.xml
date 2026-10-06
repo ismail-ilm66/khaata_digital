@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Only for the user's own Google Drive backups (spec 3.4). -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Bill reminders (Android 13+ asks the user) and restoring them after a reboot. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
