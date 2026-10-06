@@ -16,6 +16,7 @@ class AppRefresh {
     this._hideBalance,
     this._cycle,
     this._currency,
+    this._haptics,
     this._recurring,
     this._reminders,
   );
@@ -25,6 +26,7 @@ class AppRefresh {
   final HideBalanceCubit _hideBalance;
   final BudgetCycleCubit _cycle;
   final CurrencyCubit _currency;
+  final HapticsCubit _haptics;
   final RecurringRepository _recurring;
   final ReminderScheduler _reminders;
 
@@ -34,6 +36,7 @@ class AppRefresh {
     _hideBalance.load(),
     _cycle.load(),
     _currency.load(),
+    _haptics.load(),
   ]);
 
   /// Creates recurring entries that fell due and refreshes reminders.

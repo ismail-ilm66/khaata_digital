@@ -17,6 +17,7 @@ import '../../categories/presentation/category_badge.dart';
 import '../../transactions/domain/transaction_type.dart';
 import '../domain/recurrence.dart';
 import '../domain/recurring_rule.dart';
+import '../../../core/widgets/watch.dart';
 
 /// Recurring bills and payments: what repeats, when it's next, reminders.
 class RecurringScreen extends StatelessWidget {
@@ -25,10 +26,9 @@ class RecurringScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return StreamBuilder<List<RecurringRuleView>>(
-      stream: getIt<RecurringRepository>().watchAll(),
-      builder: (context, snap) {
-        final rules = snap.data;
+    return Watch<List<RecurringRuleView>>(
+      getIt<RecurringRepository>().watchAll,
+      builder: (context, rules) {
         return PageScaffold(
           title: l.recurring,
           slivers: [

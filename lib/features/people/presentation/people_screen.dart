@@ -19,6 +19,7 @@ import '../../../core/widgets/surface_card.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../domain/person.dart';
 import 'person_badge.dart';
+import '../../../core/widgets/watch.dart';
 
 /// People / Udhaar (spec 3.2 #7): who owes you, whom you owe.
 class PeopleScreen extends StatelessWidget {
@@ -45,10 +46,9 @@ class PeopleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    return StreamBuilder<PeopleOverview>(
-      stream: getIt<PeopleRepository>().watchOverview(),
-      builder: (context, snap) {
-        final o = snap.data;
+    return Watch<PeopleOverview>(
+      getIt<PeopleRepository>().watchOverview,
+      builder: (context, o) {
         return PageScaffold(
           title: l.people,
           trailing: IconButton.filled(

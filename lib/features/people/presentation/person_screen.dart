@@ -20,6 +20,7 @@ import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../transactions/presentation/form/entry_editor_screen.dart';
 import '../domain/person.dart';
 import 'person_badge.dart';
+import '../../../core/widgets/watch.dart';
 
 /// One person's udhaar ledger (spec 3.2 #7): balance, I gave / I received /
 /// Settle up, and every entry with the running balance after it.
@@ -31,13 +32,13 @@ class PersonScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = getIt<PeopleRepository>();
-    return StreamBuilder<Person?>(
-      stream: repo.watchPerson(id),
-      builder: (context, person) => StreamBuilder<List<LedgerLine>>(
-        stream: repo.watchLedger(id),
-        builder: (context, ledger) {
-          final p = person.data;
-          final lines = ledger.data;
+    return Watch<Person?>(
+      () => repo.watchPerson(id),
+      sourceKey: id,
+      builder: (context, p) => Watch<List<LedgerLine>>(
+        () => repo.watchLedger(id),
+        sourceKey: id,
+        builder: (context, lines) {
           if (p == null || lines == null) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),

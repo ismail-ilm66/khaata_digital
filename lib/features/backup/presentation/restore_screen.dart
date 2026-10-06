@@ -16,6 +16,7 @@ import '../../../core/widgets/segmented_picker.dart';
 import '../domain/backup.dart';
 import 'backup_labels.dart';
 import 'restore_bloc.dart';
+import '../../../core/feedback/haptics.dart';
 
 /// The restore wizard for one backup file.
 class RestoreScreen extends StatelessWidget {
@@ -26,7 +27,14 @@ class RestoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider(
     create: (_) => getIt<RestoreBloc>()..add(RestoreOpened(file)),
-    child: const _RestoreView(),
+    child: BlocListener<RestoreBloc, RestoreState>(
+      listenWhen: (a, b) => a.status != b.status || a.failure != b.failure,
+      listener: (context, s) {
+        if (s.status == RestoreStatus.done) Haptics.success();
+        if (s.failure != null) Haptics.warning();
+      },
+      child: const _RestoreView(),
+    ),
   );
 }
 

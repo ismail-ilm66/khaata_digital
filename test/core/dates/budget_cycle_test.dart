@@ -121,6 +121,90 @@ void main() {
     expect(cycle.idFor(local.toUtc()), const CycleId(2026, 10));
   });
 
+  group('BudgetCycle.lastWorkingDay() — salary on the last working day', () {
+    const cycle = BudgetCycle.lastWorkingDay();
+    // Worked out on a calendar (weekends are Saturday and Sunday).
+
+    test('starts on the last Monday–Friday of each month', () {
+      expect(cycle.startIn(2026, 9), DateTime(2026, 9, 30)); // Wednesday
+      expect(cycle.startIn(2026, 10), DateTime(2026, 10, 30)); // 31st: Sat
+      expect(cycle.startIn(2026, 8), DateTime(2026, 8, 31)); // Monday
+      expect(cycle.startIn(2026, 12), DateTime(2026, 12, 31)); // Thursday
+      expect(cycle.startIn(2027, 1), DateTime(2027, 1, 29)); // 31st: Sun
+      expect(cycle.startIn(2027, 2), DateTime(2027, 2, 26)); // 28th: Sun
+      expect(cycle.startIn(2028, 2), DateTime(2028, 2, 29)); // leap, Tue
+    });
+
+    test('a day belongs to the cycle that started on or before it', () {
+      expect(
+        cycle.idFor(DateTime(2026, 9, 29, 23, 59)),
+        const CycleId(2026, 8),
+      );
+      expect(cycle.idFor(DateTime(2026, 9, 30)), const CycleId(2026, 9));
+      expect(
+        cycle.idFor(DateTime(2026, 10, 29, 23, 59)),
+        const CycleId(2026, 9),
+      );
+      expect(cycle.idFor(DateTime(2026, 10, 30)), const CycleId(2026, 10));
+    });
+
+    test('range runs to the next last working day; label shows real dates', () {
+      final r = cycle.rangeOf(const CycleId(2026, 9));
+      expect(r.start, DateTime(2026, 9, 30));
+      expect(r.end, DateTime(2026, 10, 30));
+      expect(cycle.label(const CycleId(2026, 9)), '30 Sep – 29 Oct');
+    });
+
+    test('rolls over the year boundary', () {
+      expect(cycle.idFor(DateTime(2027, 1, 10)), const CycleId(2026, 12));
+      final r = cycle.rangeOf(const CycleId(2026, 12));
+      expect(r.start, DateTime(2026, 12, 31));
+      expect(r.end, DateTime(2027, 1, 29));
+    });
+
+    test(
+      'three years of cycles tile with no gaps; each starts on a weekday',
+      () {
+        var id = const CycleId(2026, 1);
+        for (var i = 0; i < 36; i++) {
+          final r = cycle.rangeOf(id);
+          expect(r.end, cycle.rangeOf(id.next).start);
+          expect(r.start.weekday, lessThanOrEqualTo(DateTime.friday));
+          expect(r.start.month, id.month);
+          // No weekday comes after it in the same month.
+          for (
+            var d = r.start.add(const Duration(days: 1));
+            d.month == id.month;
+            d = d.add(const Duration(days: 1))
+          ) {
+            expect(d.weekday, greaterThan(DateTime.friday));
+          }
+          id = id.next;
+        }
+      },
+    );
+  });
+
+  group('storage', () {
+    test('round-trips every choice', () {
+      for (final c in BudgetCycle.choices) {
+        expect(BudgetCycle.fromStorage(c.toStorage()), c);
+      }
+      expect(BudgetCycle.choices, hasLength(28 + 1));
+    });
+
+    test('reads existing day values and rejects garbage', () {
+      expect(BudgetCycle.fromStorage('25'), const BudgetCycle(25));
+      expect(
+        BudgetCycle.fromStorage('last-working'),
+        const BudgetCycle.lastWorkingDay(),
+      );
+      for (final bad in ['', '0', '29', 'last-5', 'last', 'x']) {
+        expect(BudgetCycle.fromStorage(bad), const BudgetCycle.calendar());
+      }
+    });
+  });
+
   group('CycleId', () {
     test('next/previous wrap years', () {
       expect(const CycleId(2026, 12).next, const CycleId(2027, 1));

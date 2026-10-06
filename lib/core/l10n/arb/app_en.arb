@@ -507,5 +507,8 @@
     }
   },
   "integrityTitle": "Your data needs attention",
-  "integrityBody": "A safety check found damage. Restore from a backup to be safe."
+  "integrityBody": "A safety check found damage. Restore from a backup to be safe.",
+  "monthStartLastWorking": "Last working day",
+  "haptics": "Haptics",
+  "hapticsHint": "Gentle taps when you choose, save or delete"
 }

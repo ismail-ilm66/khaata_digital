@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../money/amount_buffer.dart';
 import '../theme/app_typography.dart';
 import '../theme/context_x.dart';
 import 'app_icons.dart';
+import '../feedback/haptics.dart';
 
 /// The in-app number pad for amounts: always open, no system keyboard.
 /// Long-press backspace clears.
@@ -57,7 +57,7 @@ class _Key extends StatelessWidget {
   final ValueChanged<KeypadKey> onKey;
 
   void _press(KeypadKey key) {
-    HapticFeedback.selectionClick();
+    Haptics.selection();
     onKey(key);
   }
 

@@ -22,6 +22,8 @@ import '../domain/backup.dart';
 import '../domain/cloud_backup_store.dart';
 import 'backup_bloc.dart';
 import 'backup_labels.dart';
+import '../../../core/widgets/app_switch.dart';
+import '../../../core/feedback/haptics.dart';
 
 /// Backup & restore (spec 3.2 #9).
 class BackupScreen extends StatelessWidget {
@@ -123,12 +125,20 @@ class _BackupViewState extends State<_BackupView> {
     final l = context.l10n;
     return BlocConsumer<BackupBloc, BackupState>(
       listenWhen: (a, b) => a.noticeId != b.noticeId,
-      listener: (context, s) => showToast(context, switch (s.notice!) {
-        BackupNotice.saved => l.backupSaved,
-        BackupNotice.uploaded => l.backupUploaded,
-        BackupNotice.failed => l.backupFailed,
-        BackupNotice.driveFailed => l.driveFailed,
-      }),
+      listener: (context, s) {
+        switch (s.notice!) {
+          case BackupNotice.saved || BackupNotice.uploaded:
+            Haptics.success();
+          case BackupNotice.failed || BackupNotice.driveFailed:
+            Haptics.warning();
+        }
+        showToast(context, switch (s.notice!) {
+          BackupNotice.saved => l.backupSaved,
+          BackupNotice.uploaded => l.backupUploaded,
+          BackupNotice.failed => l.backupFailed,
+          BackupNotice.driveFailed => l.driveFailed,
+        });
+      },
       builder: (context, s) {
         final bloc = context.read<BackupBloc>();
         Widget? spinner(BackupDestination d) => s.busy == d
@@ -175,7 +185,7 @@ class _BackupViewState extends State<_BackupView> {
                           icon: AppIcons.lock,
                           title: l.encryptBackup,
                           subtitle: l.encryptHint,
-                          trailing: Switch(
+                          trailing: AppSwitch(
                             key: const Key('encryptSwitch'),
                             value: _encrypt,
                             onChanged: (v) => setState(() => _encrypt = v),
@@ -192,7 +202,7 @@ class _BackupViewState extends State<_BackupView> {
                           icon: AppIcons.history,
                           title: l.autoBackup,
                           subtitle: l.autoBackupHint,
-                          trailing: Switch(
+                          trailing: AppSwitch(
                             key: const Key('autoBackupSwitch'),
                             value: s.auto,
                             onChanged: (v) => bloc.add(AutoBackupToggled(v)),
@@ -203,7 +213,7 @@ class _BackupViewState extends State<_BackupView> {
                             icon: AppIcons.wifi,
                             title: l.wifiOnly,
                             subtitle: l.wifiOnlyHint,
-                            trailing: Switch(
+                            trailing: AppSwitch(
                               value: s.wifiOnly,
                               onChanged: (v) => bloc.add(WifiOnlyToggled(v)),
                             ),

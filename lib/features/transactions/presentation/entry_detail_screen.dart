@@ -21,6 +21,7 @@ import '../domain/transactions_repository.dart';
 import 'form/entry_editor_screen.dart';
 import 'widgets/entry_tile.dart';
 import 'widgets/receipts.dart';
+import '../../../core/widgets/watch.dart';
 
 /// One transaction in full, with its receipts (spec 3.2 #4 "tap → detail").
 class EntryDetailScreen extends StatelessWidget {
@@ -30,10 +31,10 @@ class EntryDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<EntryView?>(
-      stream: getIt<TransactionsRepository>().watchOne(id),
-      builder: (context, snap) {
-        final view = snap.data;
+    return Watch<EntryView?>(
+      () => getIt<TransactionsRepository>().watchOne(id),
+      sourceKey: id,
+      builder: (context, view) {
         if (view == null) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),

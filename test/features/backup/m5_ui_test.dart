@@ -73,6 +73,20 @@ void main() {
     expect(find.byKey(const Key('backupNudge')), findsNothing);
   });
 
+  testWidgets('hiding balances does not flash the Home screen', (t) async {
+    await t.runAsync(() async => TestLedger(db).expense(await cashId(), 5000));
+    await start(t);
+    await waitFor(t, find.byKey(const Key('backupNudge')));
+    for (var i = 0; i < 2; i++) {
+      await t.tap(find.byKey(const Key('hideBalance')));
+      // The very next frame: nothing may disappear and pop back in.
+      await t.pump();
+      expect(find.byKey(const Key('backupNudge')), findsOneWidget);
+      await t.pump(const Duration(milliseconds: 16));
+      expect(find.byKey(const Key('backupNudge')), findsOneWidget);
+    }
+  });
+
   testWidgets('an encrypted backup asks for a passphrase', (t) async {
     await start(t);
     await openMore(t, 'backupTile');

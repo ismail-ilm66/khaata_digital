@@ -20,6 +20,7 @@ import '../../backup/presentation/backup_labels.dart';
 import '../domain/exchange_record.dart';
 import '../domain/import_plan.dart';
 import 'import_bloc.dart';
+import '../../../core/feedback/haptics.dart';
 
 /// Import from Hysab Kytab, a Kharcha export, or any CSV.
 class ImportScreen extends StatelessWidget {
@@ -28,7 +29,14 @@ class ImportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BlocProvider(
     create: (_) => getIt<ImportBloc>(),
-    child: const _ImportView(),
+    child: BlocListener<ImportBloc, ImportState>(
+      listenWhen: (a, b) => a.step != b.step || a.problem != b.problem,
+      listener: (context, s) {
+        if (s.step == ImportStep.report) Haptics.success();
+        if (s.problem != null) Haptics.warning();
+      },
+      child: const _ImportView(),
+    ),
   );
 }
 

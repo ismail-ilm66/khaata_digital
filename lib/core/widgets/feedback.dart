@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../feedback/haptics.dart';
 
 /// Snackbar helpers. Use the [ScaffoldMessengerState] versions after an
 /// `await` (capture `ScaffoldMessenger.of(context)` first).
@@ -15,12 +16,19 @@ extension Feedback on ScaffoldMessengerState {
     required String undoLabel,
     required VoidCallback onUndo,
   }) {
+    Haptics.warning(); // something was just removed
     hideCurrentSnackBar();
     showSnackBar(
       SnackBar(
         content: Text(message),
         duration: const Duration(seconds: 5),
-        action: SnackBarAction(label: undoLabel, onPressed: onUndo),
+        action: SnackBarAction(
+          label: undoLabel,
+          onPressed: () {
+            Haptics.selection();
+            onUndo();
+          },
+        ),
       ),
     );
   }

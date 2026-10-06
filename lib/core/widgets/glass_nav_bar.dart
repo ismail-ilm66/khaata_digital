@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
 import 'glass_surface.dart';
 import 'app_icons.dart';
+import '../feedback/haptics.dart';
 
 @immutable
 class GlassNavItem {
@@ -64,7 +64,7 @@ class GlassNavBar extends StatelessWidget {
         item: items[i],
         selected: i == selectedIndex,
         onTap: () {
-          HapticFeedback.selectionClick();
+          Haptics.selection();
           onSelected(i);
         },
       ),
@@ -189,7 +189,7 @@ class _ActionButton extends StatelessWidget {
         excludeSemantics: true,
         child: GestureDetector(
           onTap: () {
-            HapticFeedback.lightImpact();
+            Haptics.tap();
             onTap();
           },
           child: Container(

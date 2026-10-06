@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/context_x.dart';
 import 'app_icons.dart';
+import '../feedback/haptics.dart';
 
 /// ‹ label › — steps a period back or forward (budgets, reports). Arrows
 /// hide when stepping isn't possible (e.g. "All time").
@@ -30,7 +31,10 @@ class PeriodNavigator extends StatelessWidget {
         : IconButton(
             key: key,
             tooltip: tip,
-            onPressed: onTap,
+            onPressed: () {
+              Haptics.selection();
+              onTap();
+            },
             icon: DirectionalIcon(icon, size: 18, color: c.ink),
           );
     return Row(

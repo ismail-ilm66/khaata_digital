@@ -112,4 +112,57 @@ void main() {
     expect(label(ReportPeriod.year(tue), calendar), '2026');
     expect(label(const ReportPeriod.all(), calendar), 'All time');
   });
+
+  group('labels for a period in progress', () {
+    const payday = BudgetCycle.lastWorkingDay();
+    final today = DateTime(2026, 10, 6, 15);
+
+    test('a cycle reads from its start to today', () {
+      expect(
+        ReportPeriod.month(today).label(payday, allTime: 'All', today: today),
+        '30 Sep – 6 Oct',
+      );
+      expect(
+        ReportPeriod.week(today).label(payday, allTime: 'All', today: today),
+        '5 Oct – 6 Oct',
+      );
+    });
+
+    test('a later-dated entry extends it; never past the period end', () {
+      final p = ReportPeriod.month(today);
+      expect(
+        p.label(
+          payday,
+          allTime: 'All',
+          today: today,
+          through: DateTime(2026, 10, 12),
+        ),
+        '30 Sep – 12 Oct',
+      );
+      expect(
+        p.label(
+          payday,
+          allTime: 'All',
+          today: today,
+          through: DateTime(2026, 11, 3),
+        ),
+        '30 Sep – 29 Oct',
+      );
+    });
+
+    test('past periods and calendar months keep their names', () {
+      expect(
+        ReportPeriod.month(
+          DateTime(2026, 9, 1),
+        ).label(payday, allTime: 'All', today: today),
+        '31 Aug – 29 Sep',
+      );
+      expect(
+        ReportPeriod.month(
+          today,
+        ).label(const BudgetCycle.calendar(), allTime: 'All', today: today),
+        'Oct 2026',
+      );
+    });
+  });
 }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
+import '../feedback/haptics.dart';
 
 @immutable
 class PickerOption<T> {
@@ -84,7 +84,7 @@ class SegmentedPicker<T> extends StatelessWidget {
                       behavior: HitTestBehavior.opaque,
                       onTap: () {
                         if (o.value == value) return;
-                        HapticFeedback.selectionClick();
+                        Haptics.selection();
                         onChanged(o.value);
                       },
                       child: Center(

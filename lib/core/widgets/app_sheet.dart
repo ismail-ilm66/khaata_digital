@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
 import 'app_icons.dart';
+import '../feedback/haptics.dart';
 
 /// Opens a modal bottom sheet with the app's standard chrome: drag handle,
 /// optional [title], safe-area padding, and keyboard avoidance.
@@ -174,7 +175,10 @@ class _PickRow<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     return ListTile(
-      onTap: onTap,
+      onTap: () {
+        Haptics.selection();
+        onTap();
+      },
       selected: selected,
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
       leading: item.leading,

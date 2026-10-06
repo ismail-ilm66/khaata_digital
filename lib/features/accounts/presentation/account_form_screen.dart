@@ -20,6 +20,8 @@ import '../domain/account_presets.dart';
 import '../domain/account_type.dart';
 import 'account_badge.dart';
 import 'account_form_cubit.dart';
+import '../../../core/widgets/app_switch.dart';
+import '../../../core/feedback/haptics.dart';
 
 /// Route argument: edit [account], or create (optionally from [preset]).
 @immutable
@@ -104,6 +106,7 @@ class _AccountFormState extends State<_AccountForm> {
       listener: (context, s) {
         if (s.status
             case AccountFormStatus.saved || AccountFormStatus.archived) {
+          Haptics.success();
           Navigator.pop(context);
           showToast(
             context,
@@ -220,7 +223,7 @@ class _AccountFormState extends State<_AccountForm> {
                             icon: AppIcons.hide,
                             title: l.excludeFromTotal,
                             subtitle: l.excludeFromTotalHint,
-                            trailing: Switch(
+                            trailing: AppSwitch(
                               key: const Key('excludeSwitch'),
                               value: d.excludeFromTotal,
                               onChanged: (v) => _cubit.update(

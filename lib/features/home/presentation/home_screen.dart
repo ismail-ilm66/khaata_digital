@@ -24,6 +24,7 @@ import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../transactions/presentation/form/entry_editor_screen.dart';
 import '../../transactions/presentation/widgets/entry_tile.dart';
 import 'home_cubit.dart';
+import '../../../core/feedback/haptics.dart';
 
 /// Home (spec 3.2 #2). Budgets and Udhaar cards join in M3.
 class HomeScreen extends StatelessWidget {
@@ -55,7 +56,10 @@ class _HomeView extends StatelessWidget {
       trailing: IconButton.filledTonal(
         key: const Key('hideBalance'),
         tooltip: masked ? l.showBalances : l.hideBalances,
-        onPressed: context.read<HideBalanceCubit>().toggle,
+        onPressed: () {
+          Haptics.selection();
+          context.read<HideBalanceCubit>().toggle();
+        },
         style: IconButton.styleFrom(backgroundColor: context.colors.surface),
         icon: Icon(
           masked ? AppIcons.hide : AppIcons.show,

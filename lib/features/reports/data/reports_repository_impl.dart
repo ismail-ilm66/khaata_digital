@@ -115,6 +115,16 @@ class ReportsRepositoryImpl implements ReportsRepository {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     DateRange? span = range;
+    // A period still in progress is charted up to today (or its last
+    // entry, if one is dated later), not across empty future days.
+    if (span != null && span.contains(now)) {
+      final lastEntry = [
+        ...dated.map((d) => d.at),
+        if (deltas.isNotEmpty) deltas.last.at,
+      ].fold(today, (a, b) => b.isAfter(a) ? b : a);
+      final end = DateTime(lastEntry.year, lastEntry.month, lastEntry.day + 1);
+      if (end.isBefore(span.end)) span = DateRange(span.start, end);
+    }
     if (span == null) {
       final days = [
         ...dated.map((d) => d.at),

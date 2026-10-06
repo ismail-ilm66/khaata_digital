@@ -164,8 +164,12 @@ class _CategoryDonutState extends State<CategoryDonut> {
                         final s = slices[i];
                         if (!s.isOther) widget.onCategoryTap(s.category);
                       }
+                      // fl_chart reports -1 for the hole in the middle.
                       setState(
-                        () => _touched = event.isInterestedForInteractions
+                        () => _touched =
+                            event.isInterestedForInteractions &&
+                                i != null &&
+                                i >= 0
                             ? i
                             : null,
                       );
@@ -186,11 +190,8 @@ class _CategoryDonutState extends State<CategoryDonut> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AmountText(widget.total, style: context.text.titleLarge),
-                  if (_touched != null && _touched! < slices.length)
-                    Text(
-                      slices[_touched!].label,
-                      style: context.text.bodySmall,
-                    ),
+                  if (_touched case final t? when t >= 0 && t < slices.length)
+                    Text(slices[t].label, style: context.text.bodySmall),
                 ],
               ),
             ],

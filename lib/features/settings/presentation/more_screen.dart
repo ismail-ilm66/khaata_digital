@@ -15,7 +15,10 @@ import '../../import_export/presentation/export_sheet.dart';
 import 'cubit/locale_cubit.dart';
 import 'cubit/preference_cubits.dart';
 import 'cubit/theme_cubit.dart';
+import 'month_start_label.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../../core/di/injection.dart';
+import '../../../core/widgets/app_switch.dart';
 
 /// More/Settings tab (spec 3.2 #10). Accounts and appearance for now; the
 /// rest of the settings land with their milestones.
@@ -99,6 +102,19 @@ class MoreScreen extends StatelessWidget {
                 title: l10n.settingsGeneral,
                 child: SurfaceCard(
                   children: [
+                    BlocBuilder<HapticsCubit, bool>(
+                      bloc: getIt<HapticsCubit>(),
+                      builder: (context, on) => SettingTile(
+                        key: const Key('hapticsTile'),
+                        icon: AppIcons.haptics,
+                        title: l10n.haptics,
+                        subtitle: l10n.hapticsHint,
+                        trailing: AppSwitch(
+                          value: on,
+                          onChanged: getIt<HapticsCubit>().set,
+                        ),
+                      ),
+                    ),
                     BlocBuilder<BudgetCycleCubit, BudgetCycle>(
                       builder: (context, cycle) => SettingTile(
                         key: const Key('monthStartTile'),
@@ -106,32 +122,24 @@ class MoreScreen extends StatelessWidget {
                         title: l10n.monthStart,
                         subtitle: l10n.monthStartHint,
                         trailing: Text(
-                          l10n.monthStartDay(cycle.startDay),
+                          monthStartLabel(context, cycle),
                           style: context.text.titleSmall,
                         ),
                         onTap: () async {
-                          final day = await pickOne<int>(
+                          final chosen = await pickOne<BudgetCycle>(
                             context,
                             title: l10n.monthStart,
-                            selected: cycle.startDay,
+                            selected: cycle,
                             items: [
-                              for (
-                                var d = BudgetCycle.minStartDay;
-                                d <= BudgetCycle.maxStartDay;
-                                d++
-                              )
+                              for (final c in BudgetCycle.choices)
                                 PickItem(
-                                  value: d,
-                                  title: l10n.monthStartDay(d),
+                                  value: c,
+                                  title: monthStartLabel(context, c),
                                 ),
                             ],
                           );
-                          if (day != null && context.mounted) {
-                            await context.read<BudgetCycleCubit>().set(
-                              day == 1
-                                  ? const BudgetCycle.calendar()
-                                  : BudgetCycle(day),
-                            );
+                          if (chosen != null && context.mounted) {
+                            await context.read<BudgetCycleCubit>().set(chosen);
                           }
                         },
                       ),

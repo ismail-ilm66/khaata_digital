@@ -1,4 +1,6 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:khaata_digital/core/l10n/gen/app_localizations.dart';
+import 'package:khaata_digital/core/theme/app_theme.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// Scrolls the page until [f] is built, then brings it to mid-screen —
@@ -36,5 +38,17 @@ Future<void> waitFor(
     );
     await t.pump();
   }
+  // Let short follow-ups finish (animations, the success double tick).
+  await t.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 120)),
+  );
   await t.pump(const Duration(milliseconds: 400));
 }
+
+/// A single widget inside the app's theme and localizations.
+Widget testApp(Widget child) => MaterialApp(
+  theme: AppTheme.light,
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: Scaffold(body: child),
+);

@@ -1088,4 +1088,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get integrityBody =>
       'A safety check found damage. Restore from a backup to be safe.';
+
+  @override
+  String get monthStartLastWorking => 'Last working day';
+
+  @override
+  String get haptics => 'Haptics';
+
+  @override
+  String get hapticsHint => 'Gentle taps when you choose, save or delete';
 }

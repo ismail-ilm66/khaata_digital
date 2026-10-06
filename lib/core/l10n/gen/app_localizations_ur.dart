@@ -1082,4 +1082,13 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get integrityBody =>
       'حفاظتی جانچ میں خرابی ملی۔ احتیاطاً بیک اپ سے بحال کریں۔';
+
+  @override
+  String get monthStartLastWorking => 'آخری کاروباری دن';
+
+  @override
+  String get haptics => 'ہلکی وائبریشن';
+
+  @override
+  String get hapticsHint => 'انتخاب، محفوظ یا حذف کرنے پر ہلکا سا احساس';
 }

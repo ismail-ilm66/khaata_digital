@@ -47,11 +47,18 @@ class _ReportsViewState extends State<_ReportsView> {
   /// The donut shows spending, or income when toggled.
   bool _showIncome = false;
 
-  String _periodLabel(BuildContext context, ReportQuery q) => q.period.label(
-    context.read<BudgetCycleCubit>().state,
-    allTime: context.l10n.allTime,
-    locale: Localizations.localeOf(context).toLanguageTag(),
-  );
+  /// The period's name; one in progress reads "25 Sep – 6 Oct" (to today,
+  /// or to the last charted day if an entry is dated later).
+  String _periodLabel(BuildContext context, ReportQuery q) {
+    final span = context.read<ReportsBloc>().state.data?.span;
+    return q.period.label(
+      context.read<BudgetCycleCubit>().state,
+      allTime: context.l10n.allTime,
+      locale: Localizations.localeOf(context).toLanguageTag(),
+      today: DateTime.now(),
+      through: span?.lastDay,
+    );
+  }
 
   Future<void> _chooseCustom(BuildContext context, ReportQuery q) async {
     final bloc = context.read<ReportsBloc>();

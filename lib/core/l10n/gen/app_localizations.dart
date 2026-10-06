@@ -2011,6 +2011,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A safety check found damage. Restore from a backup to be safe.'**
   String get integrityBody;
+
+  /// No description provided for @monthStartLastWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Last working day'**
+  String get monthStartLastWorking;
+
+  /// No description provided for @haptics.
+  ///
+  /// In en, this message translates to:
+  /// **'Haptics'**
+  String get haptics;
+
+  /// No description provided for @hapticsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Gentle taps when you choose, save or delete'**
+  String get hapticsHint;
 }
 
 class _AppLocalizationsDelegate

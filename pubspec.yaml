@@ -70,6 +70,7 @@ dependencies:
   google_sign_in: ^7.2.0
   googleapis: ^17.0.0
   extension_google_sign_in_as_googleapis_auth: ^3.0.0
+  flutter_native_splash: ^2.4.4
 
 dev_dependencies:
   flutter_test:
@@ -101,7 +102,31 @@ flutter:
   generate: true
   uses-material-design: true
 
+  assets:
+    # Splash hand-off (same images as the native launch screen).
+    - assets/splash/mark.png
+    - assets/splash/wordmark.png
+    - assets/splash/wordmark_dark.png
+
   fonts:
     - family: Manrope
       fonts:
         - asset: assets/fonts/Manrope-Variable.ttf
+
+# Native launch screen (generated: dart run flutter_native_splash:create).
+# Images come from tool/brand/render_brand_test.dart. Colours = AppColors.paper.
+flutter_native_splash:
+  color: "#F4F6F5"
+  color_dark: "#0E1412"
+  image: assets/splash/mark.png
+  branding: assets/splash/wordmark.png
+  branding_dark: assets/splash/wordmark_dark.png
+  branding_bottom_padding: 32
+  android_12:
+    image: assets/splash/mark_android12.png
+    color: "#F4F6F5"
+    color_dark: "#0E1412"
+    branding: assets/splash/wordmark.png
+    branding_dark: assets/splash/wordmark_dark.png
+  ios_content_mode: center
+  fullscreen: false

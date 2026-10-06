@@ -8,6 +8,7 @@ import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/surface_card.dart';
 import '../../../core/widgets/tinted_badge.dart';
+import '../../../core/widgets/watch.dart';
 import '../data/backup_service.dart';
 import '../domain/backup.dart';
 import 'backup_health.dart';
@@ -35,13 +36,14 @@ class BackupNudge extends StatelessWidget {
       );
     }
     if (!hasData) return const SizedBox.shrink();
-    return StreamBuilder<BackupRecord?>(
-      stream: getIt<BackupService>().watchLast(offDevice: true),
-      builder: (context, snap) {
-        if (snap.connectionState == ConnectionState.waiting) {
-          return const SizedBox.shrink();
-        }
-        final last = snap.data;
+    return Watch<_Status>(
+      () => getIt<BackupService>()
+          .watchLast(offDevice: true)
+          .map((last) => (last: last)),
+      builder: (context, status) {
+        // Nothing until the first answer, so the banner never flickers in.
+        if (status == null) return const SizedBox.shrink();
+        final last = status.last;
         final days = last == null
             ? null
             : DateTime.now().toUtc().difference(last.createdAt).inDays;
@@ -55,6 +57,10 @@ class BackupNudge extends StatelessWidget {
     );
   }
 }
+
+/// The latest off-phone backup. Wrapped so "not loaded yet" (null) and
+/// "no backup ever" (`last` null) stay distinct.
+typedef _Status = ({BackupRecord? last});
 
 class _Banner extends StatelessWidget {
   const _Banner({

@@ -7,6 +7,7 @@ enum SettingKey {
   hideBalance('false'),
   lockEnabled('false'),
   urduDigits('false'),
+  haptics('true'),
   lastAccountId(''),
 
   /// Weekly automatic backup (spec 3.4).
@@ -29,6 +30,7 @@ enum SettingKey {
     hideBalance => 'hide_balance',
     lockEnabled => 'lock_enabled',
     urduDigits => 'urdu_digits',
+    haptics => 'haptics',
     lastAccountId => 'last_account_id',
     autoBackup => 'auto_backup',
     autoBackupWifiOnly => 'auto_backup_wifi_only',

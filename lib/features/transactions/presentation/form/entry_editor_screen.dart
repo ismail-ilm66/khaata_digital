@@ -31,6 +31,7 @@ import '../../../recurring/presentation/recurring_screen.dart';
 import '../../domain/transaction_type.dart';
 import '../widgets/receipts.dart';
 import 'transaction_form_bloc.dart';
+import '../../../../core/feedback/haptics.dart';
 
 /// Opens the add / edit screen.
 abstract final class EntryEditor {
@@ -121,10 +122,12 @@ class _EditorState extends State<_Editor> {
               listenWhen: (a, b) => a.status != b.status,
               listener: (context, s) {
                 if (s.status == FormStatus.saved) {
+                  Haptics.success();
                   final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(context);
                   messenger.toast(context.l10n.saved);
                 } else if (s.status == FormStatus.failed) {
+                  Haptics.warning();
                   showToast(context, context.l10n.receiptFailed);
                 }
               },
@@ -970,6 +973,7 @@ Future<void> _chooseRepeat(
                 onChanged: frequency == null
                     ? null
                     : (v) async {
+                        Haptics.selection();
                         if (v) {
                           await getIt<ReminderScheduler>().requestPermission();
                         }

@@ -156,15 +156,39 @@ class ReportPeriod {
 
   /// "Mon, 6 Oct" · "6 – 12 Oct" · "25 Sep – 24 Oct" · "2026" · custom ·
   /// [allTime] for all.
-  String label(BudgetCycle cycle, {required String allTime, String? locale}) {
+  /// "25 Sep – 6 Oct": a date range ends at [today] while the period is
+  /// still in progress (and [through], the last day with entries, if that
+  /// is later). Calendar months, days and years keep their own names.
+  String label(
+    BudgetCycle cycle, {
+    required String allTime,
+    String? locale,
+    DateTime? today,
+    DateTime? through,
+  }) {
     final r = range(cycle);
     if (r == null) return allTime;
     final short = DateFormat('d MMM', locale);
+    String span() {
+      var last = r.lastDay;
+      if (today != null && r.contains(today)) {
+        final day = DateTime(today.year, today.month, today.day);
+        final upTo = through != null && through.isAfter(day) ? through : day;
+        if (upTo.isBefore(last)) {
+          last = DateTime(upTo.year, upTo.month, upTo.day);
+        }
+      }
+      return '${short.format(r.start)} – ${short.format(last)}';
+    }
+
     return switch (kind) {
       PeriodKind.day => DateFormat.MMMEd(locale).format(r.start),
-      PeriodKind.month => cycle.label(cycle.idFor(r.start), locale: locale),
+      PeriodKind.month when cycle.isCalendar => cycle.label(
+        cycle.idFor(r.start),
+        locale: locale,
+      ),
       PeriodKind.year => '${cycle.idFor(anchor!).year}',
-      _ => '${short.format(r.start)} – ${short.format(r.lastDay)}',
+      _ => span(),
     };
   }
 

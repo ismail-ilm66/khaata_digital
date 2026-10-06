@@ -172,6 +172,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i795.HideBalanceCubit>(
       () => _i795.HideBalanceCubit(gh<_i109.SettingsRepository>()),
     );
+    gh.lazySingleton<_i795.HapticsCubit>(
+      () => _i795.HapticsCubit(gh<_i109.SettingsRepository>()),
+    );
     gh.lazySingleton<_i795.BudgetCycleCubit>(
       () => _i795.BudgetCycleCubit(gh<_i109.SettingsRepository>()),
     );
@@ -268,6 +271,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i795.HideBalanceCubit>(),
         gh<_i795.BudgetCycleCubit>(),
         gh<_i795.CurrencyCubit>(),
+        gh<_i795.HapticsCubit>(),
         gh<_i295.RecurringRepository>(),
         gh<_i295.ReminderScheduler>(),
       ),

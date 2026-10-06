@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:khaata_digital/core/theme/app_theme.dart';
-import 'package:khaata_digital/core/l10n/gen/app_localizations.dart';
 import 'package:khaata_digital/features/transactions/presentation/widgets/receipts.dart';
 
 import '../../helpers/test_receipts.dart';
+import '../../helpers/ui.dart';
 
 void main() {
-  Future<void> pump(WidgetTester t, Widget child) => t.pumpWidget(
-    MaterialApp(
-      theme: AppTheme.light,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: child),
-    ),
-  );
+  Future<void> pump(WidgetTester t, Widget child) =>
+      t.pumpWidget(testApp(child));
 
   testWidgets('thumbnails open the full-screen viewer', (t) async {
     final path = fakeImage('r.jpg');

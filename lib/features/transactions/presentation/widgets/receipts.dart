@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_icons.dart';
 import '../../../../core/widgets/app_sheet.dart';
 import '../../domain/ledger_entry.dart';
 import '../../domain/transactions_repository.dart';
+import '../../../../core/widgets/watch.dart';
 
 /// A receipt to show: either already stored ([attachment]) or just picked
 /// and not yet saved ([path]).
@@ -34,10 +35,14 @@ class ReceiptImage extends StatelessWidget {
   Widget build(BuildContext context) {
     final path = receipt.path;
     if (path != null) return Image.file(File(path), fit: fit);
-    return FutureBuilder<String>(
-      future: getIt<TransactionsRepository>().receiptPath(receipt.attachment!),
-      builder: (context, snap) => snap.hasData
-          ? Image.file(File(snap.data!), fit: fit, gaplessPlayback: true)
+    final attachment = receipt.attachment!;
+    return Watch<String>(
+      () => Stream.fromFuture(
+        getIt<TransactionsRepository>().receiptPath(attachment),
+      ),
+      sourceKey: attachment.id,
+      builder: (context, file) => file != null
+          ? Image.file(File(file), fit: fit, gaplessPlayback: true)
           : ColoredBox(color: context.colors.surfaceMuted),
     );
   }

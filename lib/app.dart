@@ -8,6 +8,7 @@ import 'core/di/injection.dart';
 import 'core/l10n/gen/app_localizations.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/splash_handoff.dart';
 import 'features/settings/presentation/cubit/locale_cubit.dart';
 import 'features/settings/presentation/cubit/preference_cubits.dart';
 import 'features/settings/presentation/cubit/theme_cubit.dart';
@@ -73,6 +74,7 @@ class _KharchaAppState extends State<KharchaApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
             routerConfig: _router,
+            builder: (context, child) => SplashHandoff(child: child!),
           );
         },
       ),

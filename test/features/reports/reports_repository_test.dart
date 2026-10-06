@@ -173,11 +173,41 @@ void main() {
   });
 
   test('slices are largest first; chart buckets match the period', () async {
-    final data = await report(ReportPeriod.year(DateTime(2026, 6, 15)));
+    final data = await report(ReportPeriod.year(DateTime(2025, 6, 15)));
     for (var i = 1; i < data.spending.length; i++) {
       expect(data.spending[i - 1].total >= data.spending[i].total, isTrue);
     }
     expect(data.bucketSize, BucketSize.cycle);
     expect(data.flow, hasLength(12));
+  });
+
+  test('a period in progress is charted up to today only', () async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final cycle = salary25.rangeFor(now);
+
+    // The shared data has entries dated later this cycle: the chart reaches
+    // them, but never runs past the cycle.
+    final data = await report(ReportPeriod.month(now));
+    expect(data.span!.lastDay.isBefore(today), isFalse);
+    expect(data.span!.end.isAfter(cycle.end), isFalse);
+    expect(data.flow.last.bucket.end, data.span!.end);
+
+    // A book with nothing in the future stops exactly at today.
+    final fresh = TestRepos();
+    addTearDown(fresh.close);
+    await fresh.ledger.expense(await fresh.cashId(), 5000, at: now.toUtc());
+    final mine = await ReportsRepositoryImpl(fresh.db)
+        .watch(
+          ReportQuery(
+            period: ReportPeriod.month(now),
+            cycle: salary25,
+            currency: pkr,
+          ),
+        )
+        .first;
+    expect(mine.span!.lastDay, today);
+    expect(mine.flow.last.bucket.start, today);
+    expect(mine.balance.last.bucket.start, today);
   });
 }

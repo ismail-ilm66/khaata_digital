@@ -116,6 +116,7 @@ abstract final class AppIcons {
   static const IconData warning = PhosphorIconsRegular.warningCircle;
   static const IconData history = PhosphorIconsRegular.clockCounterClockwise;
   static const IconData wifi = PhosphorIconsRegular.wifiHigh;
+  static const IconData haptics = PhosphorIconsFill.vibrate;
 
   /// Account types → icon, for accounts without a preset monogram.
   static const Map<String, AppIcon> accountTypes = {
