@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 
+import 'bootstrap.dart';
 import 'core/di/injection.dart';
 import 'core/l10n/gen/app_localizations.dart';
 import 'core/router/app_router.dart';
@@ -21,8 +22,19 @@ class KharchaApp extends StatefulWidget {
 class _KharchaAppState extends State<KharchaApp> {
   final GoRouter _router = createRouter();
 
+  /// Recurring entries due while the app sat in the background appear as
+  /// soon as it comes back (iOS has no background job).
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onResume: catchUpRecurring);
+  }
+
   @override
   void dispose() {
+    _lifecycle.dispose();
     _router.dispose();
     super.dispose();
   }

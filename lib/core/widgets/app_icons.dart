@@ -76,6 +76,29 @@ abstract final class AppIcons {
     PhosphorIconsRegular.wallet,
     PhosphorIconsFill.wallet,
   );
+  static const people = AppIcon(
+    PhosphorIconsRegular.users,
+    PhosphorIconsFill.users,
+  );
+  static const budgets = AppIcon(
+    PhosphorIconsRegular.target,
+    PhosphorIconsFill.target,
+  );
+  static const recurring = AppIcon(
+    PhosphorIconsRegular.arrowsClockwise,
+    PhosphorIconsFill.arrowsClockwise,
+  );
+  static const reminder = AppIcon(
+    PhosphorIconsRegular.bell,
+    PhosphorIconsFill.bell,
+  );
+  static const monthStart = AppIcon(
+    PhosphorIconsRegular.calendarDots,
+    PhosphorIconsFill.calendarDots,
+  );
+  static const IconData overflow = PhosphorIconsBold.dotsThreeVertical;
+  static const IconData arrowUpRight = PhosphorIconsBold.arrowUpRight;
+  static const IconData arrowDownLeft = PhosphorIconsBold.arrowDownLeft;
 
   /// Account types → icon, for accounts without a preset monogram.
   static const Map<String, AppIcon> accountTypes = {

@@ -3,10 +3,11 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 import '../../../core/dates/budget_cycle.dart';
 import '../../accounts/domain/account.dart';
+import '../../budgets/domain/budget.dart';
+import '../../people/domain/person.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../transactions/domain/entry_query.dart';
 import '../../transactions/domain/ledger_entry.dart';
@@ -14,72 +15,125 @@ import '../../transactions/domain/transactions_repository.dart';
 
 class HomeState extends Equatable {
   const HomeState({
-    this.overview = AccountsOverview.empty,
-    this.totals = PeriodTotals.empty,
-    this.recent = const [],
+    this.overview,
+    this.totals,
+    this.recent,
+    this.budgets,
+    this.people,
     this.cycle,
-    this.loading = true,
   });
 
-  final AccountsOverview overview;
+  final AccountsOverview? overview;
 
   /// Income and spending in the current budget cycle.
-  final PeriodTotals totals;
-  final List<EntryView> recent;
+  final PeriodTotals? totals;
+  final List<EntryView>? recent;
+  final BudgetOverview? budgets;
+  final PeopleOverview? people;
   final CycleId? cycle;
-  final bool loading;
+
+  /// Until every card has data, show nothing rather than half a screen.
+  bool get loading =>
+      overview == null ||
+      totals == null ||
+      recent == null ||
+      budgets == null ||
+      people == null;
+
+  HomeState copyWith({
+    AccountsOverview? overview,
+    PeriodTotals? totals,
+    List<EntryView>? recent,
+    BudgetOverview? budgets,
+    PeopleOverview? people,
+    CycleId? cycle,
+  }) => HomeState(
+    overview: overview ?? this.overview,
+    totals: totals ?? this.totals,
+    recent: recent ?? this.recent,
+    budgets: budgets ?? this.budgets,
+    people: people ?? this.people,
+    cycle: cycle ?? this.cycle,
+  );
 
   @override
-  List<Object?> get props => [overview, totals, recent, cycle, loading];
+  List<Object?> get props => [overview, totals, recent, budgets, people, cycle];
 }
 
-/// Home dashboard (spec 3.2 #2): net worth, this cycle, accounts, recent.
-/// Follows the month-start setting via [BudgetCycleCubit].
+/// Home dashboard (spec 3.2 #2): net worth, this cycle, budgets, accounts,
+/// udhaar, recent. Follows the month-start setting via [BudgetCycleCubit].
 @injectable
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit(this._accounts, this._transactions, this._cycle)
-    : super(const HomeState());
+  HomeCubit(
+    this._accounts,
+    this._transactions,
+    this._budgets,
+    this._people,
+    this._cycle,
+    this._currency,
+  ) : super(const HomeState());
 
   final AccountsRepository _accounts;
   final TransactionsRepository _transactions;
+  final BudgetsRepository _budgets;
+  final PeopleRepository _people;
   final BudgetCycleCubit _cycle;
+  final CurrencyCubit _currency;
 
   static const int recentCount = 5;
 
-  StreamSubscription<HomeState>? _data;
-  StreamSubscription<BudgetCycle>? _cycleChanges;
+  final List<StreamSubscription<void>> _subs = [];
+  final List<StreamSubscription<void>> _cycleSubs = [];
 
   void start({DateTime Function() now = DateTime.now}) {
-    _subscribe(_cycle.state, now());
-    _cycleChanges = _cycle.stream.listen((c) => _subscribe(c, now()));
+    _subs
+      ..add(
+        _accounts.watchOverview().listen(
+          (o) => emit(state.copyWith(overview: o)),
+        ),
+      )
+      ..add(
+        _transactions
+            .watch(const EntryQuery(limit: recentCount))
+            .listen(
+              (p) => emit(
+                state.copyWith(recent: p.items.take(recentCount).toList()),
+              ),
+            ),
+      )
+      ..add(
+        _people.watchOverview().listen((p) => emit(state.copyWith(people: p))),
+      )
+      ..add(_cycle.stream.listen((c) => _watchCycle(c, now())));
+    _watchCycle(_cycle.state, now());
   }
 
-  void _subscribe(BudgetCycle cycle, DateTime now) {
+  /// Totals and budgets depend on which cycle "now" is in.
+  void _watchCycle(BudgetCycle cycle, DateTime now) {
+    for (final s in _cycleSubs) {
+      s.cancel();
+    }
+    _cycleSubs.clear();
     final id = cycle.idFor(now);
-    _data?.cancel();
-    _data = _accounts
-        .watchOverview()
-        .combineLatest(
-          _transactions.watchTotals(cycle.rangeOf(id)),
-          (a, b) => (a, b),
-        )
-        .combineLatest(
-          _transactions.watch(const EntryQuery(limit: recentCount)),
-          (ab, page) => HomeState(
-            overview: ab.$1,
-            totals: ab.$2,
-            recent: page.items.take(recentCount).toList(),
-            cycle: id,
-            loading: false,
-          ),
-        )
-        .listen(emit);
+    emit(state.copyWith(cycle: id));
+    _cycleSubs
+      ..add(
+        _transactions
+            .watchTotals(cycle.rangeOf(id))
+            .listen((t) => emit(state.copyWith(totals: t))),
+      )
+      ..add(
+        _budgets
+            .watch(id, cycle, _currency.state)
+            .listen((b) => emit(state.copyWith(budgets: b))),
+      );
   }
 
   @override
   Future<void> close() async {
-    await _data?.cancel();
-    await _cycleChanges?.cancel();
+    for (final s in [..._subs, ..._cycleSubs]) {
+      await s.cancel();
+    }
     return super.close();
   }
 }

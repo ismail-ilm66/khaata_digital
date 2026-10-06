@@ -21,9 +21,13 @@ import '../../../../core/widgets/keypad.dart';
 import '../../../../core/widgets/pill_button.dart';
 import '../../../../core/widgets/segmented_picker.dart';
 import '../../../../core/widgets/tinted_badge.dart';
-import '../../../accounts/domain/account.dart';
 import '../../../accounts/presentation/account_badge.dart';
 import '../../../categories/presentation/category_grid.dart';
+import '../../../people/domain/person.dart';
+import '../../../people/presentation/person_badge.dart';
+import '../../../recurring/domain/recurrence.dart';
+import '../../../recurring/domain/recurring_rule.dart';
+import '../../../recurring/presentation/recurring_screen.dart';
 import '../../domain/transaction_type.dart';
 import '../widgets/receipts.dart';
 import 'transaction_form_bloc.dart';
@@ -32,6 +36,31 @@ import 'transaction_form_bloc.dart';
 abstract final class EntryEditor {
   static Future<void> open(BuildContext context, {String? editId}) =>
       context.push(editId == null ? Routes.addEntry : Routes.editEntry(editId));
+
+  /// Opens a new udhaar entry with [personId] (People screen actions).
+  static Future<void> udhaar(
+    BuildContext context, {
+    required String personId,
+    required UdhaarDirection direction,
+    Money? amount,
+  }) => context.push(
+    Routes.addEntry,
+    extra: EntryEditorArgs(
+      udhaar: direction,
+      personId: personId,
+      amount: amount,
+    ),
+  );
+}
+
+/// Pre-fill for a new entry.
+@immutable
+class EntryEditorArgs {
+  const EntryEditorArgs({this.udhaar, this.personId, this.amount});
+
+  final UdhaarDirection? udhaar;
+  final String? personId;
+  final Money? amount;
 }
 
 /// Add / edit a transaction on its own screen (spec 3.2 #3).
@@ -40,22 +69,45 @@ abstract final class EntryEditor {
 /// and date) → for what → optional extras → keypad and Save. The fastest
 /// path stays 4 taps: + → amount → category → Save.
 class EntryEditorScreen extends StatelessWidget {
-  const EntryEditorScreen({super.key, this.editId});
+  const EntryEditorScreen({super.key, this.editId, this.args});
 
   final String? editId;
+  final EntryEditorArgs? args;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          getIt<TransactionFormBloc>()..add(FormStarted(editId: editId)),
+      create: (_) => getIt<TransactionFormBloc>()
+        ..add(
+          FormStarted(
+            editId: editId,
+            udhaar: args?.udhaar,
+            personId: args?.personId,
+            amount: args?.amount,
+          ),
+        ),
       child: const _Editor(),
     );
   }
 }
 
-class _Editor extends StatelessWidget {
+class _Editor extends StatefulWidget {
   const _Editor();
+
+  @override
+  State<_Editor> createState() => _EditorState();
+}
+
+class _EditorState extends State<_Editor> {
+  @override
+  void initState() {
+    super.initState();
+    // A new task starts clean: a lingering "Saved" toast would otherwise
+    // sit over this screen's Save button.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) ScaffoldMessenger.maybeOf(context)?.hideCurrentSnackBar();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +140,9 @@ class _Editor extends StatelessWidget {
                       children: [
                         _Header(state: s),
                         Expanded(child: _AmountHero(state: s)),
-                        if (s.isTransfer)
+                        if (s.isUdhaar)
+                          _UdhaarSection(state: s)
+                        else if (s.isTransfer)
                           _TransferAccounts(state: s)
                         else
                           _QuickCategories(state: s),
@@ -123,6 +177,25 @@ class _Editor extends StatelessWidget {
   }
 }
 
+/// What the editor is recording; udhaar is a mode over expense/income.
+enum _Mode {
+  expense(TransactionType.expense),
+  income(TransactionType.income),
+  transfer(TransactionType.transfer),
+  udhaar(null);
+
+  const _Mode(this.type);
+  final TransactionType? type;
+
+  static _Mode of(TransactionFormState s) => s.isUdhaar
+      ? udhaar
+      : switch (s.type) {
+          TransactionType.income => income,
+          TransactionType.transfer => transfer,
+          _ => expense,
+        };
+}
+
 class _Header extends StatelessWidget {
   const _Header({required this.state});
 
@@ -148,15 +221,17 @@ class _Header extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.xs),
           Expanded(
-            child: SegmentedPicker<TransactionType>(
+            child: SegmentedPicker<_Mode>(
               key: const Key('typePicker'),
-              value: state.type,
-              onChanged: (t) =>
-                  context.read<TransactionFormBloc>().add(TypeChanged(t)),
+              value: _Mode.of(state),
+              onChanged: (m) => context.read<TransactionFormBloc>().add(
+                m == _Mode.udhaar ? const UdhaarChosen() : TypeChanged(m.type!),
+              ),
               options: [
-                PickerOption(TransactionType.expense, l.typeExpense),
-                PickerOption(TransactionType.income, l.typeIncome),
-                PickerOption(TransactionType.transfer, l.typeTransfer),
+                PickerOption(_Mode.expense, l.typeExpense),
+                PickerOption(_Mode.income, l.typeIncome),
+                PickerOption(_Mode.transfer, l.typeTransfer),
+                PickerOption(_Mode.udhaar, l.typeUdhaar),
               ],
             ),
           ),
@@ -367,6 +442,7 @@ class _ProblemText extends StatelessWidget {
       EntryProblem.destinationRequired => l.problemDestination,
       EntryProblem.sameAccount => l.problemSameAccount,
       EntryProblem.conversionRequired => l.problemConversion,
+      EntryProblem.personRequired => l.problemPerson,
     };
     if (text == null) return const SizedBox.shrink();
     return Padding(
@@ -459,10 +535,13 @@ class _TransferAccounts extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: _AccountCard(
+            child: _PickCard(
               key: const Key('fromAccount'),
               label: l.fromAccount,
-              account: state.account,
+              title: state.account?.name ?? l.chooseAccount,
+              leading: state.account == null
+                  ? null
+                  : AccountBadge.of(state.account!, size: 26),
               onTap: () async {
                 final id = await _chooseAccount(
                   context,
@@ -480,10 +559,13 @@ class _TransferAccounts extends StatelessWidget {
             icon: Icon(AppIcons.transfer, color: context.colors.brand),
           ),
           Expanded(
-            child: _AccountCard(
+            child: _PickCard(
               key: const Key('toAccount'),
               label: l.toAccount,
-              account: state.toAccount,
+              title: state.toAccount?.name ?? l.chooseAccount,
+              leading: state.toAccount == null
+                  ? null
+                  : AccountBadge.of(state.toAccount!, size: 26),
               onTap: () async {
                 final id = await _chooseAccount(
                   context,
@@ -501,16 +583,19 @@ class _TransferAccounts extends StatelessWidget {
   }
 }
 
-class _AccountCard extends StatelessWidget {
-  const _AccountCard({
+/// A labelled, tappable card that opens a picker (accounts, person).
+class _PickCard extends StatelessWidget {
+  const _PickCard({
     super.key,
     required this.label,
-    required this.account,
+    required this.title,
     required this.onTap,
+    this.leading,
   });
 
   final String label;
-  final Account? account;
+  final String title;
+  final Widget? leading;
   final VoidCallback onTap;
 
   @override
@@ -531,17 +616,22 @@ class _AccountCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Row(
                 children: [
-                  if (account != null) ...[
-                    AccountBadge.of(account!, size: 26),
+                  if (leading != null) ...[
+                    leading!,
                     const SizedBox(width: AppSpacing.s),
                   ],
                   Expanded(
                     child: Text(
-                      account?.name ?? context.l10n.chooseAccount,
+                      title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: context.text.titleSmall,
                     ),
+                  ),
+                  DirectionalIcon(
+                    AppIcons.chevronRight,
+                    size: 14,
+                    color: c.inkMuted,
                   ),
                 ],
               ),
@@ -654,6 +744,16 @@ class _Extras extends StatelessWidget {
               );
             },
           ),
+          if (!state.isEditing)
+            PillButton(
+              key: const Key('repeatChip'),
+              icon: AppIcons.recurring.regular,
+              label: state.repeat == null
+                  ? l.repeat
+                  : frequencyLabel(context, state.repeat!),
+              selected: state.repeat != null,
+              onTap: () => _chooseRepeat(context, state),
+            ),
         ],
       ),
     );
@@ -668,11 +768,13 @@ class _SaveButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final label = switch (state.type) {
-      TransactionType.income => l.saveIncome,
-      TransactionType.transfer => l.saveTransfer,
-      _ => l.saveExpense,
-    };
+    final label = state.isUdhaar
+        ? l.saveUdhaar
+        : switch (state.type) {
+            TransactionType.income => l.saveIncome,
+            TransactionType.transfer => l.saveTransfer,
+            _ => l.saveExpense,
+          };
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.l,
@@ -736,4 +838,157 @@ Future<void> _chooseDate(
   bloc.add(
     DateChanged(DateTime(day.year, day.month, day.day, t.hour, t.minute)),
   );
+}
+
+/// Udhaar: who, and which way the money went.
+class _UdhaarSection extends StatelessWidget {
+  const _UdhaarSection({required this.state});
+
+  final TransactionFormState state;
+
+  Future<void> _choosePerson(BuildContext context) async {
+    final bloc = context.read<TransactionFormBloc>();
+    final l = context.l10n;
+    const addNew = '_add';
+    final picked = await pickOne<String>(
+      context,
+      title: l.choosePerson,
+      selected: state.personId,
+      items: [
+        PickItem(
+          value: addNew,
+          title: l.addPerson,
+          leading: const TintedBadge(icon: AppIcons.plus, size: 36),
+          trailing: const SizedBox.shrink(),
+        ),
+        for (final p in state.people)
+          PickItem(
+            value: p.id,
+            title: p.name,
+            leading: PersonBadge(p.name, size: 36),
+          ),
+      ],
+    );
+    if (picked == null || !context.mounted) return;
+    if (picked != addNew) {
+      bloc.add(PersonChanged(picked));
+      return;
+    }
+    final name = await editTextSheet(
+      context,
+      title: l.addPerson,
+      initial: '',
+      hint: l.personName,
+      doneLabel: l.save,
+    );
+    if (name == null || name.isEmpty || !context.mounted) return;
+    try {
+      final id = await getIt<PeopleRepository>().create(name);
+      bloc.add(PersonAdded(Person(id: id, name: name)));
+    } on DuplicateNameFailure {
+      if (context.mounted) showToast(context, l.duplicatePersonName(name));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final person = state.person;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+      child: Column(
+        children: [
+          SegmentedPicker<UdhaarDirection>(
+            key: const Key('udhaarDirection'),
+            value: state.udhaarDirection,
+            onChanged: (d) => context.read<TransactionFormBloc>().add(
+              UdhaarDirectionChanged(d),
+            ),
+            options: [
+              PickerOption(UdhaarDirection.gave, l.iGave),
+              PickerOption(UdhaarDirection.received, l.iReceived),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s),
+          _PickCard(
+            key: const Key('personCard'),
+            label: l.person,
+            title: person?.name ?? l.choosePerson,
+            leading: person == null ? null : PersonBadge(person.name, size: 26),
+            onTap: () => _choosePerson(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Repeat: never / daily / weekly / monthly / yearly, and a reminder.
+Future<void> _chooseRepeat(
+  BuildContext context,
+  TransactionFormState state,
+) async {
+  final bloc = context.read<TransactionFormBloc>();
+  final l = context.l10n;
+  final result = await showAppSheet<(RecurrenceFrequency?, bool)>(
+    context,
+    title: l.repeat,
+    builder: (sheet) {
+      var frequency = state.repeat;
+      var remind = state.remind;
+      return StatefulBuilder(
+        builder: (sheet, setState) {
+          Widget option(RecurrenceFrequency? f, String label) => ListTile(
+            key: Key('repeat-${f?.name ?? 'never'}'),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.xl,
+            ),
+            title: Text(label, style: sheet.text.titleSmall),
+            trailing: frequency == f
+                ? Icon(AppIcons.check, color: sheet.colors.brand, size: 20)
+                : null,
+            onTap: () => setState(() {
+              frequency = f;
+              if (f == null) remind = false;
+            }),
+          );
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              option(null, l.repeatNever),
+              for (final f in RecurrenceFrequency.values)
+                option(f, frequencyLabel(sheet, f)),
+              SwitchListTile(
+                key: const Key('remindSwitch'),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                ),
+                title: Text(l.remindMe, style: sheet.text.titleSmall),
+                subtitle: Text(l.remindMeHint),
+                value: remind,
+                onChanged: frequency == null
+                    ? null
+                    : (v) async {
+                        if (v) {
+                          await getIt<ReminderScheduler>().requestPermission();
+                        }
+                        setState(() => remind = v);
+                      },
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.l),
+                child: FilledButton(
+                  key: const Key('repeatDone'),
+                  onPressed: () => Navigator.pop(sheet, (frequency, remind)),
+                  child: Text(l.done),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
+  if (result != null) bloc.add(RepeatChanged(result.$1, remind: result.$2));
 }

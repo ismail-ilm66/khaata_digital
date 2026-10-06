@@ -15,10 +15,11 @@ typedef EntryRows = ({
   AccountRow from,
   AccountRow? to,
   CategoryRow? category,
+  PersonRow? person,
 });
 
 @DriftAccessor(
-  tables: [Transactions, Accounts, Categories, Tags, TransactionTags],
+  tables: [Transactions, Accounts, Categories, People, Tags, TransactionTags],
 )
 class TransactionsDao extends DatabaseAccessor<AppDatabase>
     with _$TransactionsDaoMixin {
@@ -87,6 +88,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
     Set<String> accountIds = const {},
     Set<String> categoryIds = const {},
     Set<String> tagNames = const {},
+    Set<String> personIds = const {},
     String search = '',
     int? fromMillis,
     int? toMillis,
@@ -99,6 +101,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
       innerJoin(accounts, accounts.id.equalsExp(t.accountId)),
       leftOuterJoin(toAcc, toAcc.id.equalsExp(t.toAccountId)),
       leftOuterJoin(categories, categories.id.equalsExp(t.categoryId)),
+      leftOuterJoin(people, people.id.equalsExp(t.personId)),
     ]);
 
     Expression<bool> tagged(Expression<bool> Function() match) => existsQuery(
@@ -117,6 +120,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
         t.accountId.isIn(accountIds) | t.toAccountId.isIn(accountIds),
       if (categoryIds.isNotEmpty) t.categoryId.isIn(categoryIds),
       if (tagNames.isNotEmpty) tagged(() => tags.name.isIn(tagNames)),
+      if (personIds.isNotEmpty) t.personId.isIn(personIds),
       if (fromMillis != null) t.occurredAt.isBiggerOrEqualValue(fromMillis),
       if (toMillis != null) t.occurredAt.isSmallerThanValue(toMillis),
     ];
@@ -133,6 +137,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
             like(accounts.name) |
             like(toAcc.name) |
             like(categories.name) |
+            like(people.name) |
             tagged(() => like(tags.name)) |
             (amount == null
                 ? const Constant(false)
@@ -154,6 +159,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
         from: r.readTable(accounts),
         to: r.readTableOrNull(toAcc),
         category: r.readTableOrNull(categories),
+        person: r.readTableOrNull(people),
       ),
     );
   }
@@ -167,6 +173,8 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
       'SELECT type, currency_code, SUM(amount_minor) AS total '
       'FROM transactions '
       "WHERE deleted_at IS NULL AND type IN ('income', 'expense') "
+      // Udhaar (person-linked) moves balances but isn't income or spending.
+      'AND person_id IS NULL '
       'AND occurred_at >= ? AND occurred_at < ? '
       'GROUP BY type, currency_code',
       variables: [Variable.withInt(fromMillis), Variable.withInt(toMillis)],
@@ -175,6 +183,32 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
       (r) => (
         type: TransactionType.values.byName(r.read<String>('type')),
         currency: r.read<String>('currency_code'),
+        total: r.read<int>('total'),
+      ),
+    );
+  }
+
+  /// Expense totals per category (null = uncategorised) in one currency
+  /// over `[fromMillis, toMillis)`, excluding udhaar.
+  Selectable<({String? categoryId, int total})> spendingByCategory(
+    int fromMillis,
+    int toMillis,
+    String currencyCode,
+  ) {
+    return customSelect(
+      'SELECT category_id, SUM(amount_minor) AS total FROM transactions '
+      "WHERE deleted_at IS NULL AND type = 'expense' AND person_id IS NULL "
+      'AND currency_code = ? AND occurred_at >= ? AND occurred_at < ? '
+      'GROUP BY category_id',
+      variables: [
+        Variable.withString(currencyCode),
+        Variable.withInt(fromMillis),
+        Variable.withInt(toMillis),
+      ],
+      readsFrom: {transactions},
+    ).map(
+      (r) => (
+        categoryId: r.readNullable<String>('category_id'),
         total: r.read<int>('total'),
       ),
     );

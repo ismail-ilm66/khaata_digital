@@ -799,6 +799,378 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Receipt'**
   String get receipt;
+
+  /// No description provided for @budgets.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets'**
+  String get budgets;
+
+  /// No description provided for @budgetsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Limits for each month'**
+  String get budgetsSubtitle;
+
+  /// No description provided for @overallBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get overallBudget;
+
+  /// No description provided for @overallBudgetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything you spend this month'**
+  String get overallBudgetHint;
+
+  /// No description provided for @addBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Add budget'**
+  String get addBudget;
+
+  /// No description provided for @editBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit budget'**
+  String get editBudget;
+
+  /// No description provided for @removeBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove budget'**
+  String get removeBudget;
+
+  /// No description provided for @copyLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy last month'**
+  String get copyLastMonth;
+
+  /// No description provided for @copiedBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing to copy from last month} =1{Copied 1 budget} other{Copied {count} budgets}}'**
+  String copiedBudgets(int count);
+
+  /// No description provided for @noBudgets.
+  ///
+  /// In en, this message translates to:
+  /// **'No budgets yet'**
+  String get noBudgets;
+
+  /// No description provided for @noBudgetsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a limit for the month or for a category, and watch it fill as you spend.'**
+  String get noBudgetsBody;
+
+  /// No description provided for @budgetLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String budgetLeft(String amount);
+
+  /// No description provided for @budgetOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} over'**
+  String budgetOver(String amount);
+
+  /// No description provided for @budgetLimit.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly limit'**
+  String get budgetLimit;
+
+  /// No description provided for @previousCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get previousCycle;
+
+  /// No description provided for @nextCycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get nextCycle;
+
+  /// No description provided for @people.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get people;
+
+  /// No description provided for @peopleSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Udhaar: who owes whom'**
+  String get peopleSubtitle;
+
+  /// No description provided for @youllReceive.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll receive'**
+  String get youllReceive;
+
+  /// No description provided for @youOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe'**
+  String get youOwe;
+
+  /// No description provided for @addPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add person'**
+  String get addPerson;
+
+  /// No description provided for @personName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get personName;
+
+  /// No description provided for @person.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get person;
+
+  /// No description provided for @choosePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a person'**
+  String get choosePerson;
+
+  /// No description provided for @noPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'No udhaar yet'**
+  String get noPeople;
+
+  /// No description provided for @noPeopleBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add someone you lend to or borrow from.'**
+  String get noPeopleBody;
+
+  /// No description provided for @owesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Owes you'**
+  String get owesYou;
+
+  /// No description provided for @youOweThem.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe'**
+  String get youOweThem;
+
+  /// No description provided for @settled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get settled;
+
+  /// No description provided for @iGave.
+  ///
+  /// In en, this message translates to:
+  /// **'I gave'**
+  String get iGave;
+
+  /// No description provided for @iReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'I received'**
+  String get iReceived;
+
+  /// No description provided for @settleUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle up'**
+  String get settleUp;
+
+  /// No description provided for @typeUdhaar.
+  ///
+  /// In en, this message translates to:
+  /// **'Udhaar'**
+  String get typeUdhaar;
+
+  /// No description provided for @saveUdhaar.
+  ///
+  /// In en, this message translates to:
+  /// **'Save udhaar'**
+  String get saveUdhaar;
+
+  /// No description provided for @duplicatePersonName.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is already in your people'**
+  String duplicatePersonName(String name);
+
+  /// No description provided for @removePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove person'**
+  String get removePerson;
+
+  /// No description provided for @personRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Person removed'**
+  String get personRemoved;
+
+  /// No description provided for @noLedger.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries yet'**
+  String get noLedger;
+
+  /// No description provided for @noLedgerBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Record money you gave or received.'**
+  String get noLedgerBody;
+
+  /// No description provided for @problemPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a person'**
+  String get problemPerson;
+
+  /// No description provided for @repeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeat;
+
+  /// No description provided for @repeatNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get repeatNever;
+
+  /// No description provided for @repeatDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get repeatDaily;
+
+  /// No description provided for @repeatWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get repeatWeekly;
+
+  /// No description provided for @repeatMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get repeatMonthly;
+
+  /// No description provided for @repeatYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get repeatYearly;
+
+  /// No description provided for @remindMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get remindMe;
+
+  /// No description provided for @remindMeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification on the due date'**
+  String get remindMeHint;
+
+  /// No description provided for @recurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring'**
+  String get recurring;
+
+  /// No description provided for @recurringSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills and payments that repeat'**
+  String get recurringSubtitle;
+
+  /// No description provided for @noRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing repeating yet'**
+  String get noRecurring;
+
+  /// No description provided for @noRecurringBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When adding an entry, tap Repeat to make it recur.'**
+  String get noRecurringBody;
+
+  /// No description provided for @nextOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Next: {date}'**
+  String nextOn(String date);
+
+  /// No description provided for @stopRepeating.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop repeating'**
+  String get stopRepeating;
+
+  /// No description provided for @stoppedRepeating.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped repeating'**
+  String get stoppedRepeating;
+
+  /// No description provided for @reminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get reminderTitle;
+
+  /// No description provided for @reminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{what} · {amount}'**
+  String reminderBody(String what, String amount);
+
+  /// No description provided for @recurringEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeating payment'**
+  String get recurringEntry;
+
+  /// No description provided for @monthStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Month starts on'**
+  String get monthStart;
+
+  /// No description provided for @monthStartDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day}'**
+  String monthStartDay(int day);
+
+  /// No description provided for @monthStartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For salaries paid on a set date, e.g. the 25th'**
+  String get monthStartHint;
+
+  /// No description provided for @settingsGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get settingsGeneral;
 }
 
 class _AppLocalizationsDelegate

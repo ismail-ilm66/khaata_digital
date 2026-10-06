@@ -193,6 +193,7 @@ class EntryView extends Equatable {
     required this.accountCurrency,
     this.toAccountName,
     this.category,
+    this.personName,
   });
 
   final LedgerEntry entry;
@@ -201,6 +202,11 @@ class EntryView extends Equatable {
   final String? toAccountName;
   final Category? category;
 
+  /// Udhaar entries: who the money went to or came from.
+  final String? personName;
+
+  bool get isUdhaar => entry.personId != null;
+
   @override
   List<Object?> get props => [
     entry,
@@ -208,5 +214,6 @@ class EntryView extends Equatable {
     accountCurrency,
     toAccountName,
     category,
+    personName,
   ];
 }

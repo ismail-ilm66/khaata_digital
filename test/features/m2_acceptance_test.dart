@@ -68,8 +68,14 @@ void main() {
     final saved = (await t.runAsync(entries))!.single;
     expect(saved.entry.amount, Money.major(5, Currency.pkr));
     expect(saved.category!.name, 'Food & Drink');
-    // Home's recent list shows it straight away.
-    expect(find.widgetWithText(EntryTile, 'Food & Drink'), findsOneWidget);
+    // Home's recent list shows it straight away (scroll down to it).
+    final tile = find.widgetWithText(EntryTile, 'Food & Drink');
+    await t.scrollUntilVisible(
+      tile,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(tile, findsOneWidget);
   });
 
   testWidgets('edit re-opens with the stored date and saving keeps it', (

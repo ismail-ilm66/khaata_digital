@@ -150,5 +150,119 @@
         "type": "int"
       }
     }
+  },
+  "budgets": "Budgets",
+  "budgetsSubtitle": "Limits for each month",
+  "overallBudget": "Overall",
+  "overallBudgetHint": "Everything you spend this month",
+  "addBudget": "Add budget",
+  "editBudget": "Edit budget",
+  "removeBudget": "Remove budget",
+  "copyLastMonth": "Copy last month",
+  "copiedBudgets": "{count, plural, =0{Nothing to copy from last month} =1{Copied 1 budget} other{Copied {count} budgets}}",
+  "noBudgets": "No budgets yet",
+  "noBudgetsBody": "Set a limit for the month or for a category, and watch it fill as you spend.",
+  "budgetLeft": "{amount} left",
+  "budgetOver": "{amount} over",
+  "budgetLimit": "Monthly limit",
+  "previousCycle": "Previous month",
+  "nextCycle": "Next month",
+  "people": "People",
+  "peopleSubtitle": "Udhaar: who owes whom",
+  "youllReceive": "You'll receive",
+  "youOwe": "You owe",
+  "addPerson": "Add person",
+  "personName": "Name",
+  "person": "Person",
+  "choosePerson": "Choose a person",
+  "noPeople": "No udhaar yet",
+  "noPeopleBody": "Add someone you lend to or borrow from.",
+  "owesYou": "Owes you",
+  "youOweThem": "You owe",
+  "settled": "Settled",
+  "iGave": "I gave",
+  "iReceived": "I received",
+  "settleUp": "Settle up",
+  "typeUdhaar": "Udhaar",
+  "saveUdhaar": "Save udhaar",
+  "duplicatePersonName": "{name} is already in your people",
+  "removePerson": "Remove person",
+  "personRemoved": "Person removed",
+  "noLedger": "No entries yet",
+  "noLedgerBody": "Record money you gave or received.",
+  "problemPerson": "Choose a person",
+  "repeat": "Repeat",
+  "repeatNever": "Never",
+  "repeatDaily": "Daily",
+  "repeatWeekly": "Weekly",
+  "repeatMonthly": "Monthly",
+  "repeatYearly": "Yearly",
+  "remindMe": "Remind me",
+  "remindMeHint": "A notification on the due date",
+  "recurring": "Recurring",
+  "recurringSubtitle": "Bills and payments that repeat",
+  "noRecurring": "Nothing repeating yet",
+  "noRecurringBody": "When adding an entry, tap Repeat to make it recur.",
+  "nextOn": "Next: {date}",
+  "stopRepeating": "Stop repeating",
+  "stoppedRepeating": "Stopped repeating",
+  "reminderTitle": "Due today",
+  "reminderBody": "{what} · {amount}",
+  "recurringEntry": "Repeating payment",
+  "monthStart": "Month starts on",
+  "monthStartDay": "Day {day}",
+  "monthStartHint": "For salaries paid on a set date, e.g. the 25th",
+  "settingsGeneral": "General",
+  "@copiedBudgets": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@budgetLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@duplicatePersonName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@nextOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderBody": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@monthStartDay": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
   }
 }

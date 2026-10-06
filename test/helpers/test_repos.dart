@@ -4,6 +4,14 @@ import 'package:khaata_digital/features/categories/data/categories_repository_im
 import 'package:khaata_digital/features/settings/data/settings_repository_impl.dart';
 import 'package:khaata_digital/features/transactions/data/transactions_repository_impl.dart';
 
+import 'package:khaata_digital/features/budgets/data/budgets_repository_impl.dart';
+import 'package:khaata_digital/features/home/presentation/home_cubit.dart';
+import 'package:khaata_digital/features/people/data/people_repository_impl.dart';
+import 'package:khaata_digital/features/recurring/data/recurring_repository_impl.dart';
+import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
+import 'package:khaata_digital/features/transactions/presentation/form/transaction_form_bloc.dart';
+
+import 'fake_reminders.dart';
 import 'test_db.dart';
 import 'test_receipts.dart';
 
@@ -15,6 +23,9 @@ class TestRepos {
     categories = CategoriesRepositoryImpl(db);
     settings = SettingsRepositoryImpl(db);
     transactions = TransactionsRepositoryImpl(db, testReceiptStore());
+    budgets = BudgetsRepositoryImpl(db);
+    people = PeopleRepositoryImpl(db, transactions);
+    recurring = RecurringRepositoryImpl(db, transactions);
   }
 
   final AppDatabase db;
@@ -22,6 +33,29 @@ class TestRepos {
   late final CategoriesRepositoryImpl categories;
   late final SettingsRepositoryImpl settings;
   late final TransactionsRepositoryImpl transactions;
+  late final BudgetsRepositoryImpl budgets;
+  late final PeopleRepositoryImpl people;
+  late final RecurringRepositoryImpl recurring;
+  final reminders = FakeReminderScheduler();
+
+  TransactionFormBloc formBloc() => TransactionFormBloc(
+    transactions,
+    accounts,
+    categories,
+    settings,
+    people,
+    recurring,
+    reminders,
+  );
+
+  HomeCubit homeCubit(BudgetCycleCubit cycle) => HomeCubit(
+    accounts,
+    transactions,
+    budgets,
+    people,
+    cycle,
+    CurrencyCubit(settings),
+  );
 
   late final ledger = TestLedger(db);
 

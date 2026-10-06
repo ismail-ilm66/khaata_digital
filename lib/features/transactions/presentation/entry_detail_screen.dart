@@ -73,7 +73,11 @@ class _Detail extends StatelessWidget {
     final receipts = [for (final a in e.attachments) ReceiptRef.stored(a)];
 
     return PageScaffold(
-      title: transfer ? l.transferTitle : context.categoryName(view.category),
+      title: transfer
+          ? l.transferTitle
+          : view.isUdhaar
+          ? view.personName ?? l.person
+          : context.categoryName(view.category),
       subtitle: context.longDateTime(e.occurredAt.toLocal()),
       slivers: [
         SliverPadding(

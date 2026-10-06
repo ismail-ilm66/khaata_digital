@@ -3,6 +3,8 @@ import 'package:khaata_digital/core/error/app_failure.dart';
 import 'package:khaata_digital/core/money/amount_buffer.dart';
 import 'package:khaata_digital/core/money/currency.dart';
 import 'package:khaata_digital/core/money/money.dart';
+import 'package:khaata_digital/features/people/domain/person.dart';
+import 'package:khaata_digital/features/recurring/domain/recurrence.dart';
 import 'package:khaata_digital/features/settings/domain/setting_key.dart';
 import 'package:khaata_digital/features/transactions/domain/entry_query.dart';
 import 'package:khaata_digital/features/transactions/domain/transaction_type.dart';
@@ -16,12 +18,7 @@ void main() {
 
   setUp(() {
     r = TestRepos();
-    bloc = TransactionFormBloc(
-      r.transactions,
-      r.accounts,
-      r.categories,
-      r.settings,
-    );
+    bloc = r.formBloc();
   });
   tearDown(() async {
     await bloc.close();
@@ -81,12 +78,7 @@ void main() {
     await send(const FormSubmitted());
     expect(await r.settings.read(SettingKey.lastAccountId), bank);
 
-    final next = TransactionFormBloc(
-      r.transactions,
-      r.accounts,
-      r.categories,
-      r.settings,
-    );
+    final next = r.formBloc();
     next.add(const FormStarted());
     await pumpEventQueue();
     expect(next.state.accountId, bank);
@@ -111,12 +103,7 @@ void main() {
           .entry
           .id;
 
-      final edit = TransactionFormBloc(
-        r.transactions,
-        r.accounts,
-        r.categories,
-        r.settings,
-      );
+      final edit = r.formBloc();
       edit.add(FormStarted(editId: id));
       await pumpEventQueue();
       final s = edit.state;
@@ -250,4 +237,119 @@ void main() {
       expect(s.amount.text, '300');
     },
   );
+
+  group('udhaar mode', () {
+    test('records a person-linked entry with no category', () async {
+      final ali = await r.people.create('Ali');
+      final food = await r.categoryId('Food & Drink');
+      await send(const FormStarted());
+      await send(CategoryTapped(food));
+      await send(const UdhaarChosen());
+      await send(PersonChanged(ali));
+      await keys('5000');
+      expect((await send(const FormSubmitted())).status, FormStatus.saved);
+
+      final e = (await r.transactions.watch(const EntryQuery()).first)
+          .items
+          .single
+          .entry;
+      expect(e.personId, ali);
+      expect(e.type, TransactionType.expense, reason: 'I gave');
+      expect(e.categoryId, isNull);
+      final o = await r.people.watchOverview().first;
+      expect(o.receivable[Currency.pkr], Money.major(5000, Currency.pkr));
+    });
+
+    test('"I received" is stored as income', () async {
+      final ali = await r.people.create('Ali');
+      await send(FormStarted(personId: ali, udhaar: UdhaarDirection.received));
+      await keys('300');
+      await send(const FormSubmitted());
+      final e = (await r.transactions.watch(const EntryQuery()).first)
+          .items
+          .single
+          .entry;
+      expect(e.type, TransactionType.income);
+    });
+
+    test('needs a person', () async {
+      await send(const FormStarted());
+      await send(const UdhaarChosen());
+      await keys('10');
+      final s = await send(const FormSubmitted());
+      expect(s.problem, EntryProblem.personRequired);
+      expect(
+        await r.transactions
+            .watch(const EntryQuery())
+            .first
+            .then((p) => p.items),
+        isEmpty,
+      );
+    });
+
+    test('settle up pre-fills person, direction and amount', () async {
+      final ali = await r.people.create('Ali');
+      final s = await send(
+        FormStarted(
+          personId: ali,
+          udhaar: UdhaarDirection.received,
+          amount: Money.major(3500, Currency.pkr),
+        ),
+      );
+      expect(s.isUdhaar, isTrue);
+      expect(s.person!.name, 'Ali');
+      expect(s.udhaarDirection, UdhaarDirection.received);
+      expect(s.amount.text, '3500');
+    });
+
+    test('editing an udhaar entry reopens in udhaar mode', () async {
+      final ali = await r.people.create('Ali');
+      final cash = await r.cashId();
+      final id = await r.ledger.expense(cash, 100, personId: ali);
+      final edit = r.formBloc()..add(FormStarted(editId: id));
+      await pumpEventQueue();
+      expect(edit.state.isUdhaar, isTrue);
+      expect(edit.state.personId, ali);
+      await edit.close();
+    });
+
+    test('switching back to expense drops the person', () async {
+      final ali = await r.people.create('Ali');
+      await send(FormStarted(personId: ali));
+      final s = await send(const TypeChanged(TransactionType.expense));
+      expect(s.isUdhaar, isFalse);
+      expect(s.personId, isNull);
+    });
+
+    test('a person added from the editor is selected', () async {
+      await send(const FormStarted());
+      await send(const UdhaarChosen());
+      final s = await send(const PersonAdded(Person(id: 'p1', name: 'Sara')));
+      expect(s.person!.name, 'Sara');
+    });
+  });
+
+  group('repeat', () {
+    test('saving with Repeat creates a rule and syncs reminders', () async {
+      await send(const FormStarted());
+      await send(
+        const RepeatChanged(RecurrenceFrequency.monthly, remind: true),
+      );
+      await keys('45000');
+      await send(const FormSubmitted());
+
+      final rules = await r.recurring.active();
+      expect(rules.single.frequency, RecurrenceFrequency.monthly);
+      expect(rules.single.remind, isTrue);
+      expect(rules.single.template.amount, Money.major(45000, Currency.pkr));
+      expect(r.reminders.last, hasLength(1));
+    });
+
+    test('no rule without Repeat', () async {
+      await send(const FormStarted());
+      await keys('5');
+      await send(const FormSubmitted());
+      expect(await r.recurring.active(), isEmpty);
+    });
+  });
 }

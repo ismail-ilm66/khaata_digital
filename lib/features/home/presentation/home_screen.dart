@@ -16,6 +16,9 @@ import '../../../core/widgets/surface_card.dart';
 import '../../accounts/domain/account.dart';
 import '../../accounts/presentation/account_badge.dart';
 import '../../accounts/presentation/accounts_screen.dart';
+import '../../budgets/domain/budget.dart';
+import '../../budgets/presentation/budget_bar.dart';
+import '../../people/presentation/people_screen.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../transactions/presentation/form/entry_editor_screen.dart';
 import '../../transactions/presentation/widgets/entry_tile.dart';
@@ -67,25 +70,44 @@ class _HomeView extends StatelessWidget {
                 _SummaryCard(state: s, masked: masked),
                 const SizedBox(height: AppSpacing.xl),
                 Section(
+                  title: l.budgets,
+                  trailing: TextButton(
+                    onPressed: () => context.push(Routes.budgets),
+                    child: Text(l.manage),
+                  ),
+                  child: _BudgetsCard(overview: s.budgets!),
+                ),
+                Section(
                   title: l.accounts,
                   trailing: TextButton(
                     onPressed: () => context.push(Routes.accounts),
                     child: Text(l.manage),
                   ),
                   child: _AccountsCarousel(
-                    accounts: s.overview.accounts,
+                    accounts: s.overview!.accounts,
                     masked: masked,
                   ),
                 ),
                 Section(
+                  title: l.people,
+                  trailing: TextButton(
+                    onPressed: () => context.push(Routes.people),
+                    child: Text(l.manage),
+                  ),
+                  child: UdhaarTotals(
+                    overview: s.people!,
+                    onTap: () => context.push(Routes.people),
+                  ),
+                ),
+                Section(
                   title: l.recent,
-                  trailing: s.recent.isEmpty
+                  trailing: s.recent!.isEmpty
                       ? null
                       : TextButton(
                           onPressed: () => context.go(Routes.transactions),
                           child: Text(l.seeAll),
                         ),
-                  child: s.recent.isEmpty
+                  child: s.recent!.isEmpty
                       ? SurfaceCard(
                           children: [
                             EmptyState(
@@ -102,7 +124,7 @@ class _HomeView extends StatelessWidget {
                       : SurfaceCard(
                           padding: EdgeInsets.zero,
                           children: [
-                            for (final v in s.recent)
+                            for (final v in s.recent!)
                               EntryTile(
                                 v,
                                 onTap: () =>
@@ -131,9 +153,9 @@ class _SummaryCard extends StatelessWidget {
     final l = context.l10n;
     final c = context.colors;
     final currency = context.watch<CurrencyCubit>().state;
-    final income = state.totals.incomeIn(currency);
-    final spent = state.totals.expenseIn(currency);
-    final net = state.overview.netWorth;
+    final income = state.totals!.incomeIn(currency);
+    final spent = state.totals!.expenseIn(currency);
+    final net = state.overview!.netWorth;
     final others = [
       for (final e in net.entries)
         if (e.key != currency) e.value,
@@ -288,6 +310,55 @@ class _AccountsCarousel extends StatelessWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Budgets at a glance: the overall bar plus the three fullest categories.
+class _BudgetsCard extends StatelessWidget {
+  const _BudgetsCard({required this.overview});
+
+  final BudgetOverview overview;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    if (overview.isEmpty) {
+      return SurfaceCard(
+        children: [
+          SettingTile(
+            key: const Key('homeSetBudget'),
+            icon: AppIcons.budgets.filled,
+            title: l.addBudget,
+            subtitle: l.noBudgetsBody,
+            onTap: () => context.push(Routes.budgets),
+          ),
+        ],
+      );
+    }
+    Widget row(String name, BudgetLine line) =>
+        BudgetLineView(name: name, line: line);
+    return Material(
+      color: context.colors.surface,
+      borderRadius: BorderRadius.circular(AppRadii.l),
+      child: InkWell(
+        key: const Key('homeBudgets'),
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        onTap: () => context.push(Routes.budgets),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.l),
+          child: Column(
+            children: [
+              if (overview.overall case final overall?)
+                row(l.overallBudget, overall),
+              for (final line in overview.lines.take(3)) ...[
+                const SizedBox(height: AppSpacing.l),
+                row(line.category!.name, line),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

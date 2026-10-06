@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/dates/budget_cycle.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
+import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/page_scaffold.dart';
 import '../../../core/widgets/section.dart';
 import '../../../core/widgets/segmented_picker.dart';
 import '../../../core/widgets/surface_card.dart';
 import 'cubit/locale_cubit.dart';
+import 'cubit/preference_cubits.dart';
 import 'cubit/theme_cubit.dart';
 import '../../../core/widgets/app_icons.dart';
 
@@ -38,6 +41,71 @@ class MoreScreen extends StatelessWidget {
                       title: l10n.accounts,
                       subtitle: l10n.accountsSubtitle,
                       onTap: () => context.push(Routes.accounts),
+                    ),
+                    SettingTile(
+                      key: const Key('budgetsTile'),
+                      icon: AppIcons.budgets.filled,
+                      title: l10n.budgets,
+                      subtitle: l10n.budgetsSubtitle,
+                      onTap: () => context.push(Routes.budgets),
+                    ),
+                    SettingTile(
+                      key: const Key('peopleTile'),
+                      icon: AppIcons.people.filled,
+                      title: l10n.people,
+                      subtitle: l10n.peopleSubtitle,
+                      onTap: () => context.push(Routes.people),
+                    ),
+                    SettingTile(
+                      key: const Key('recurringTile'),
+                      icon: AppIcons.recurring.filled,
+                      title: l10n.recurring,
+                      subtitle: l10n.recurringSubtitle,
+                      onTap: () => context.push(Routes.recurring),
+                    ),
+                  ],
+                ),
+              ),
+              Section(
+                title: l10n.settingsGeneral,
+                child: SurfaceCard(
+                  children: [
+                    BlocBuilder<BudgetCycleCubit, BudgetCycle>(
+                      builder: (context, cycle) => SettingTile(
+                        key: const Key('monthStartTile'),
+                        icon: AppIcons.monthStart.filled,
+                        title: l10n.monthStart,
+                        subtitle: l10n.monthStartHint,
+                        trailing: Text(
+                          l10n.monthStartDay(cycle.startDay),
+                          style: context.text.titleSmall,
+                        ),
+                        onTap: () async {
+                          final day = await pickOne<int>(
+                            context,
+                            title: l10n.monthStart,
+                            selected: cycle.startDay,
+                            items: [
+                              for (
+                                var d = BudgetCycle.minStartDay;
+                                d <= BudgetCycle.maxStartDay;
+                                d++
+                              )
+                                PickItem(
+                                  value: d,
+                                  title: l10n.monthStartDay(d),
+                                ),
+                            ],
+                          );
+                          if (day != null && context.mounted) {
+                            await context.read<BudgetCycleCubit>().set(
+                              day == 1
+                                  ? const BudgetCycle.calendar()
+                                  : BudgetCycle(day),
+                            );
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),

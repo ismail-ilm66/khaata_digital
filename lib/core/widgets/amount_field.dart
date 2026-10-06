@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../money/currency.dart';
+import '../money/fixed_point.dart';
 import '../money/money.dart';
+import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import '../theme/context_x.dart';
+import 'app_sheet.dart';
 
 /// A text field for typing an amount with the system keyboard (forms where
 /// the in-app keypad would be overkill, e.g. an opening balance).
@@ -21,9 +24,11 @@ class AmountField extends StatelessWidget {
     required this.label,
     required this.invalidMessage,
     this.allowNegative = false,
+    this.autofocus = false,
   });
 
   final TextEditingController controller;
+  final bool autofocus;
   final Currency currency;
   final String label;
   final String invalidMessage;
@@ -52,6 +57,7 @@ class AmountField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextFormField(
       controller: controller,
+      autofocus: autofocus,
       keyboardType: TextInputType.numberWithOptions(
         decimal: currency.decimals > 0,
       ),
@@ -99,6 +105,136 @@ class AmountField extends StatelessWidget {
         }
         return null;
       },
+    );
+  }
+}
+
+/// What [showAmountSheet] returns: a new amount, or a request to remove.
+sealed class AmountSheetResult {
+  const AmountSheetResult();
+}
+
+final class AmountEntered extends AmountSheetResult {
+  const AmountEntered(this.amount);
+  final Money amount;
+}
+
+final class AmountRemoved extends AmountSheetResult {
+  const AmountRemoved();
+}
+
+/// A small sheet asking for one positive amount (e.g. a budget limit).
+/// With [removeLabel] it also offers removal. Null if dismissed.
+Future<AmountSheetResult?> showAmountSheet(
+  BuildContext context, {
+  required String title,
+  required String fieldLabel,
+  required Currency currency,
+  required String saveLabel,
+  required String invalidMessage,
+  Money? initial,
+  String? removeLabel,
+}) {
+  return showAppSheet<AmountSheetResult>(
+    context,
+    title: title,
+    builder: (_) => _AmountSheet(
+      fieldLabel: fieldLabel,
+      currency: currency,
+      saveLabel: saveLabel,
+      invalidMessage: invalidMessage,
+      initial: initial,
+      removeLabel: removeLabel,
+    ),
+  );
+}
+
+class _AmountSheet extends StatefulWidget {
+  const _AmountSheet({
+    required this.fieldLabel,
+    required this.currency,
+    required this.saveLabel,
+    required this.invalidMessage,
+    this.initial,
+    this.removeLabel,
+  });
+
+  final String fieldLabel;
+  final Currency currency;
+  final String saveLabel;
+  final String invalidMessage;
+  final Money? initial;
+  final String? removeLabel;
+
+  @override
+  State<_AmountSheet> createState() => _AmountSheetState();
+}
+
+class _AmountSheetState extends State<_AmountSheet> {
+  final _form = GlobalKey<FormState>();
+  late final _controller = TextEditingController(
+    text: widget.initial == null
+        ? ''
+        : FixedPoint.format(widget.initial!.minor, widget.currency.decimals),
+  );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final amount = AmountField.read(_controller, widget.currency);
+    if (!_form.currentState!.validate() ||
+        amount == null ||
+        !amount.isPositive) {
+      return;
+    }
+    Navigator.pop(context, AmountEntered(amount));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        0,
+        AppSpacing.xl,
+        AppSpacing.xl,
+      ),
+      child: Form(
+        key: _form,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AmountField(
+              key: const Key('sheetAmount'),
+              controller: _controller,
+              currency: widget.currency,
+              label: widget.fieldLabel,
+              invalidMessage: widget.invalidMessage,
+              autofocus: true,
+            ),
+            const SizedBox(height: AppSpacing.l),
+            FilledButton(
+              key: const Key('sheetSave'),
+              onPressed: _save,
+              child: Text(widget.saveLabel),
+            ),
+            if (widget.removeLabel != null)
+              TextButton(
+                key: const Key('sheetRemove'),
+                style: TextButton.styleFrom(
+                  foregroundColor: context.colors.danger,
+                ),
+                onPressed: () => Navigator.pop(context, const AmountRemoved()),
+                child: Text(widget.removeLabel!),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

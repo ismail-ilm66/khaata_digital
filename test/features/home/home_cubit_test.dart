@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:khaata_digital/core/dates/budget_cycle.dart';
 import 'package:khaata_digital/core/money/currency.dart';
 import 'package:khaata_digital/core/money/money.dart';
-import 'package:khaata_digital/features/home/presentation/home_cubit.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
 import 'package:khaata_digital/features/transactions/domain/ledger_entry.dart';
 import 'package:khaata_digital/features/transactions/domain/transaction_type.dart';
@@ -50,20 +49,22 @@ void main() {
       ); // previous cycle
       await cycle.set(const BudgetCycle(25));
 
-      final home = HomeCubit(r.accounts, r.transactions, cycle)
-        ..start(now: () => DateTime(2026, 10, 6));
+      final home = r.homeCubit(cycle)..start(now: () => DateTime(2026, 10, 6));
       await pumpEventQueue();
 
       final s = home.state;
       expect(s.cycle, const CycleId(2026, 9));
       expect(
-        s.totals.incomeIn(Currency.pkr),
+        s.totals!.incomeIn(Currency.pkr),
         Money.major(150000, Currency.pkr),
       );
-      expect(s.totals.expenseIn(Currency.pkr), Money.major(2000, Currency.pkr));
-      expect(s.recent, hasLength(3));
       expect(
-        s.overview.netWorth[Currency.pkr],
+        s.totals!.expenseIn(Currency.pkr),
+        Money.major(2000, Currency.pkr),
+      );
+      expect(s.recent!, hasLength(3));
+      expect(
+        s.overview!.netWorth[Currency.pkr],
         Money.major(150000 - 2000 - 999, Currency.pkr),
       );
       await home.close();
@@ -72,11 +73,10 @@ void main() {
 
   test('changing the month start re-buckets live', () async {
     await save(TransactionType.expense, 500, DateTime(2026, 10, 2, 12));
-    final home = HomeCubit(r.accounts, r.transactions, cycle)
-      ..start(now: () => DateTime(2026, 10, 6));
+    final home = r.homeCubit(cycle)..start(now: () => DateTime(2026, 10, 6));
     await pumpEventQueue();
     expect(
-      home.state.totals.expenseIn(Currency.pkr),
+      home.state.totals!.expenseIn(Currency.pkr),
       Money.major(500, Currency.pkr),
     );
 
@@ -84,7 +84,7 @@ void main() {
     await pumpEventQueue();
     expect(home.state.cycle, const CycleId(2026, 10));
     expect(
-      home.state.totals.expenseIn(Currency.pkr),
+      home.state.totals!.expenseIn(Currency.pkr),
       const Money.zero(Currency.pkr),
     );
     await home.close();

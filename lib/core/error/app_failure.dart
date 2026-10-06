@@ -29,4 +29,5 @@ enum EntryProblem {
   destinationRequired,
   sameAccount,
   conversionRequired,
+  personRequired,
 }

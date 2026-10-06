@@ -6,6 +6,7 @@ import '../../../../core/widgets/amount_text.dart';
 import '../../../../core/widgets/app_icons.dart';
 import '../../../../core/widgets/tinted_badge.dart';
 import '../../../categories/presentation/category_badge.dart';
+import '../../../people/presentation/person_badge.dart';
 import '../../domain/ledger_entry.dart';
 import '../../domain/transaction_type.dart';
 
@@ -22,10 +23,17 @@ class EntryTile extends StatelessWidget {
     final c = context.colors;
     final transfer = e.type == TransactionType.transfer;
 
+    final udhaar = view.isUdhaar;
     final title = transfer
         ? '${view.accountName} → ${view.toAccountName ?? '—'}'
+        : udhaar
+        ? view.personName ?? context.l10n.person
         : context.categoryName(view.category);
     final subtitle = [
+      if (udhaar)
+        e.type == TransactionType.income
+            ? context.l10n.iReceived
+            : context.l10n.iGave,
       if (e.note.isNotEmpty) e.note,
       if (!transfer) view.accountName,
     ].join(' · ');
@@ -41,6 +49,8 @@ class EntryTile extends StatelessWidget {
           children: [
             transfer
                 ? TintedBadge(icon: AppIcons.transfer, size: 40)
+                : udhaar
+                ? PersonBadge(view.personName ?? '?')
                 : CategoryBadge(view.category),
             const SizedBox(width: kBadgeGap),
             Expanded(
@@ -83,8 +93,8 @@ class EntryTile extends StatelessWidget {
 }
 
 /// An entry's amount styled by what it does to "my money": expenses in ink
-/// with a minus, income green with a plus, transfers neutral (they only
-/// move money between my own accounts).
+/// with a minus, income green with a plus. Transfers (between my own
+/// accounts) and udhaar (a loan, not income) are never income-green.
 class EntryAmount extends StatelessWidget {
   const EntryAmount(this.entry, {super.key, this.style});
 
@@ -93,11 +103,12 @@ class EntryAmount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final transfer = entry.type == TransactionType.transfer;
+    final neutral =
+        entry.type == TransactionType.transfer || entry.personId != null;
     return AmountText(
       entry.signedAmount,
       signed: entry.type == TransactionType.income,
-      colored: !transfer,
+      colored: !neutral,
       style: style,
     );
   }

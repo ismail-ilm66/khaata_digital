@@ -55,7 +55,14 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   /// The on-device database file.
-  factory AppDatabase.open() => AppDatabase(driftDatabase(name: 'kharcha'));
+  /// Shared across isolates so the background recurring job and the app
+  /// never write to the file at the same time.
+  factory AppDatabase.open() => AppDatabase(
+    driftDatabase(
+      name: 'kharcha',
+      native: const DriftNativeOptions(shareAcrossIsolates: true),
+    ),
+  );
 
   @override
   int get schemaVersion => 1;

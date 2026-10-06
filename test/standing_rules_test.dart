@@ -68,13 +68,14 @@ void main() {
     expect(offenders, isEmpty);
   });
 
-  test('date-cycle math lives only in BudgetCycle', () {
+  test('calendar arithmetic lives only in core/dates', () {
     // Building month boundaries by hand (`DateTime(y, m + 1, …)`) anywhere
-    // else bypasses the custom month-start setting.
+    // else bypasses the custom month-start setting (BudgetCycle) or the
+    // month-end clamping (RecurrenceSchedule).
     final pattern = RegExp(r'DateTime\([^)]*\.month\s*[+-]\s*1');
     final offenders = [
       for (final file in dartFiles('lib'))
-        if (!file.path.endsWith('core/dates/budget_cycle.dart') &&
+        if (!file.path.contains('lib/core/dates/') &&
             pattern.hasMatch(file.readAsStringSync()))
           file.path,
     ];

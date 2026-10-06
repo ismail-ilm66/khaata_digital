@@ -39,6 +39,8 @@ class DayGroup extends Equatable {
       final amount = v.entry.amount;
       void add(Map<Currency, Money> m) =>
           m.update(amount.currency, (x) => x + amount, ifAbsent: () => amount);
+      // Udhaar moves money between me and a person; it isn't spending.
+      if (v.entry.personId != null) continue;
       if (v.entry.type == TransactionType.expense) add(g.spent);
       if (v.entry.type == TransactionType.income) add(g.earned);
     }

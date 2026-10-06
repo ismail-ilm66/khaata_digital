@@ -380,4 +380,213 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get receipt => 'رسید';
+
+  @override
+  String get budgets => 'بجٹ';
+
+  @override
+  String get budgetsSubtitle => 'ہر مہینے کی حد';
+
+  @override
+  String get overallBudget => 'مجموعی';
+
+  @override
+  String get overallBudgetHint => 'اس مہینے کا سارا خرچ';
+
+  @override
+  String get addBudget => 'بجٹ شامل کریں';
+
+  @override
+  String get editBudget => 'بجٹ میں ترمیم';
+
+  @override
+  String get removeBudget => 'بجٹ ہٹائیں';
+
+  @override
+  String get copyLastMonth => 'پچھلے مہینے سے نقل کریں';
+
+  @override
+  String copiedBudgets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count بجٹ نقل ہو گئے',
+      one: '1 بجٹ نقل ہو گیا',
+      zero: 'پچھلے مہینے کوئی بجٹ نہیں تھا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noBudgets => 'ابھی کوئی بجٹ نہیں';
+
+  @override
+  String get noBudgetsBody =>
+      'مہینے یا کسی زمرے کی حد مقرر کریں اور خرچ کے ساتھ اسے بھرتے دیکھیں۔';
+
+  @override
+  String budgetLeft(String amount) {
+    return '$amount باقی';
+  }
+
+  @override
+  String budgetOver(String amount) {
+    return '$amount زیادہ';
+  }
+
+  @override
+  String get budgetLimit => 'ماہانہ حد';
+
+  @override
+  String get previousCycle => 'پچھلا مہینہ';
+
+  @override
+  String get nextCycle => 'اگلا مہینہ';
+
+  @override
+  String get people => 'لوگ';
+
+  @override
+  String get peopleSubtitle => 'ادھار: کس نے کس کو دینا ہے';
+
+  @override
+  String get youllReceive => 'آپ کو ملنے ہیں';
+
+  @override
+  String get youOwe => 'آپ نے دینے ہیں';
+
+  @override
+  String get addPerson => 'شخص شامل کریں';
+
+  @override
+  String get personName => 'نام';
+
+  @override
+  String get person => 'شخص';
+
+  @override
+  String get choosePerson => 'شخص منتخب کریں';
+
+  @override
+  String get noPeople => 'ابھی کوئی ادھار نہیں';
+
+  @override
+  String get noPeopleBody =>
+      'کسی ایسے شخص کو شامل کریں جسے آپ ادھار دیتے یا جس سے لیتے ہیں۔';
+
+  @override
+  String get owesYou => 'آپ کو دینے ہیں';
+
+  @override
+  String get youOweThem => 'آپ نے دینے ہیں';
+
+  @override
+  String get settled => 'حساب برابر';
+
+  @override
+  String get iGave => 'میں نے دیے';
+
+  @override
+  String get iReceived => 'میں نے لیے';
+
+  @override
+  String get settleUp => 'حساب برابر کریں';
+
+  @override
+  String get typeUdhaar => 'ادھار';
+
+  @override
+  String get saveUdhaar => 'ادھار محفوظ کریں';
+
+  @override
+  String duplicatePersonName(String name) {
+    return '$name پہلے سے آپ کے لوگوں میں ہے';
+  }
+
+  @override
+  String get removePerson => 'شخص ہٹائیں';
+
+  @override
+  String get personRemoved => 'شخص ہٹا دیا گیا';
+
+  @override
+  String get noLedger => 'ابھی کوئی اندراج نہیں';
+
+  @override
+  String get noLedgerBody => 'دی یا لی گئی رقم درج کریں۔';
+
+  @override
+  String get problemPerson => 'شخص منتخب کریں';
+
+  @override
+  String get repeat => 'دہرائیں';
+
+  @override
+  String get repeatNever => 'کبھی نہیں';
+
+  @override
+  String get repeatDaily => 'روزانہ';
+
+  @override
+  String get repeatWeekly => 'ہفتہ وار';
+
+  @override
+  String get repeatMonthly => 'ماہانہ';
+
+  @override
+  String get repeatYearly => 'سالانہ';
+
+  @override
+  String get remindMe => 'یاد دہانی';
+
+  @override
+  String get remindMeHint => 'مقررہ تاریخ پر اطلاع';
+
+  @override
+  String get recurring => 'بار بار';
+
+  @override
+  String get recurringSubtitle => 'دہرائے جانے والے بل اور ادائیگیاں';
+
+  @override
+  String get noRecurring => 'ابھی کچھ نہیں دہرایا جا رہا';
+
+  @override
+  String get noRecurringBody => 'اندراج کرتے وقت دہرائیں دبائیں۔';
+
+  @override
+  String nextOn(String date) {
+    return 'اگلا: $date';
+  }
+
+  @override
+  String get stopRepeating => 'دہرانا بند کریں';
+
+  @override
+  String get stoppedRepeating => 'دہرانا بند ہو گیا';
+
+  @override
+  String get reminderTitle => 'آج واجب الادا';
+
+  @override
+  String reminderBody(String what, String amount) {
+    return '$what · $amount';
+  }
+
+  @override
+  String get recurringEntry => 'دہرائی جانے والی ادائیگی';
+
+  @override
+  String get monthStart => 'مہینہ شروع ہوتا ہے';
+
+  @override
+  String monthStartDay(int day) {
+    return '$day تاریخ';
+  }
+
+  @override
+  String get monthStartHint => 'مقررہ تاریخ پر تنخواہ کے لیے، مثلاً 25 تاریخ';
+
+  @override
+  String get settingsGeneral => 'عمومی';
 }

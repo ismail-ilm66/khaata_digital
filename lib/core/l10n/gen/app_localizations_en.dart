@@ -382,4 +382,213 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get receipt => 'Receipt';
+
+  @override
+  String get budgets => 'Budgets';
+
+  @override
+  String get budgetsSubtitle => 'Limits for each month';
+
+  @override
+  String get overallBudget => 'Overall';
+
+  @override
+  String get overallBudgetHint => 'Everything you spend this month';
+
+  @override
+  String get addBudget => 'Add budget';
+
+  @override
+  String get editBudget => 'Edit budget';
+
+  @override
+  String get removeBudget => 'Remove budget';
+
+  @override
+  String get copyLastMonth => 'Copy last month';
+
+  @override
+  String copiedBudgets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Copied $count budgets',
+      one: 'Copied 1 budget',
+      zero: 'Nothing to copy from last month',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noBudgets => 'No budgets yet';
+
+  @override
+  String get noBudgetsBody =>
+      'Set a limit for the month or for a category, and watch it fill as you spend.';
+
+  @override
+  String budgetLeft(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String budgetOver(String amount) {
+    return '$amount over';
+  }
+
+  @override
+  String get budgetLimit => 'Monthly limit';
+
+  @override
+  String get previousCycle => 'Previous month';
+
+  @override
+  String get nextCycle => 'Next month';
+
+  @override
+  String get people => 'People';
+
+  @override
+  String get peopleSubtitle => 'Udhaar: who owes whom';
+
+  @override
+  String get youllReceive => 'You\'ll receive';
+
+  @override
+  String get youOwe => 'You owe';
+
+  @override
+  String get addPerson => 'Add person';
+
+  @override
+  String get personName => 'Name';
+
+  @override
+  String get person => 'Person';
+
+  @override
+  String get choosePerson => 'Choose a person';
+
+  @override
+  String get noPeople => 'No udhaar yet';
+
+  @override
+  String get noPeopleBody => 'Add someone you lend to or borrow from.';
+
+  @override
+  String get owesYou => 'Owes you';
+
+  @override
+  String get youOweThem => 'You owe';
+
+  @override
+  String get settled => 'Settled';
+
+  @override
+  String get iGave => 'I gave';
+
+  @override
+  String get iReceived => 'I received';
+
+  @override
+  String get settleUp => 'Settle up';
+
+  @override
+  String get typeUdhaar => 'Udhaar';
+
+  @override
+  String get saveUdhaar => 'Save udhaar';
+
+  @override
+  String duplicatePersonName(String name) {
+    return '$name is already in your people';
+  }
+
+  @override
+  String get removePerson => 'Remove person';
+
+  @override
+  String get personRemoved => 'Person removed';
+
+  @override
+  String get noLedger => 'No entries yet';
+
+  @override
+  String get noLedgerBody => 'Record money you gave or received.';
+
+  @override
+  String get problemPerson => 'Choose a person';
+
+  @override
+  String get repeat => 'Repeat';
+
+  @override
+  String get repeatNever => 'Never';
+
+  @override
+  String get repeatDaily => 'Daily';
+
+  @override
+  String get repeatWeekly => 'Weekly';
+
+  @override
+  String get repeatMonthly => 'Monthly';
+
+  @override
+  String get repeatYearly => 'Yearly';
+
+  @override
+  String get remindMe => 'Remind me';
+
+  @override
+  String get remindMeHint => 'A notification on the due date';
+
+  @override
+  String get recurring => 'Recurring';
+
+  @override
+  String get recurringSubtitle => 'Bills and payments that repeat';
+
+  @override
+  String get noRecurring => 'Nothing repeating yet';
+
+  @override
+  String get noRecurringBody =>
+      'When adding an entry, tap Repeat to make it recur.';
+
+  @override
+  String nextOn(String date) {
+    return 'Next: $date';
+  }
+
+  @override
+  String get stopRepeating => 'Stop repeating';
+
+  @override
+  String get stoppedRepeating => 'Stopped repeating';
+
+  @override
+  String get reminderTitle => 'Due today';
+
+  @override
+  String reminderBody(String what, String amount) {
+    return '$what · $amount';
+  }
+
+  @override
+  String get recurringEntry => 'Repeating payment';
+
+  @override
+  String get monthStart => 'Month starts on';
+
+  @override
+  String monthStartDay(int day) {
+    return 'Day $day';
+  }
+
+  @override
+  String get monthStartHint => 'For salaries paid on a set date, e.g. the 25th';
+
+  @override
+  String get settingsGeneral => 'General';
 }

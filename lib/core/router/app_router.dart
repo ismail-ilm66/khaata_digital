@@ -3,9 +3,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/accounts/presentation/account_form_screen.dart';
 import '../../features/accounts/presentation/accounts_screen.dart';
+import '../../features/budgets/presentation/budgets_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/people/presentation/people_screen.dart';
+import '../../features/people/presentation/person_screen.dart';
+import '../../features/recurring/presentation/recurring_screen.dart';
 import '../../features/reports/presentation/reports_screen.dart';
 import '../../features/settings/presentation/more_screen.dart';
+import '../../features/transactions/presentation/entries_screen.dart';
 import '../../features/transactions/presentation/entry_detail_screen.dart';
 import '../../features/transactions/presentation/form/entry_editor_screen.dart';
 import '../../features/transactions/presentation/search_screen.dart';
@@ -65,9 +70,9 @@ GoRouter createRouter() {
       // Add / edit slides up as a full-screen task.
       GoRoute(
         path: Routes.addEntry,
-        pageBuilder: (context, state) => const MaterialPage(
+        pageBuilder: (context, state) => MaterialPage(
           fullscreenDialog: true,
-          child: EntryEditorScreen(),
+          child: EntryEditorScreen(args: state.extra as EntryEditorArgs?),
         ),
       ),
       GoRoute(
@@ -76,6 +81,30 @@ GoRouter createRouter() {
           fullscreenDialog: true,
           child: EntryEditorScreen(editId: state.pathParameters['id']),
         ),
+      ),
+      GoRoute(
+        path: Routes.entries,
+        builder: (context, state) =>
+            EntriesScreen(args: state.extra! as EntriesArgs),
+      ),
+      GoRoute(
+        path: Routes.budgets,
+        builder: (context, state) => const BudgetsScreen(),
+      ),
+      GoRoute(
+        path: Routes.people,
+        builder: (context, state) => const PeopleScreen(),
+        routes: [
+          GoRoute(
+            path: ':id',
+            builder: (context, state) =>
+                PersonScreen(id: state.pathParameters['id']!),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: Routes.recurring,
+        builder: (context, state) => const RecurringScreen(),
       ),
       GoRoute(
         path: Routes.search,

@@ -10,6 +10,7 @@ class EntryQuery extends Equatable {
     this.accountIds = const {},
     this.categoryIds = const {},
     this.tags = const {},
+    this.personIds = const {},
     this.search = '',
     this.range,
     this.limit = pageSize,
@@ -26,6 +27,9 @@ class EntryQuery extends Equatable {
   /// Tag names.
   final Set<String> tags;
 
+  /// Udhaar entries with these people.
+  final Set<String> personIds;
+
   /// Free text over note, place, category, account, tags and amount.
   final String search;
   final DateRange? range;
@@ -35,13 +39,15 @@ class EntryQuery extends Equatable {
       types.isNotEmpty ||
       accountIds.isNotEmpty ||
       categoryIds.isNotEmpty ||
-      tags.isNotEmpty;
+      tags.isNotEmpty ||
+      personIds.isNotEmpty;
 
   EntryQuery copyWith({
     Set<TransactionType>? types,
     Set<String>? accountIds,
     Set<String>? categoryIds,
     Set<String>? tags,
+    Set<String>? personIds,
     String? search,
     int? limit,
   }) => EntryQuery(
@@ -49,6 +55,7 @@ class EntryQuery extends Equatable {
     accountIds: accountIds ?? this.accountIds,
     categoryIds: categoryIds ?? this.categoryIds,
     tags: tags ?? this.tags,
+    personIds: personIds ?? this.personIds,
     search: search ?? this.search,
     range: range,
     limit: limit ?? this.limit,
@@ -63,6 +70,7 @@ class EntryQuery extends Equatable {
     accountIds,
     categoryIds,
     tags,
+    personIds,
     search,
     range,
     limit,

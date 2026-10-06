@@ -71,6 +71,17 @@ ORDER BY p.name COLLATE NOCASE
     return row.id;
   }
 
+  Stream<PersonRow?> watchById(String id) =>
+      (select(people)..where((p) => p.id.equals(id))).watchSingleOrNull();
+
+  Future<void> rename(String id, String name) =>
+      (update(people)..where((p) => p.id.equals(id))).write(
+        PeopleCompanion(
+          name: Value(name.trim()),
+          updatedAt: Value(DateTime.now().toUtc()),
+        ),
+      );
+
   Future<void> archive(String id) => softDelete(people, id);
   Future<void> unarchive(String id) => undelete(people, id);
 }

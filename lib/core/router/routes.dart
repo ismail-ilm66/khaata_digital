@@ -14,9 +14,15 @@ abstract final class Routes {
   static const accounts = '/accounts';
   static const accountForm = '/accounts/form';
   static const entryPattern = '/entry/:id';
+  static const entries = '/entries';
+  static const budgets = '/budgets';
+  static const people = '/people';
+  static const personPattern = '/people/:id';
+  static const recurring = '/recurring';
   static const addEntry = '/add';
   static const editEntryPattern = '/edit/:id';
 
   static String entry(String id) => '/entry/$id';
   static String editEntry(String id) => '/edit/$id';
+  static String person(String id) => '/people/$id';
 }

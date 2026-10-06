@@ -10,7 +10,8 @@ import 'package:khaata_digital/features/transactions/domain/transaction_type.dar
 import 'package:khaata_digital/features/transactions/presentation/widgets/entry_tile.dart';
 
 void main() {
-  LedgerEntry entry(TransactionType type) => LedgerEntry(
+  LedgerEntry entry(TransactionType type, {String? personId}) => LedgerEntry(
+    personId: personId,
     id: 'x',
     type: type,
     amount: Money.major(500, Currency.pkr),
@@ -19,9 +20,16 @@ void main() {
     occurredAt: DateTime.utc(2026),
   );
 
-  Future<(String, Color?)> render(WidgetTester t, TransactionType type) async {
+  Future<(String, Color?)> render(
+    WidgetTester t,
+    TransactionType type, {
+    String? personId,
+  }) async {
     await t.pumpWidget(
-      MaterialApp(theme: AppTheme.light, home: EntryAmount(entry(type))),
+      MaterialApp(
+        theme: AppTheme.light,
+        home: EntryAmount(entry(type, personId: personId)),
+      ),
     );
     final span =
         t
@@ -52,6 +60,13 @@ void main() {
   testWidgets('transfer: unsigned and neutral, never income-green', (t) async {
     final (text, color) = await render(t, TransactionType.transfer);
     expect(text, startsWith('Rs'));
+    expect(color, AppColors.light.ink);
+  });
+
+  testWidgets('udhaar received: never income-green (a loan, not income)', (
+    t,
+  ) async {
+    final (_, color) = await render(t, TransactionType.income, personId: 'p');
     expect(color, AppColors.light.ink);
   });
 }

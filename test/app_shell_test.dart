@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:injectable/injectable.dart';
 import 'package:khaata_digital/app.dart';
-import 'package:khaata_digital/bootstrap.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/di/injection.dart';
 import 'package:khaata_digital/core/widgets/glass_nav_bar.dart';
@@ -15,6 +13,12 @@ import 'package:khaata_digital/features/transactions/presentation/form/entry_edi
 import 'package:khaata_digital/features/transactions/presentation/transactions_screen.dart';
 
 import 'helpers/test_app.dart';
+
+/// Scrolls [f] to mid-screen, clear of the floating nav bar, like a user.
+Future<void> reveal(WidgetTester t, Finder f) async {
+  await Scrollable.ensureVisible(t.element(f), alignment: 0.5);
+  await t.pumpAndSettle();
+}
 
 Finder _navLabel(String label) =>
     find.descendant(of: find.byType(GlassNavBar), matching: find.text(label));
@@ -92,6 +96,7 @@ void main() {
     await tester.tap(_navLabel('More'));
     await tester.pumpAndSettle();
 
+    await reveal(tester, find.text('Dark'));
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();
     expect(getIt<ThemeCubit>().state, ThemeMode.dark);
@@ -108,6 +113,7 @@ void main() {
     await tester.tap(_navLabel('More'));
     await tester.pumpAndSettle();
 
+    await reveal(tester, find.text('اردو'));
     await tester.tap(find.text('اردو'));
     await tester.pumpAndSettle();
 
@@ -121,6 +127,7 @@ void main() {
     }
     expect(find.bySemanticsLabel('شامل کریں'), findsOneWidget);
 
+    await reveal(tester, find.text('English'));
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
     expect(
@@ -134,16 +141,15 @@ void main() {
     await pumpApp(tester);
     await tester.tap(_navLabel('More'));
     await tester.pumpAndSettle();
+    await reveal(tester, find.text('Dark'));
     await tester.tap(find.text('Dark'));
+    await reveal(tester, find.text('اردو'));
     await tester.tap(find.text('اردو'));
     await tester.pumpAndSettle();
 
     // Simulate a cold start against the same database.
     final db = getIt<AppDatabase>();
-    await getIt.reset(dispose: false);
-    getIt.registerSingleton<AppDatabase>(db);
-    configureDependencies(environment: Environment.test);
-    await tester.runAsync(bootstrap);
+    await tester.runAsync(() => setUpTestApp(reuse: db));
 
     expect(getIt<ThemeCubit>().state, ThemeMode.dark);
     expect(getIt<LocaleCubit>().state, LocaleCubit.urdu);

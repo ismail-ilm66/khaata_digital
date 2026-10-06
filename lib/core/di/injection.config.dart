@@ -10,6 +10,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 
+import 'package:flutter_local_notifications/flutter_local_notifications.dart'
+    as _i163;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:khaata_digital/core/db/app_database.dart' as _i577;
@@ -21,12 +23,25 @@ import 'package:khaata_digital/features/accounts/presentation/account_form_cubit
     as _i698;
 import 'package:khaata_digital/features/accounts/presentation/accounts_bloc.dart'
     as _i693;
+import 'package:khaata_digital/features/budgets/data/budgets_repository_impl.dart'
+    as _i414;
+import 'package:khaata_digital/features/budgets/domain/budget.dart' as _i608;
+import 'package:khaata_digital/features/budgets/presentation/budgets_bloc.dart'
+    as _i589;
 import 'package:khaata_digital/features/categories/data/categories_repository_impl.dart'
     as _i787;
 import 'package:khaata_digital/features/categories/domain/category.dart'
     as _i420;
 import 'package:khaata_digital/features/home/presentation/home_cubit.dart'
     as _i24;
+import 'package:khaata_digital/features/people/data/people_repository_impl.dart'
+    as _i733;
+import 'package:khaata_digital/features/people/domain/person.dart' as _i260;
+import 'package:khaata_digital/features/recurring/data/recurring_repository_impl.dart'
+    as _i1059;
+import 'package:khaata_digital/features/recurring/data/reminders.dart' as _i985;
+import 'package:khaata_digital/features/recurring/domain/recurring_rule.dart'
+    as _i295;
 import 'package:khaata_digital/features/settings/data/settings_repository_impl.dart'
     as _i744;
 import 'package:khaata_digital/features/settings/domain/settings_repository.dart'
@@ -57,8 +72,12 @@ extension GetItInjectableX on _i174.GetIt {
     _i526.EnvironmentFilter? environmentFilter,
   }) {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
+    final reminderModule = _$ReminderModule();
     final databaseModule = _$DatabaseModule();
     final receiptModule = _$ReceiptModule();
+    gh.lazySingleton<_i163.FlutterLocalNotificationsPlugin>(
+      () => reminderModule.notifications,
+    );
     gh.singleton<_i577.AppDatabase>(
       () => databaseModule.database,
       registerFor: {_prod},
@@ -76,6 +95,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i577.AppDatabase>(),
         gh<_i761.ReceiptStore>(),
       ),
+    );
+    gh.lazySingleton<_i608.BudgetsRepository>(
+      () => _i414.BudgetsRepositoryImpl(gh<_i577.AppDatabase>()),
     );
     gh.factory<_i610.TransactionListBloc>(
       () => _i610.TransactionListBloc(gh<_i208.TransactionsRepository>()),
@@ -101,11 +123,37 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i795.CurrencyCubit>(
       () => _i795.CurrencyCubit(gh<_i109.SettingsRepository>()),
     );
+    gh.lazySingleton<_i260.PeopleRepository>(
+      () => _i733.PeopleRepositoryImpl(
+        gh<_i577.AppDatabase>(),
+        gh<_i208.TransactionsRepository>(),
+      ),
+    );
     gh.lazySingleton<_i310.LocaleCubit>(
       () => _i310.LocaleCubit(gh<_i109.SettingsRepository>()),
     );
     gh.lazySingleton<_i547.ThemeCubit>(
       () => _i547.ThemeCubit(gh<_i109.SettingsRepository>()),
+    );
+    gh.lazySingleton<_i295.RecurringRepository>(
+      () => _i1059.RecurringRepositoryImpl(
+        gh<_i577.AppDatabase>(),
+        gh<_i208.TransactionsRepository>(),
+      ),
+    );
+    gh.lazySingleton<_i295.ReminderScheduler>(
+      () => reminderModule.reminders(
+        gh<_i163.FlutterLocalNotificationsPlugin>(),
+        gh<_i109.SettingsRepository>(),
+      ),
+      registerFor: {_prod},
+    );
+    gh.factory<_i589.BudgetsBloc>(
+      () => _i589.BudgetsBloc(
+        gh<_i608.BudgetsRepository>(),
+        gh<_i795.BudgetCycleCubit>(),
+        gh<_i795.CurrencyCubit>(),
+      ),
     );
     gh.factory<_i595.TransactionFormBloc>(
       () => _i595.TransactionFormBloc(
@@ -113,18 +161,26 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i720.AccountsRepository>(),
         gh<_i420.CategoriesRepository>(),
         gh<_i109.SettingsRepository>(),
+        gh<_i260.PeopleRepository>(),
+        gh<_i295.RecurringRepository>(),
+        gh<_i295.ReminderScheduler>(),
       ),
     );
     gh.factory<_i24.HomeCubit>(
       () => _i24.HomeCubit(
         gh<_i720.AccountsRepository>(),
         gh<_i208.TransactionsRepository>(),
+        gh<_i608.BudgetsRepository>(),
+        gh<_i260.PeopleRepository>(),
         gh<_i795.BudgetCycleCubit>(),
+        gh<_i795.CurrencyCubit>(),
       ),
     );
     return this;
   }
 }
+
+class _$ReminderModule extends _i985.ReminderModule {}
 
 class _$DatabaseModule extends _i503.DatabaseModule {}
 

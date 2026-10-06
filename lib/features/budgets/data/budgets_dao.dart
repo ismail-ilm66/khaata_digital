@@ -51,11 +51,13 @@ class BudgetsDao extends DatabaseAccessor<AppDatabase> with _$BudgetsDaoMixin {
   Future<void> clearBudget(CycleId cycle, {String? categoryId}) =>
       (delete(budgets)..where((b) => _matches(b, cycle, categoryId))).go();
 
-  Stream<List<BudgetRow>> watchCycle(CycleId cycle) =>
+  Future<List<BudgetRow>> forCycle(CycleId cycle) => _cycle(cycle).get();
+
+  Stream<List<BudgetRow>> watchCycle(CycleId cycle) => _cycle(cycle).watch();
+
+  SimpleSelectStatement<$BudgetsTable, BudgetRow> _cycle(CycleId cycle) =>
       (select(budgets)..where(
-            (b) =>
-                b.cycleYear.equals(cycle.year) &
-                b.cycleMonth.equals(cycle.month),
-          ))
-          .watch();
+        (b) =>
+            b.cycleYear.equals(cycle.year) & b.cycleMonth.equals(cycle.month),
+      ));
 }

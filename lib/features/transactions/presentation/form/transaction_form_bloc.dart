@@ -9,6 +9,9 @@ import '../../../../core/money/money.dart';
 import '../../../accounts/domain/account.dart';
 import '../../../categories/domain/category.dart';
 import '../../../categories/domain/category_kind.dart';
+import '../../../people/domain/person.dart';
+import '../../../recurring/domain/recurrence.dart';
+import '../../../recurring/domain/recurring_rule.dart';
 import '../../../settings/domain/setting_key.dart';
 import '../../../settings/domain/settings_repository.dart';
 import '../../domain/ledger_entry.dart';
@@ -23,9 +26,51 @@ sealed class TransactionFormEvent {
 
 /// Opens the form empty, or pre-filled from entry [editId].
 final class FormStarted extends TransactionFormEvent {
-  const FormStarted({this.editId, this.type = TransactionType.expense});
+  const FormStarted({
+    this.editId,
+    this.type = TransactionType.expense,
+    this.udhaar,
+    this.personId,
+    this.amount,
+  });
   final String? editId;
   final TransactionType type;
+
+  /// Opens in udhaar mode in this direction (People screen actions).
+  final UdhaarDirection? udhaar;
+  final String? personId;
+
+  /// Pre-filled amount (e.g. "Settle up").
+  final Money? amount;
+}
+
+/// Switches to udhaar mode (money given to / received from a person).
+final class UdhaarChosen extends TransactionFormEvent {
+  const UdhaarChosen();
+}
+
+final class UdhaarDirectionChanged extends TransactionFormEvent {
+  const UdhaarDirectionChanged(this.direction);
+  final UdhaarDirection direction;
+}
+
+/// A person created from the editor: add to the list and select them.
+final class PersonAdded extends TransactionFormEvent {
+  const PersonAdded(this.person);
+  final Person person;
+}
+
+final class PersonChanged extends TransactionFormEvent {
+  const PersonChanged(this.personId);
+  final String personId;
+}
+
+/// New entries only: repeat at [frequency] (null = once), optionally with
+/// a bill reminder.
+final class RepeatChanged extends TransactionFormEvent {
+  const RepeatChanged(this.frequency, {this.remind = false});
+  final RecurrenceFrequency? frequency;
+  final bool remind;
 }
 
 final class TypeChanged extends TransactionFormEvent {
@@ -123,6 +168,10 @@ class TransactionFormState extends Equatable {
     this.accounts = const [],
     this.categories = const [],
     this.frequentCategoryIds = const [],
+    this.isUdhaar = false,
+    this.people = const [],
+    this.repeat,
+    this.remind = false,
     this.problem,
   });
 
@@ -138,7 +187,7 @@ class TransactionFormState extends Equatable {
   final String? toAccountId;
   final String? categoryId;
 
-  /// Carried through edits untouched (People arrive in M3).
+  /// The person in udhaar mode.
   final String? personId;
   final String? place;
 
@@ -157,10 +206,21 @@ class TransactionFormState extends Equatable {
 
   /// Most-used category ids first (from history), for [quickCategories].
   final List<String> frequentCategoryIds;
+
+  /// Udhaar mode: [type] is expense ("I gave") or income ("I received")
+  /// and the entry is linked to [personId], with no category.
+  final bool isUdhaar;
+  final List<Person> people;
+
+  /// New entries: repeat at this frequency (null = once).
+  final RecurrenceFrequency? repeat;
+  final bool remind;
   final EntryProblem? problem;
 
   bool get isEditing => editingId != null;
   bool get isTransfer => type == TransactionType.transfer;
+  UdhaarDirection get udhaarDirection => UdhaarDirection.of(type);
+  Person? get person => people.where((p) => p.id == personId).firstOrNull;
 
   Account? _find(String? id) {
     for (final a in accounts) {
@@ -234,8 +294,8 @@ class TransactionFormState extends Equatable {
     toAccountId: isTransfer ? toAccountId : null,
     toAmount: crossCurrency ? toMoney : null,
     fxRateMicros: crossCurrency ? rateMicros : null,
-    categoryId: isTransfer ? null : categoryId,
-    personId: personId,
+    categoryId: isTransfer || isUdhaar ? null : categoryId,
+    personId: isUdhaar ? personId : null,
     place: place,
     occurredAt: occurredAt.toUtc(),
     note: note,
@@ -254,7 +314,7 @@ class TransactionFormState extends Equatable {
     String? accountId,
     String? Function()? toAccountId,
     String? Function()? categoryId,
-    String? personId,
+    String? Function()? personId,
     String? place,
     DateTime? occurredAt,
     String? note,
@@ -264,6 +324,10 @@ class TransactionFormState extends Equatable {
     List<Account>? accounts,
     List<Category>? categories,
     List<String>? frequentCategoryIds,
+    bool? isUdhaar,
+    List<Person>? people,
+    RecurrenceFrequency? Function()? repeat,
+    bool? remind,
     EntryProblem? Function()? problem,
   }) => TransactionFormState(
     status: status ?? this.status,
@@ -275,7 +339,7 @@ class TransactionFormState extends Equatable {
     accountId: accountId ?? this.accountId,
     toAccountId: toAccountId != null ? toAccountId() : this.toAccountId,
     categoryId: categoryId != null ? categoryId() : this.categoryId,
-    personId: personId ?? this.personId,
+    personId: personId != null ? personId() : this.personId,
     place: place ?? this.place,
     occurredAt: occurredAt ?? this.occurredAt,
     note: note ?? this.note,
@@ -285,6 +349,10 @@ class TransactionFormState extends Equatable {
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
     frequentCategoryIds: frequentCategoryIds ?? this.frequentCategoryIds,
+    isUdhaar: isUdhaar ?? this.isUdhaar,
+    people: people ?? this.people,
+    repeat: repeat != null ? repeat() : this.repeat,
+    remind: remind ?? this.remind,
     problem: problem != null ? problem() : this.problem,
   );
 
@@ -309,6 +377,10 @@ class TransactionFormState extends Equatable {
     accounts,
     categories,
     frequentCategoryIds,
+    isUdhaar,
+    people,
+    repeat,
+    remind,
     problem,
   ];
 }
@@ -324,6 +396,9 @@ class TransactionFormBloc
     this._accounts,
     this._categories,
     this._settings,
+    this._people,
+    this._recurring,
+    this._reminders,
   ) : super(TransactionFormState(occurredAt: DateTime.now())) {
     on<FormStarted>(_onStarted);
     on<TypeChanged>(_onType);
@@ -353,6 +428,28 @@ class TransactionFormBloc
     );
     on<ReceiptRemoved>(_onReceiptRemoved);
     on<AccountsSwapped>(_onSwap);
+    on<UdhaarChosen>(_onUdhaar);
+    on<UdhaarDirectionChanged>(
+      (e, emit) =>
+          emit(state.copyWith(type: e.direction.type, problem: () => null)),
+    );
+    on<PersonChanged>(
+      (e, emit) =>
+          emit(state.copyWith(personId: () => e.personId, problem: () => null)),
+    );
+    on<PersonAdded>(
+      (e, emit) => emit(
+        state.copyWith(
+          people: [...state.people, e.person],
+          personId: () => e.person.id,
+          problem: () => null,
+        ),
+      ),
+    );
+    on<RepeatChanged>(
+      (e, emit) =>
+          emit(state.copyWith(repeat: () => e.frequency, remind: e.remind)),
+    );
     on<FormSubmitted>(_onSubmit);
   }
 
@@ -360,6 +457,9 @@ class TransactionFormBloc
   final AccountsRepository _accounts;
   final CategoriesRepository _categories;
   final SettingsRepository _settings;
+  final PeopleRepository _people;
+  final RecurringRepository _recurring;
+  final ReminderScheduler _reminders;
 
   /// Splits "office, lunch,  Office" → ["office", "lunch"] (case-insensitive
   /// de-dupe, order kept).
@@ -381,6 +481,9 @@ class TransactionFormBloc
     ];
     final categories = await _categories.all();
     final frequent = await _transactions.frequentCategoryIds(limit: 12);
+    final people = [
+      for (final p in (await _people.watchOverview().first).people) p.person,
+    ];
 
     if (e.editId case final id?) {
       final entry = await _transactions.byId(id);
@@ -416,6 +519,8 @@ class TransactionFormBloc
           accounts: accounts,
           categories: categories,
           frequentCategoryIds: frequent,
+          isUdhaar: entry.personId != null,
+          people: people,
         ),
       );
       return;
@@ -431,12 +536,38 @@ class TransactionFormBloc
       accounts: accounts,
       categories: categories,
       frequentCategoryIds: frequent,
+      people: people,
     );
+    if (e.udhaar != null || e.personId != null) {
+      final direction = e.udhaar ?? UdhaarDirection.gave;
+      emit(
+        base.copyWith(
+          isUdhaar: true,
+          type: direction.type,
+          personId: () => e.personId,
+          amount: e.amount == null ? null : AmountBuffer.fromMoney(e.amount!),
+        ),
+      );
+      return;
+    }
     emit(e.type == TransactionType.expense ? base : _withType(base, e.type));
   }
 
-  void _onType(TypeChanged e, Emitter<TransactionFormState> emit) =>
-      emit(_withType(state, e.type));
+  void _onType(TypeChanged e, Emitter<TransactionFormState> emit) => emit(
+    _withType(state.copyWith(isUdhaar: false, personId: () => null), e.type),
+  );
+
+  void _onUdhaar(UdhaarChosen e, Emitter<TransactionFormState> emit) => emit(
+    state.copyWith(
+      isUdhaar: true,
+      type: TransactionType.expense,
+      categoryId: () => null,
+      toAccountId: () => null,
+      toAmount: const AmountBuffer(),
+      focus: AmountTarget.amount,
+      problem: () => null,
+    ),
+  );
 
   /// Switching type drops a category of the wrong kind and, for transfers,
   /// picks a destination different from the source.
@@ -531,9 +662,22 @@ class TransactionFormBloc
     Emitter<TransactionFormState> emit,
   ) async {
     if (state.status == FormStatus.saving) return;
+    if (state.isUdhaar && state.personId == null) {
+      emit(state.copyWith(problem: () => EntryProblem.personRequired));
+      return;
+    }
     emit(state.copyWith(status: FormStatus.saving, problem: () => null));
     try {
-      await _transactions.save(state.toDraft(), id: state.editingId);
+      final draft = state.toDraft();
+      await _transactions.save(draft, id: state.editingId);
+      if (state.repeat case final frequency? when !state.isEditing) {
+        await _recurring.create(draft, frequency, remind: state.remind);
+        try {
+          await _reminders.sync(await _recurring.active());
+        } catch (_) {
+          // Reminders are best-effort; the entry and rule are saved.
+        }
+      }
       if (state.accountId case final id?) {
         await _settings.write(SettingKey.lastAccountId, id);
       }

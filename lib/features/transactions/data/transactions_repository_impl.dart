@@ -33,6 +33,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
           accountIds: q.accountIds,
           categoryIds: q.categoryIds,
           tagNames: q.tags,
+          personIds: q.personIds,
           search: q.search,
           fromMillis: q.range?.startMillis,
           toMillis: q.range?.endMillis,
@@ -85,6 +86,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
           accountCurrency: Currency.of(r.from.currencyCode),
           toAccountName: r.to?.name,
           category: r.category?.toDomain(),
+          personName: r.person?.name,
         ),
     ];
   }
