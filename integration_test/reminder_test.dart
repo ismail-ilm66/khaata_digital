@@ -1,7 +1,7 @@
 // On-device check that a bill reminder is actually delivered (M3
 // acceptance). Needs a real device, emulator or iOS simulator:
 //
-//   Android: adb shell pm grant com.example.khaata_digital android.permission.POST_NOTIFICATIONS
+//   Android: adb shell pm grant com.expensetracker.kharcha android.permission.POST_NOTIFICATIONS
 //   iOS: tap "Allow" on the first run's notification prompt.
 //   flutter test integration_test/reminder_test.dart -d <device-id>
 //

@@ -8,7 +8,7 @@
 PRODUCT_NAME = khaata_digital
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.khaataDigital
+PRODUCT_BUNDLE_IDENTIFIER = com.expensetracker.kharcha
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 Kharcha. All rights reserved.
