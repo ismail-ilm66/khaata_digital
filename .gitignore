@@ -46,3 +46,6 @@ app.*.map.json
 
 # Personal Hysab Kytab export (never commit)
 specs/*.xls
+
+# Build-time settings (Google client ids). See .env.example.
+.env
