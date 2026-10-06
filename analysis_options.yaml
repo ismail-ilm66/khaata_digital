@@ -1,0 +1,15 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.config.dart"
+    - "lib/core/l10n/gen/**"
+
+linter:
+  rules:
+    - prefer_single_quotes
+    - prefer_final_locals
+    - require_trailing_commas
+    - unawaited_futures

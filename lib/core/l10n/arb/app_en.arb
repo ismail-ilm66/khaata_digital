@@ -1,0 +1,18 @@
+{
+  "@@locale": "en",
+  "appTitle": "Kharcha",
+  "navHome": "Home",
+  "navTransactions": "Transactions",
+  "navAdd": "Add",
+  "navReports": "Reports",
+  "navMore": "More",
+  "addTransactionTitle": "Add transaction",
+  "comingSoon": "Coming soon",
+  "settingsTheme": "Theme",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsLanguage": "Language",
+  "languageEnglish": "English",
+  "languageUrdu": "اردو"
+}

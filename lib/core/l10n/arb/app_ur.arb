@@ -1,0 +1,18 @@
+{
+  "@@locale": "ur",
+  "appTitle": "خرچہ",
+  "navHome": "ہوم",
+  "navTransactions": "لین دین",
+  "navAdd": "شامل کریں",
+  "navReports": "رپورٹس",
+  "navMore": "مزید",
+  "addTransactionTitle": "لین دین شامل کریں",
+  "comingSoon": "جلد آ رہا ہے",
+  "settingsTheme": "تھیم",
+  "themeSystem": "سسٹم",
+  "themeLight": "روشن",
+  "themeDark": "تاریک",
+  "settingsLanguage": "زبان",
+  "languageEnglish": "English",
+  "languageUrdu": "اردو"
+}
