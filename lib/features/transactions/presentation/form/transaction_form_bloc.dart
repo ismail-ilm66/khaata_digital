@@ -163,6 +163,7 @@ class TransactionFormState extends Equatable {
     required this.occurredAt,
     this.note = '',
     this.tags = const [],
+    this.events = const [],
     this.keptAttachments = const [],
     this.newReceiptPaths = const [],
     this.accounts = const [],
@@ -195,6 +196,9 @@ class TransactionFormState extends Equatable {
   final DateTime occurredAt;
   final String note;
   final List<String> tags;
+
+  /// Carried through edits untouched (no events UI; set by imports).
+  final List<String> events;
   final List<Attachment> keptAttachments;
   final List<String> newReceiptPaths;
 
@@ -300,6 +304,7 @@ class TransactionFormState extends Equatable {
     occurredAt: occurredAt.toUtc(),
     note: note,
     tags: tags,
+    events: events,
     keptAttachments: keptAttachments,
     newReceiptPaths: newReceiptPaths,
   );
@@ -344,6 +349,7 @@ class TransactionFormState extends Equatable {
     occurredAt: occurredAt ?? this.occurredAt,
     note: note ?? this.note,
     tags: tags ?? this.tags,
+    events: events,
     keptAttachments: keptAttachments ?? this.keptAttachments,
     newReceiptPaths: newReceiptPaths ?? this.newReceiptPaths,
     accounts: accounts ?? this.accounts,
@@ -372,6 +378,7 @@ class TransactionFormState extends Equatable {
     occurredAt,
     note,
     tags,
+    events,
     keptAttachments,
     newReceiptPaths,
     accounts,
@@ -515,6 +522,7 @@ class TransactionFormBloc
           occurredAt: entry.occurredAt.toLocal(),
           note: entry.note,
           tags: entry.tags,
+          events: entry.events,
           keptAttachments: entry.attachments,
           accounts: accounts,
           categories: categories,

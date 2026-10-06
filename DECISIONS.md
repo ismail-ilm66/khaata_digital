@@ -82,6 +82,20 @@ or could not be followed literally. Newest milestone at the bottom.
 | 55 | Calendar maths location | The standing rule widened from "only BudgetCycle" to "only `lib/core/dates/`", which now holds `BudgetCycle` and `RecurrenceSchedule`. | Recurrence needs month arithmetic too; it still lives in one tested place. |
 | 56 | Database across isolates | `AppDatabase.open()` uses `shareAcrossIsolates: true`. | The background job and the app may both write. |
 
+## M4 — Reports and export
+
+| # | Topic | Decision | Why |
+|---|-------|----------|-----|
+| 57 | Report periods | Day / Week / Month / Year / All, plus a calendar button for a custom range. **Month = the budget cycle** (follows the month-start setting) and **Year = 12 cycles** from the cycle containing 1 Jan. **Weeks start Monday.** All period maths is in `core/dates/report_period.dart`. | One definition of "month" across Home, Budgets and Reports. Six pills didn't fit a phone, so Custom became an icon. |
+| 58 | Chart buckets | ≤ 62 days → daily, ≤ 3 years → per cycle, otherwise yearly. "All" runs from the first entry to today, or to the last entry if any are dated in the future. The balance line stops at that point instead of running flat into future months. | Readable bar counts at every span; no fake projection. |
+| 59 | Reports exclude udhaar | Same rule as #46: income, spending, donuts and bars ignore person-linked entries. The balance trend includes them, because they really move money. | Consistency with Home and Budgets. |
+| 60 | Chart colours | Charts use a separate, validated categorical palette (8 hues, light and dark steps, checked with the CVD validator), with grey for "Other". A category's colour comes from a stable hash of its id, so filtering never repaints the survivors. Badges keep their muted tints. | The badge tints failed colour-blind separation as chart fills. |
+| 61 | Donut | Top 7 categories + "Other", with the total in the centre and a legend showing integer percent and amount. Tapping a category opens its entries for that period. | No 9th generated hue; percentages computed in integers. |
+| 62 | Export format | The ACTIVITIES sheet uses Hysab Kytab's 14 columns, plus extension columns Currency, Time, Person, Kharcha Type and Kharcha Id. ACCOUNT and CATEGORY summary sheets follow HK's layout. Every cell is written as text (amounts as `-2520.00`). Rows are oldest first. CSV has a UTF-8 BOM, so Excel shows Urdu correctly. | Files open in HK-compatible tools and re-import losslessly; text cells avoid Excel's float and date mangling. |
+| 63 | Export mapping | A transfer becomes two rows, destination first (as HK does), paired by Kharcha Id. **Udhaar is written as an HK transfer pair with the person as the "account"**, matching how HK stores it. Adjustments are written as Income/Expense rows with Kharcha Type = adjustment. On read, unpaired transfer rows become adjustments with a warning; HK travel fields on non-transfer rows are appended to the note; missing time = midday. | Round-trip with zero diff for Kharcha files; best effort for HK files. |
+| 64 | Export delivery | Share (system share sheet via a temp file) or Save to device (system save dialog). "This view" exports the Reports period and filters; "Everything" exports all entries. No network. | Spec: no network outside backup. |
+| 65 | `equatable` pinned to ^2.0.7 | `excel` 4.x requires equatable 2. | No behaviour change. |
+
 ## Open items carried forward
 
 - **M5 importer input format:** the provided sample `specs/Hysab Kytab_ExportAll 2026-10-06 18-12-26.xls` is a real legacy **BIFF8 `.xls`** (CDFV2) file, not `.xlsx`. The `excel` package only reads `.xlsx`, so M5 needs a `.xls` (BIFF8) reader. It will be a pure-Dart, on-device reader, with no network.

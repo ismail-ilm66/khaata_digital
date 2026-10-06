@@ -12,7 +12,8 @@ class PickerOption<T> {
   final String label;
 }
 
-/// A pill-shaped segmented control with a sliding thumb. Used for theme and
+/// A pill-shaped segmented control with a sliding thumb. If [value]
+/// matches no option, nothing is shown as selected. Used for theme and
 /// language now, and the Expense / Income / Transfer / Udhaar switch later.
 class SegmentedPicker<T> extends StatelessWidget {
   const SegmentedPicker({
@@ -44,32 +45,34 @@ class SegmentedPicker<T> extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // The sliding thumb.
-          AnimatedAlign(
-            duration: const Duration(milliseconds: 240),
-            curve: Curves.easeOutCubic,
-            alignment: AlignmentDirectional(
-              options.length == 1 ? 0 : -1 + 2 * index / (options.length - 1),
-              0,
-            ),
-            child: FractionallySizedBox(
-              widthFactor: 1 / options.length,
-              heightFactor: 1,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: dark ? c.line : c.surface,
-                  borderRadius: BorderRadius.circular(_height / 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: c.shadow,
-                      blurRadius: 6,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
+          // The sliding thumb (hidden when [value] matches no option, e.g.
+          // a custom range chosen elsewhere).
+          if (index >= 0)
+            AnimatedAlign(
+              duration: const Duration(milliseconds: 240),
+              curve: Curves.easeOutCubic,
+              alignment: AlignmentDirectional(
+                options.length == 1 ? 0 : -1 + 2 * index / (options.length - 1),
+                0,
+              ),
+              child: FractionallySizedBox(
+                widthFactor: 1 / options.length,
+                heightFactor: 1,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: dark ? c.line : c.surface,
+                    borderRadius: BorderRadius.circular(_height / 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: c.shadow,
+                        blurRadius: 6,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
           Row(
             children: [
               for (final o in options)
@@ -92,9 +95,13 @@ class SegmentedPicker<T> extends StatelessWidget {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.s,
+                              horizontal: AppSpacing.xs,
                             ),
-                            child: Text(o.label, maxLines: 1),
+                            // Shrinks rather than clips in narrow segments.
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(o.label, maxLines: 1),
+                            ),
                           ),
                         ),
                       ),

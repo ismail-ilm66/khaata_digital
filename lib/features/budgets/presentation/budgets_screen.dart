@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/dates/budget_cycle.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/money/money.dart';
 import '../../../core/router/routes.dart';
@@ -14,6 +13,7 @@ import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/feedback.dart';
 import '../../../core/widgets/page_scaffold.dart';
+import '../../../core/widgets/period_navigator.dart';
 import '../../../core/widgets/section.dart';
 import '../../../core/widgets/surface_card.dart';
 import '../../../core/widgets/tinted_badge.dart';
@@ -119,7 +119,17 @@ class _BudgetsView extends StatelessWidget {
           slivers: [
             if (s.cycle != null)
               SliverToBoxAdapter(
-                child: _CycleNavigator(cycle: s.cycle!, budgetCycle: cycle),
+                child: PeriodNavigator(
+                  label: cycle.label(s.cycle!, locale: _locale(context)),
+                  previousTooltip: l.previousCycle,
+                  nextTooltip: l.nextCycle,
+                  onPrevious: () => context.read<BudgetsBloc>().add(
+                    CycleChanged(s.cycle!.previous),
+                  ),
+                  onNext: () => context.read<BudgetsBloc>().add(
+                    CycleChanged(s.cycle!.next),
+                  ),
+                ),
               ),
             if (o != null)
               SliverPadding(
@@ -208,42 +218,6 @@ class _BudgetsView extends StatelessWidget {
 
 String _locale(BuildContext context) =>
     Localizations.localeOf(context).toLanguageTag();
-
-/// ‹ 25 Sep – 24 Oct ›
-class _CycleNavigator extends StatelessWidget {
-  const _CycleNavigator({required this.cycle, required this.budgetCycle});
-
-  final CycleId cycle;
-  final BudgetCycle budgetCycle;
-
-  @override
-  Widget build(BuildContext context) {
-    final bloc = context.read<BudgetsBloc>();
-    final c = context.colors;
-    final l = context.l10n;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          key: const Key('previousCycle'),
-          tooltip: l.previousCycle,
-          onPressed: () => bloc.add(CycleChanged(cycle.previous)),
-          icon: DirectionalIcon(AppIcons.back, size: 18, color: c.ink),
-        ),
-        Text(
-          budgetCycle.label(cycle, locale: _locale(context)),
-          style: context.text.titleMedium,
-        ),
-        IconButton(
-          key: const Key('nextCycle'),
-          tooltip: l.nextCycle,
-          onPressed: () => bloc.add(CycleChanged(cycle.next)),
-          icon: DirectionalIcon(AppIcons.arrowRight, size: 18, color: c.ink),
-        ),
-      ],
-    );
-  }
-}
 
 /// The whole-month budget — the headline of the screen.
 class _OverallCard extends StatelessWidget {

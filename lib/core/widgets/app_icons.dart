@@ -97,6 +97,8 @@ abstract final class AppIcons {
     PhosphorIconsFill.calendarDots,
   );
   static const IconData overflow = PhosphorIconsBold.dotsThreeVertical;
+  static const IconData share = PhosphorIconsRegular.export;
+  static const IconData download = PhosphorIconsRegular.downloadSimple;
   static const IconData arrowUpRight = PhosphorIconsBold.arrowUpRight;
   static const IconData arrowDownLeft = PhosphorIconsBold.arrowDownLeft;
 

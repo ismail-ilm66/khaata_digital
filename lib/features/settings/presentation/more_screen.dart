@@ -11,6 +11,7 @@ import '../../../core/widgets/page_scaffold.dart';
 import '../../../core/widgets/section.dart';
 import '../../../core/widgets/segmented_picker.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../import_export/presentation/export_sheet.dart';
 import 'cubit/locale_cubit.dart';
 import 'cubit/preference_cubits.dart';
 import 'cubit/theme_cubit.dart';
@@ -62,6 +63,20 @@ class MoreScreen extends StatelessWidget {
                       title: l10n.recurring,
                       subtitle: l10n.recurringSubtitle,
                       onTap: () => context.push(Routes.recurring),
+                    ),
+                  ],
+                ),
+              ),
+              Section(
+                title: l10n.settingsData,
+                child: SurfaceCard(
+                  children: [
+                    SettingTile(
+                      key: const Key('exportTile'),
+                      icon: AppIcons.download,
+                      title: l10n.exportEverything,
+                      subtitle: l10n.exportAllSubtitle,
+                      onTap: () => showExportSheet(context),
                     ),
                   ],
                 ),

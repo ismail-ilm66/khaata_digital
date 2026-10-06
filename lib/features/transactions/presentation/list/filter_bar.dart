@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/di/injection.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -14,22 +13,23 @@ import '../../../categories/presentation/category_badge.dart';
 import '../../domain/entry_query.dart';
 import '../../domain/transaction_type.dart';
 import '../../domain/transactions_repository.dart';
-import 'transaction_list_bloc.dart';
 
-/// Filter chips for the transactions list (spec 3.2 #4). Each opens a
-/// multi-select sheet; an active filter shows its count.
+/// Filter chips shared by Transactions and Reports (spec 3.2 #4, #8). Each
+/// opens a multi-select sheet; an active filter shows its count.
 class FilterBar extends StatelessWidget {
-  const FilterBar({super.key});
+  const FilterBar({super.key, required this.query, required this.onChanged});
+
+  final EntryQuery query;
+  final ValueChanged<EntryQuery> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    final bloc = context.read<TransactionListBloc>();
-    final q = context.select((TransactionListBloc b) => b.state.query);
+    final q = query;
     final l = context.l10n;
 
     String label(String name, int count) =>
         count == 0 ? name : '$name · $count';
-    void apply(EntryQuery next) => bloc.add(FiltersChanged(next));
+    void apply(EntryQuery next) => onChanged(next);
 
     Future<Set<T>?> choose<T>(
       String title,

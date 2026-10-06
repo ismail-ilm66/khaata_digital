@@ -44,6 +44,7 @@ class LedgerEntry extends Equatable {
     this.note = '',
     this.place,
     this.tags = const [],
+    this.events = const [],
     this.attachments = const [],
   });
 
@@ -66,6 +67,9 @@ class LedgerEntry extends Equatable {
   final String note;
   final String? place;
   final List<String> tags;
+
+  /// Hysab Kytab-style event labels (e.g. "Eid 2026").
+  final List<String> events;
   final List<Attachment> attachments;
 
   /// The amount as it affects "my money": expenses negative, income
@@ -90,6 +94,7 @@ class LedgerEntry extends Equatable {
     note: note,
     place: place,
     tags: tags,
+    events: events,
     keptAttachments: attachments,
   );
 
@@ -108,6 +113,7 @@ class LedgerEntry extends Equatable {
     note,
     place,
     tags,
+    events,
     attachments,
   ];
 }
@@ -127,6 +133,7 @@ class EntryDraft extends Equatable {
     this.note = '',
     this.place,
     this.tags = const [],
+    this.events = const [],
     this.keptAttachments = const [],
     this.newReceiptPaths = const [],
   });
@@ -143,6 +150,7 @@ class EntryDraft extends Equatable {
   final String note;
   final String? place;
   final List<String> tags;
+  final List<String> events;
 
   /// Existing receipts to keep; any others on the entry are removed.
   final List<Attachment> keptAttachments;
@@ -166,6 +174,7 @@ class EntryDraft extends Equatable {
     note,
     place,
     tags,
+    events,
     keptAttachments,
     newReceiptPaths,
   ];

@@ -34,6 +34,10 @@ import 'package:khaata_digital/features/categories/domain/category.dart'
     as _i420;
 import 'package:khaata_digital/features/home/presentation/home_cubit.dart'
     as _i24;
+import 'package:khaata_digital/features/import_export/data/export_service.dart'
+    as _i644;
+import 'package:khaata_digital/features/import_export/domain/exporter.dart'
+    as _i1;
 import 'package:khaata_digital/features/people/data/people_repository_impl.dart'
     as _i733;
 import 'package:khaata_digital/features/people/domain/person.dart' as _i260;
@@ -42,6 +46,11 @@ import 'package:khaata_digital/features/recurring/data/recurring_repository_impl
 import 'package:khaata_digital/features/recurring/data/reminders.dart' as _i985;
 import 'package:khaata_digital/features/recurring/domain/recurring_rule.dart'
     as _i295;
+import 'package:khaata_digital/features/reports/data/reports_repository_impl.dart'
+    as _i423;
+import 'package:khaata_digital/features/reports/domain/report.dart' as _i318;
+import 'package:khaata_digital/features/reports/presentation/reports_bloc.dart'
+    as _i556;
 import 'package:khaata_digital/features/settings/data/settings_repository_impl.dart'
     as _i744;
 import 'package:khaata_digital/features/settings/domain/settings_repository.dart'
@@ -99,11 +108,20 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i608.BudgetsRepository>(
       () => _i414.BudgetsRepositoryImpl(gh<_i577.AppDatabase>()),
     );
+    gh.lazySingleton<_i318.ReportsRepository>(
+      () => _i423.ReportsRepositoryImpl(gh<_i577.AppDatabase>()),
+    );
     gh.factory<_i610.TransactionListBloc>(
       () => _i610.TransactionListBloc(gh<_i208.TransactionsRepository>()),
     );
     gh.lazySingleton<_i109.SettingsRepository>(
       () => _i744.SettingsRepositoryImpl(gh<_i577.AppDatabase>()),
+    );
+    gh.lazySingleton<_i1.Exporter>(
+      () => _i644.ExportService(
+        gh<_i208.TransactionsRepository>(),
+        gh<_i720.AccountsRepository>(),
+      ),
     );
     gh.factory<_i698.AccountFormCubit>(
       () => _i698.AccountFormCubit(gh<_i720.AccountsRepository>()),
@@ -172,6 +190,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i208.TransactionsRepository>(),
         gh<_i608.BudgetsRepository>(),
         gh<_i260.PeopleRepository>(),
+        gh<_i795.BudgetCycleCubit>(),
+        gh<_i795.CurrencyCubit>(),
+      ),
+    );
+    gh.factory<_i556.ReportsBloc>(
+      () => _i556.ReportsBloc(
+        gh<_i318.ReportsRepository>(),
         gh<_i795.BudgetCycleCubit>(),
         gh<_i795.CurrencyCubit>(),
       ),

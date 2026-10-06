@@ -13,12 +13,7 @@ import 'package:khaata_digital/features/transactions/presentation/form/entry_edi
 import 'package:khaata_digital/features/transactions/presentation/transactions_screen.dart';
 
 import 'helpers/test_app.dart';
-
-/// Scrolls [f] to mid-screen, clear of the floating nav bar, like a user.
-Future<void> reveal(WidgetTester t, Finder f) async {
-  await Scrollable.ensureVisible(t.element(f), alignment: 0.5);
-  await t.pumpAndSettle();
-}
+import 'helpers/ui.dart';
 
 Finder _navLabel(String label) =>
     find.descendant(of: find.byType(GlassNavBar), matching: find.text(label));

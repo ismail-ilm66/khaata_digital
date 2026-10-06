@@ -74,6 +74,27 @@ class LabelsDao extends DatabaseAccessor<AppDatabase> with _$LabelsDaoMixin {
     return out;
   }
 
+  /// Event names for each of [transactionIds], alphabetical.
+  Future<Map<String, List<String>>> eventNamesFor(
+    Iterable<String> transactionIds,
+  ) async {
+    final ids = transactionIds.toSet();
+    if (ids.isEmpty) return const {};
+    final q =
+        select(transactionEvents).join([
+            innerJoin(events, events.id.equalsExp(transactionEvents.eventId)),
+          ])
+          ..where(transactionEvents.transactionId.isIn(ids))
+          ..orderBy([OrderingTerm.asc(events.name)]);
+    final out = <String, List<String>>{};
+    for (final r in await q.get()) {
+      out
+          .putIfAbsent(r.readTable(transactionEvents).transactionId, () => [])
+          .add(r.readTable(events).name);
+    }
+    return out;
+  }
+
   /// Names of tags attached to at least one live transaction.
   Future<List<String>> usedTagNames() async {
     final rows = await customSelect(

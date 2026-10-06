@@ -589,4 +589,108 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get settingsGeneral => 'عمومی';
+
+  @override
+  String get periodDay => 'دن';
+
+  @override
+  String get periodWeek => 'ہفتہ';
+
+  @override
+  String get periodMonth => 'مہینہ';
+
+  @override
+  String get periodYear => 'سال';
+
+  @override
+  String get periodCustom => 'اپنی مرضی';
+
+  @override
+  String get periodAll => 'سب';
+
+  @override
+  String get allTime => 'تمام وقت';
+
+  @override
+  String get previousPeriod => 'پچھلا';
+
+  @override
+  String get nextPeriod => 'اگلا';
+
+  @override
+  String get spendingByCategory => 'زمرہ وار خرچ';
+
+  @override
+  String get incomeByCategory => 'زمرہ وار آمدنی';
+
+  @override
+  String get incomeVsSpending => 'آمدنی بمقابلہ خرچ';
+
+  @override
+  String get balanceTrend => 'بیلنس';
+
+  @override
+  String get net => 'خالص';
+
+  @override
+  String get other => 'دیگر';
+
+  @override
+  String get noActivity => 'اس مدت میں کوئی لین دین نہیں';
+
+  @override
+  String get noActivityBody => 'کوئی اور مدت آزمائیں یا فلٹر صاف کریں۔';
+
+  @override
+  String get export => 'برآمد';
+
+  @override
+  String get exportScope => 'کیا برآمد کرنا ہے';
+
+  @override
+  String get exportView => 'یہ منظر';
+
+  @override
+  String get exportAll => 'سب کچھ';
+
+  @override
+  String get exportFormat => 'فارمیٹ';
+
+  @override
+  String get formatExcel => 'Excel';
+
+  @override
+  String get formatCsv => 'CSV';
+
+  @override
+  String get share => 'شیئر کریں';
+
+  @override
+  String get saveToDevice => 'فون میں محفوظ کریں';
+
+  @override
+  String savedFile(String name) {
+    return '$name محفوظ ہو گئی';
+  }
+
+  @override
+  String get exportFailed => 'فائل نہیں بن سکی۔ دوبارہ کوشش کریں۔';
+
+  @override
+  String get exportHint =>
+      'Hysab Kytab جیسے کالم، تاکہ آپ کبھی بھی واپس درآمد کر سکیں۔';
+
+  @override
+  String get exportAllSubtitle => 'آپ کی پوری تاریخ Excel یا CSV میں';
+
+  @override
+  String ofTotal(int percent) {
+    return 'کل کا $percent%';
+  }
+
+  @override
+  String get settingsData => 'ڈیٹا';
+
+  @override
+  String get exportEverything => 'سب کچھ برآمد کریں';
 }

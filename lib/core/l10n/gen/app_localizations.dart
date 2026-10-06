@@ -1171,6 +1171,204 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'General'**
   String get settingsGeneral;
+
+  /// No description provided for @periodDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get periodDay;
+
+  /// No description provided for @periodWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get periodWeek;
+
+  /// No description provided for @periodMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get periodMonth;
+
+  /// No description provided for @periodYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get periodYear;
+
+  /// No description provided for @periodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get periodCustom;
+
+  /// No description provided for @periodAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get periodAll;
+
+  /// No description provided for @allTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get allTime;
+
+  /// No description provided for @previousPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previousPeriod;
+
+  /// No description provided for @nextPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get nextPeriod;
+
+  /// No description provided for @spendingByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by category'**
+  String get spendingByCategory;
+
+  /// No description provided for @incomeByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Income by category'**
+  String get incomeByCategory;
+
+  /// No description provided for @incomeVsSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'Income vs spending'**
+  String get incomeVsSpending;
+
+  /// No description provided for @balanceTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Balance'**
+  String get balanceTrend;
+
+  /// No description provided for @net.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get net;
+
+  /// No description provided for @other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other;
+
+  /// No description provided for @noActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity in this period'**
+  String get noActivity;
+
+  /// No description provided for @noActivityBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another period or clear the filters.'**
+  String get noActivityBody;
+
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get export;
+
+  /// No description provided for @exportScope.
+  ///
+  /// In en, this message translates to:
+  /// **'What to export'**
+  String get exportScope;
+
+  /// No description provided for @exportView.
+  ///
+  /// In en, this message translates to:
+  /// **'This view'**
+  String get exportView;
+
+  /// No description provided for @exportAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything'**
+  String get exportAll;
+
+  /// No description provided for @exportFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get exportFormat;
+
+  /// No description provided for @formatExcel.
+  ///
+  /// In en, this message translates to:
+  /// **'Excel'**
+  String get formatExcel;
+
+  /// No description provided for @formatCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV'**
+  String get formatCsv;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @saveToDevice.
+  ///
+  /// In en, this message translates to:
+  /// **'Save to device'**
+  String get saveToDevice;
+
+  /// No description provided for @savedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {name}'**
+  String savedFile(String name);
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create the file. Try again.'**
+  String get exportFailed;
+
+  /// No description provided for @exportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Same columns as Hysab Kytab, so you can import it back anytime.'**
+  String get exportHint;
+
+  /// No description provided for @exportAllSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your full history as Excel or CSV'**
+  String get exportAllSubtitle;
+
+  /// No description provided for @ofTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of total'**
+  String ofTotal(int percent);
+
+  /// No description provided for @settingsData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsData;
+
+  /// No description provided for @exportEverything.
+  ///
+  /// In en, this message translates to:
+  /// **'Export everything'**
+  String get exportEverything;
 }
 
 class _AppLocalizationsDelegate

@@ -264,5 +264,52 @@
         "type": "int"
       }
     }
-  }
+  },
+  "periodDay": "Day",
+  "periodWeek": "Week",
+  "periodMonth": "Month",
+  "periodYear": "Year",
+  "periodCustom": "Custom",
+  "periodAll": "All",
+  "allTime": "All time",
+  "previousPeriod": "Previous",
+  "nextPeriod": "Next",
+  "spendingByCategory": "Spending by category",
+  "incomeByCategory": "Income by category",
+  "incomeVsSpending": "Income vs spending",
+  "balanceTrend": "Balance",
+  "net": "Net",
+  "other": "Other",
+  "noActivity": "No activity in this period",
+  "noActivityBody": "Try another period or clear the filters.",
+  "export": "Export",
+  "exportScope": "What to export",
+  "exportView": "This view",
+  "exportAll": "Everything",
+  "exportFormat": "Format",
+  "formatExcel": "Excel",
+  "formatCsv": "CSV",
+  "share": "Share",
+  "saveToDevice": "Save to device",
+  "savedFile": "Saved {name}",
+  "exportFailed": "Couldn't create the file. Try again.",
+  "exportHint": "Same columns as Hysab Kytab, so you can import it back anytime.",
+  "exportAllSubtitle": "Your full history as Excel or CSV",
+  "ofTotal": "{percent}% of total",
+  "@savedFile": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@ofTotal": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsData": "Data",
+  "exportEverything": "Export everything"
 }

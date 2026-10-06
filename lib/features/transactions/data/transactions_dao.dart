@@ -4,6 +4,7 @@ import '../../../core/dates/date_range.dart';
 import '../../../core/db/app_database.dart';
 import '../../../core/db/entity_ops.dart';
 import '../../../core/db/tables.dart';
+import '../../../core/db/ledger_sql.dart';
 import '../../../core/money/fixed_point.dart';
 import '../domain/transaction_type.dart';
 
@@ -104,25 +105,17 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
       leftOuterJoin(people, people.id.equalsExp(t.personId)),
     ]);
 
-    Expression<bool> tagged(Expression<bool> Function() match) => existsQuery(
-      selectOnly(
-          transactionTags,
-        ).join([innerJoin(tags, tags.id.equalsExp(transactionTags.tagId))])
-        ..addColumns([transactionTags.tagId])
-        ..where(transactionTags.transactionId.equalsExp(t.id) & match()),
-    );
-
-    final conditions = <Expression<bool>>[
-      t.deletedAt.isNull(),
+    final conditions = [
+      ..._filters(
+        types: types,
+        accountIds: accountIds,
+        categoryIds: categoryIds,
+        tagNames: tagNames,
+        personIds: personIds,
+        fromMillis: fromMillis,
+        toMillis: toMillis,
+      ),
       if (id != null) t.id.equals(id),
-      if (types.isNotEmpty) t.type.isIn(types.map((e) => e.name)),
-      if (accountIds.isNotEmpty)
-        t.accountId.isIn(accountIds) | t.toAccountId.isIn(accountIds),
-      if (categoryIds.isNotEmpty) t.categoryId.isIn(categoryIds),
-      if (tagNames.isNotEmpty) tagged(() => tags.name.isIn(tagNames)),
-      if (personIds.isNotEmpty) t.personId.isIn(personIds),
-      if (fromMillis != null) t.occurredAt.isBiggerOrEqualValue(fromMillis),
-      if (toMillis != null) t.occurredAt.isSmallerThanValue(toMillis),
     ];
 
     final needle = search.trim();
@@ -138,7 +131,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
             like(toAcc.name) |
             like(categories.name) |
             like(people.name) |
-            tagged(() => like(tags.name)) |
+            _tagged(() => like(tags.name)) |
             (amount == null
                 ? const Constant(false)
                 : t.amountMinor.equals(amount.abs())),
@@ -161,6 +154,170 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
         category: r.readTableOrNull(categories),
         person: r.readTableOrNull(people),
       ),
+    );
+  }
+
+  /// Entries whose tags match [match].
+  Expression<bool> _tagged(Expression<bool> Function() match) => existsQuery(
+    selectOnly(
+        transactionTags,
+      ).join([innerJoin(tags, tags.id.equalsExp(transactionTags.tagId))])
+      ..addColumns([transactionTags.tagId])
+      ..where(
+        transactionTags.transactionId.equalsExp(transactions.id) & match(),
+      ),
+  );
+
+  /// The filter conditions shared by the list and the report aggregates,
+  /// so a filter means the same thing on every screen.
+  List<Expression<bool>> _filters({
+    Set<TransactionType> types = const {},
+    Set<String> accountIds = const {},
+    Set<String> categoryIds = const {},
+    Set<String> tagNames = const {},
+    Set<String> personIds = const {},
+    int? fromMillis,
+    int? toMillis,
+  }) {
+    final t = transactions;
+    return [
+      t.deletedAt.isNull(),
+      if (types.isNotEmpty) t.type.isIn(types.map((e) => e.name)),
+      if (accountIds.isNotEmpty)
+        t.accountId.isIn(accountIds) | t.toAccountId.isIn(accountIds),
+      if (categoryIds.isNotEmpty) t.categoryId.isIn(categoryIds),
+      if (tagNames.isNotEmpty) _tagged(() => tags.name.isIn(tagNames)),
+      if (personIds.isNotEmpty) t.personId.isIn(personIds),
+      if (fromMillis != null) t.occurredAt.isBiggerOrEqualValue(fromMillis),
+      if (toMillis != null) t.occurredAt.isSmallerThanValue(toMillis),
+    ];
+  }
+
+  /// `YYYY-MM-DD` of an entry in the device's local time.
+  static final _localDay = CustomExpression<String>(
+    "strftime('%Y-%m-%d', \"transactions\".\"occurred_at\" / 1000, "
+    "'unixepoch', 'localtime')",
+  );
+
+  /// Income and expense per local day, type and currency for the
+  /// filtered entries (udhaar excluded: it isn't income or spending).
+  Selectable<({String day, TransactionType type, String currency, int total})>
+  dailyTotals({
+    Set<TransactionType> types = const {},
+    Set<String> accountIds = const {},
+    Set<String> categoryIds = const {},
+    Set<String> tagNames = const {},
+    int? fromMillis,
+    int? toMillis,
+  }) {
+    final t = transactions;
+    final total = t.amountMinor.sum();
+    final q = selectOnly(t)
+      ..addColumns([_localDay, t.type, t.currencyCode, total])
+      ..where(
+        [
+          ..._filters(
+            types: types,
+            accountIds: accountIds,
+            categoryIds: categoryIds,
+            tagNames: tagNames,
+            fromMillis: fromMillis,
+            toMillis: toMillis,
+          ),
+          t.type.isIn(['income', 'expense']),
+          t.personId.isNull(),
+        ].reduce((a, b) => a & b),
+      )
+      ..groupBy([_localDay, t.type, t.currencyCode]);
+    return q.map(
+      (r) => (
+        day: r.read(_localDay)!,
+        type: r.readWithConverter(t.type)!,
+        currency: r.read(t.currencyCode)!,
+        total: r.read(total) ?? 0,
+      ),
+    );
+  }
+
+  /// Income and expense per category (null = uncategorised), type and
+  /// currency for the filtered entries, udhaar excluded.
+  Selectable<
+    ({String? categoryId, TransactionType type, String currency, int total})
+  >
+  categoryTotals({
+    Set<TransactionType> types = const {},
+    Set<String> accountIds = const {},
+    Set<String> categoryIds = const {},
+    Set<String> tagNames = const {},
+    int? fromMillis,
+    int? toMillis,
+  }) {
+    final t = transactions;
+    final total = t.amountMinor.sum();
+    final q = selectOnly(t)
+      ..addColumns([t.categoryId, t.type, t.currencyCode, total])
+      ..where(
+        [
+          ..._filters(
+            types: types,
+            accountIds: accountIds,
+            categoryIds: categoryIds,
+            tagNames: tagNames,
+            fromMillis: fromMillis,
+            toMillis: toMillis,
+          ),
+          t.type.isIn(['income', 'expense']),
+          t.personId.isNull(),
+        ].reduce((a, b) => a & b),
+      )
+      ..groupBy([t.categoryId, t.type, t.currencyCode]);
+    return q.map(
+      (r) => (
+        categoryId: r.read(t.categoryId),
+        type: r.readWithConverter(t.type)!,
+        currency: r.read(t.currencyCode)!,
+        total: r.read(total) ?? 0,
+      ),
+    );
+  }
+
+  /// For the balance trend: the summed opening balances, and the net
+  /// change per local day, of active accounts in [currencyCode] — those in
+  /// [accountIds], or else all counted in net worth.
+  Selectable<({String? day, int delta})> balanceChanges(
+    String currencyCode, {
+    Set<String> accountIds = const {},
+  }) {
+    final ids = accountIds.toList();
+    final accountFilter = ids.isEmpty
+        ? 'a.exclude_from_total = 0'
+        : 'a.id IN (${List.filled(ids.length, '?').join(', ')})';
+    const day =
+        "strftime('%Y-%m-%d', t.occurred_at / 1000, 'unixepoch', 'localtime')";
+    final where =
+        'a.currency_code = ? AND a.deleted_at IS NULL AND $accountFilter';
+    final vars = [
+      Variable.withString(currencyCode),
+      for (final id in ids) Variable.withString(id),
+    ];
+    return customSelect(
+      // Row with a NULL day = opening balances; then one row per day.
+      'SELECT NULL AS day, COALESCE(SUM(a.opening_balance_minor), 0) AS delta '
+      'FROM accounts a WHERE $where '
+      'UNION ALL '
+      'SELECT day, SUM(delta) AS delta FROM ('
+      '  SELECT $day AS day, ${LedgerSql.sourceDelta} AS delta '
+      '  FROM transactions t JOIN accounts a ON a.id = t.account_id '
+      '  WHERE ${LedgerSql.live} AND $where '
+      '  UNION ALL '
+      '  SELECT $day AS day, ${LedgerSql.destinationCredit} AS delta '
+      '  FROM transactions t JOIN accounts a ON a.id = t.to_account_id '
+      '  WHERE ${LedgerSql.live} AND $where'
+      ') GROUP BY day',
+      variables: [...vars, ...vars, ...vars],
+      readsFrom: {transactions, accounts},
+    ).map(
+      (r) => (day: r.readNullable<String>('day'), delta: r.read<int>('delta')),
     );
   }
 

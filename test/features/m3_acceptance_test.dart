@@ -14,6 +14,7 @@ import 'package:khaata_digital/features/settings/presentation/cubit/preference_c
 
 import '../helpers/test_app.dart';
 import '../helpers/test_db.dart';
+import '../helpers/ui.dart';
 
 /// M3 acceptance criteria, driven through the real UI.
 void main() {
@@ -41,14 +42,6 @@ void main() {
   Finder tab(String label) =>
       find.descendant(of: find.byType(GlassNavBar), matching: find.text(label));
 
-  /// Scrolls [f] to mid-screen (clear of the floating bar) and taps it.
-  Future<void> tapRevealed(WidgetTester t, Finder f) async {
-    await Scrollable.ensureVisible(t.element(f), alignment: 0.5);
-    await t.pumpAndSettle();
-    await t.tap(f);
-    await t.pumpAndSettle();
-  }
-
   Future<void> keys(WidgetTester t, String digits) async {
     for (final d in digits.split('')) {
       await t.tap(find.byKey(Key('key-d$d')));
@@ -59,7 +52,7 @@ void main() {
   Future<void> openMoreTile(WidgetTester t, String key) async {
     await t.tap(tab('More'));
     await t.pumpAndSettle();
-    await tapRevealed(t, find.byKey(Key(key)));
+    await revealAndTap(t, find.byKey(Key(key)));
   }
 
   testWidgets('budget bars respect a custom month start (25th)', (t) async {

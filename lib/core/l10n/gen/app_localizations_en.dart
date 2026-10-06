@@ -591,4 +591,108 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsGeneral => 'General';
+
+  @override
+  String get periodDay => 'Day';
+
+  @override
+  String get periodWeek => 'Week';
+
+  @override
+  String get periodMonth => 'Month';
+
+  @override
+  String get periodYear => 'Year';
+
+  @override
+  String get periodCustom => 'Custom';
+
+  @override
+  String get periodAll => 'All';
+
+  @override
+  String get allTime => 'All time';
+
+  @override
+  String get previousPeriod => 'Previous';
+
+  @override
+  String get nextPeriod => 'Next';
+
+  @override
+  String get spendingByCategory => 'Spending by category';
+
+  @override
+  String get incomeByCategory => 'Income by category';
+
+  @override
+  String get incomeVsSpending => 'Income vs spending';
+
+  @override
+  String get balanceTrend => 'Balance';
+
+  @override
+  String get net => 'Net';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get noActivity => 'No activity in this period';
+
+  @override
+  String get noActivityBody => 'Try another period or clear the filters.';
+
+  @override
+  String get export => 'Export';
+
+  @override
+  String get exportScope => 'What to export';
+
+  @override
+  String get exportView => 'This view';
+
+  @override
+  String get exportAll => 'Everything';
+
+  @override
+  String get exportFormat => 'Format';
+
+  @override
+  String get formatExcel => 'Excel';
+
+  @override
+  String get formatCsv => 'CSV';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get saveToDevice => 'Save to device';
+
+  @override
+  String savedFile(String name) {
+    return 'Saved $name';
+  }
+
+  @override
+  String get exportFailed => 'Couldn\'t create the file. Try again.';
+
+  @override
+  String get exportHint =>
+      'Same columns as Hysab Kytab, so you can import it back anytime.';
+
+  @override
+  String get exportAllSubtitle => 'Your full history as Excel or CSV';
+
+  @override
+  String ofTotal(int percent) {
+    return '$percent% of total';
+  }
+
+  @override
+  String get settingsData => 'Data';
+
+  @override
+  String get exportEverything => 'Export everything';
 }

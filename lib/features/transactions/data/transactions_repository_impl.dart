@@ -73,6 +73,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
   Future<List<EntryView>> _views(List<EntryRows> rows) async {
     final ids = [for (final r in rows) r.tx.id];
     final tags = await _db.labelsDao.tagNamesFor(ids);
+    final events = await _db.labelsDao.eventNamesFor(ids);
     final files = await _db.attachmentsDao.forTransactions(ids);
     return [
       for (final r in rows)
@@ -80,6 +81,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
           entry: _entry(
             r,
             tags[r.tx.id] ?? const [],
+            events[r.tx.id] ?? const [],
             files[r.tx.id] ?? const [],
           ),
           accountName: r.from.name,
@@ -94,6 +96,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
   static LedgerEntry _entry(
     EntryRows r,
     List<String> tags,
+    List<String> events,
     List<AttachmentRow> files,
   ) {
     final tx = r.tx;
@@ -114,6 +117,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
       note: tx.note,
       place: tx.place,
       tags: tags,
+      events: events,
       attachments: [
         for (final f in files)
           Attachment(
@@ -160,8 +164,11 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
       }
       final removed = <AttachmentRow>[];
       final savedId = await _db.transaction(() async {
-        final entryId = id ?? await _dao.add(row, tags: draft.tags);
-        if (id != null) await _dao.edit(id, row, tags: draft.tags);
+        final entryId =
+            id ?? await _dao.add(row, tags: draft.tags, events: draft.events);
+        if (id != null) {
+          await _dao.edit(id, row, tags: draft.tags, events: draft.events);
+        }
         removed.addAll(
           await _db.attachmentsDao.removeExcept(entryId, {
             for (final a in draft.keptAttachments) a.id,

@@ -48,7 +48,13 @@ class _TransactionsView extends StatelessWidget {
           icon: Icon(AppIcons.search, color: context.colors.ink),
         ),
         slivers: [
-          const SliverToBoxAdapter(child: FilterBar()),
+          SliverToBoxAdapter(
+            child: FilterBar(
+              query: state.query,
+              onChanged: (q) =>
+                  context.read<TransactionListBloc>().add(FiltersChanged(q)),
+            ),
+          ),
           if (state.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
