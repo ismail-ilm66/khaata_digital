@@ -1,71 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/context_x.dart';
+import '../../../core/widgets/page_scaffold.dart';
+import '../../../core/widgets/section.dart';
+import '../../../core/widgets/segmented_picker.dart';
+import '../../../core/widgets/surface_card.dart';
 import 'cubit/locale_cubit.dart';
 import 'cubit/theme_cubit.dart';
+import '../../../core/widgets/app_icons.dart';
 
-/// More/Settings tab (spec 3.2 #10). M0 ships only theme + language so both
-/// themes and both locales can be verified on device; the rest lands in M6.
+/// More/Settings tab (spec 3.2 #10). Appearance for now; the rest of the
+/// settings land in M6.
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final textTheme = Theme.of(context).textTheme;
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.navMore)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(l10n.settingsTheme, style: textTheme.titleMedium),
-          const SizedBox(height: 8),
-          BlocBuilder<ThemeCubit, ThemeMode>(
-            builder: (context, mode) => SegmentedButton<ThemeMode>(
-              key: const Key('themeSelector'),
-              segments: [
-                ButtonSegment(
-                  value: ThemeMode.system,
-                  label: Text(l10n.themeSystem),
+    final l10n = context.l10n;
+    return PageScaffold(
+      title: l10n.navMore,
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+          sliver: SliverList.list(
+            children: [
+              Section(
+                title: l10n.settingsAppearance,
+                child: SurfaceCard(
+                  children: [
+                    SettingTile(
+                      icon: AppIcons.theme.filled,
+                      title: l10n.settingsTheme,
+                      control: BlocBuilder<ThemeCubit, ThemeMode>(
+                        builder: (context, mode) => SegmentedPicker<ThemeMode>(
+                          key: const Key('themeSelector'),
+                          value: mode,
+                          onChanged: context.read<ThemeCubit>().set,
+                          options: [
+                            PickerOption(ThemeMode.system, l10n.themeSystem),
+                            PickerOption(ThemeMode.light, l10n.themeLight),
+                            PickerOption(ThemeMode.dark, l10n.themeDark),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SettingTile(
+                      icon: AppIcons.language.filled,
+                      title: l10n.settingsLanguage,
+                      control: BlocBuilder<LocaleCubit, Locale>(
+                        builder: (context, locale) => SegmentedPicker<Locale>(
+                          key: const Key('languageSelector'),
+                          value: locale,
+                          onChanged: context.read<LocaleCubit>().set,
+                          options: [
+                            PickerOption(
+                              LocaleCubit.english,
+                              l10n.languageEnglish,
+                            ),
+                            PickerOption(LocaleCubit.urdu, l10n.languageUrdu),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                ButtonSegment(
-                  value: ThemeMode.light,
-                  label: Text(l10n.themeLight),
-                ),
-                ButtonSegment(
-                  value: ThemeMode.dark,
-                  label: Text(l10n.themeDark),
-                ),
-              ],
-              selected: {mode},
-              onSelectionChanged: (s) =>
-                  context.read<ThemeCubit>().setMode(s.single),
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 24),
-          Text(l10n.settingsLanguage, style: textTheme.titleMedium),
-          const SizedBox(height: 8),
-          BlocBuilder<LocaleCubit, Locale>(
-            builder: (context, locale) => SegmentedButton<Locale>(
-              key: const Key('languageSelector'),
-              segments: [
-                ButtonSegment(
-                  value: LocaleCubit.english,
-                  label: Text(l10n.languageEnglish),
-                ),
-                ButtonSegment(
-                  value: LocaleCubit.urdu,
-                  label: Text(l10n.languageUrdu),
-                ),
-              ],
-              selected: {locale},
-              onSelectionChanged: (s) =>
-                  context.read<LocaleCubit>().setLocale(s.single),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

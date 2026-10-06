@@ -1,19 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
-/// Holds the selected app locale (English or Urdu). Persistence to the
-/// `settings` table arrives with the database in M1/M6.
+import '../../domain/setting_key.dart';
+import '../../domain/settings_repository.dart';
+import 'setting_cubit.dart';
+
 @lazySingleton
-class LocaleCubit extends Cubit<Locale> {
-  LocaleCubit() : super(english);
+class LocaleCubit extends SettingCubit<Locale> {
+  LocaleCubit(SettingsRepository repository)
+    : super(repository, SettingKey.locale, english);
 
   static const Locale english = Locale('en');
   static const Locale urdu = Locale('ur');
   static const List<Locale> supported = [english, urdu];
 
-  void setLocale(Locale locale) {
-    assert(supported.contains(locale), 'Unsupported locale $locale');
-    emit(locale);
-  }
+  @override
+  Locale decode(String stored) => supported.firstWhere(
+    (l) => l.languageCode == stored,
+    orElse: () => english,
+  );
+
+  @override
+  String encode(Locale value) => value.languageCode;
 }

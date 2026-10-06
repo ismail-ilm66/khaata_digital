@@ -14,5 +14,10 @@
   "themeDark": "Dark",
   "settingsLanguage": "Language",
   "languageEnglish": "English",
-  "languageUrdu": "اردو"
+  "languageUrdu": "اردو",
+  "homeEmpty": "Your month at a glance: balance, budgets and recent spending.",
+  "transactionsEmpty": "Every expense, income and transfer, grouped by day.",
+  "reportsEmpty": "Charts for any date range, with your full history.",
+  "addEmpty": "Log an expense in three taps.",
+  "settingsAppearance": "Appearance"
 }

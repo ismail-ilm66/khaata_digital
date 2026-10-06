@@ -1,0 +1,3 @@
+tags:
+  golden-generator:
+    description: One-shot generators for golden databases; skipped unless KHARCHA_GENERATE_GOLDEN=1.

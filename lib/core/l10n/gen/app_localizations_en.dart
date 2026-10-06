@@ -52,4 +52,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageUrdu => 'اردو';
+
+  @override
+  String get homeEmpty =>
+      'Your month at a glance: balance, budgets and recent spending.';
+
+  @override
+  String get transactionsEmpty =>
+      'Every expense, income and transfer, grouped by day.';
+
+  @override
+  String get reportsEmpty =>
+      'Charts for any date range, with your full history.';
+
+  @override
+  String get addEmpty => 'Log an expense in three taps.';
+
+  @override
+  String get settingsAppearance => 'Appearance';
 }

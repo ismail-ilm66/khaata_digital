@@ -1,0 +1,34 @@
+{
+  "_comment": "Hand-computed from the rows in test/golden/generate_golden_v1_test.dart. Amounts are minor units.",
+  "schema_version": 1,
+  "accounts": {
+    "Cash": 424999,
+    "Meezan Bank": 18059400,
+    "Payoneer": 15000,
+    "Savings": 7500000
+  },
+  "archived_accounts": ["Old Wallet"],
+  "net_worth": {
+    "PKR": 18484399,
+    "USD": 15000
+  },
+  "people": {
+    "Mudassir Bhai": { "PKR": 70000 }
+  },
+  "row_counts": {
+    "accounts": 5,
+    "categories": 42,
+    "people": 1,
+    "transactions": 10,
+    "tags": 2,
+    "transaction_tags": 2,
+    "events": 1,
+    "transaction_events": 1,
+    "budgets": 2,
+    "settings": 2
+  },
+  "settings": {
+    "month_start_day": "25",
+    "theme": "dark"
+  }
+}

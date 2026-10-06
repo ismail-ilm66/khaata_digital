@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'bootstrap.dart';
 import 'core/di/injection.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureDependencies();
-  // M1: open the Drift database and run the integrity check here.
+  await bootstrap();
   runApp(const KharchaApp());
 }

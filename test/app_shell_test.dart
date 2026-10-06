@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:injectable/injectable.dart';
 import 'package:khaata_digital/app.dart';
+import 'package:khaata_digital/bootstrap.dart';
+import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/di/injection.dart';
+import 'package:khaata_digital/core/widgets/glass_nav_bar.dart';
 import 'package:khaata_digital/features/home/presentation/home_screen.dart';
 import 'package:khaata_digital/features/reports/presentation/reports_screen.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/locale_cubit.dart';
@@ -10,14 +14,13 @@ import 'package:khaata_digital/features/settings/presentation/more_screen.dart';
 import 'package:khaata_digital/features/transactions/presentation/add_transaction_sheet.dart';
 import 'package:khaata_digital/features/transactions/presentation/transactions_screen.dart';
 
+import 'helpers/test_app.dart';
+
 Finder _navLabel(String label) =>
-    find.descendant(of: find.byType(NavigationBar), matching: find.text(label));
+    find.descendant(of: find.byType(GlassNavBar), matching: find.text(label));
 
 void main() {
-  setUp(() async {
-    await getIt.reset();
-    configureDependencies();
-  });
+  setUp(setUpTestApp);
 
   Future<void> pumpApp(WidgetTester tester) async {
     await tester.pumpWidget(const KharchaApp());
@@ -28,9 +31,10 @@ void main() {
     await pumpApp(tester);
 
     expect(find.byType(HomeScreen), findsOneWidget);
-    for (final label in ['Home', 'Transactions', 'Add', 'Reports', 'More']) {
+    for (final label in ['Home', 'Transactions', 'Reports', 'More']) {
       expect(_navLabel(label), findsOneWidget, reason: label);
     }
+    expect(find.bySemanticsLabel('Add'), findsOneWidget);
   });
 
   testWidgets('each tab navigates to its screen', (tester) async {
@@ -60,23 +64,23 @@ void main() {
     await tester.tap(_navLabel('Reports'));
     await tester.pumpAndSettle();
 
-    await tester.tap(_navLabel('Add'));
+    await tester.tap(find.bySemanticsLabel('Add'));
     await tester.pumpAndSettle();
     expect(find.byType(AddTransactionSheet), findsOneWidget);
 
-    final nav = tester.widget<NavigationBar>(find.byType(NavigationBar));
-    expect(nav.selectedIndex, 3, reason: 'Reports stays selected');
+    final nav = tester.widget<GlassNavBar>(find.byType(GlassNavBar));
+    expect(nav.selectedIndex, 2, reason: 'Reports stays selected');
   });
 
   testWidgets('renders in dark and light themes', (tester) async {
     await pumpApp(tester);
     BuildContext ctx() => tester.element(find.byType(HomeScreen));
 
-    getIt<ThemeCubit>().setMode(ThemeMode.dark);
+    await getIt<ThemeCubit>().set(ThemeMode.dark);
     await tester.pumpAndSettle();
     expect(Theme.of(ctx()).brightness, Brightness.dark);
 
-    getIt<ThemeCubit>().setMode(ThemeMode.light);
+    await getIt<ThemeCubit>().set(ThemeMode.light);
     await tester.pumpAndSettle();
     expect(Theme.of(ctx()).brightness, Brightness.light);
   });
@@ -110,9 +114,10 @@ void main() {
       Directionality.of(tester.element(find.byType(MoreScreen))),
       TextDirection.rtl,
     );
-    for (final label in ['ہوم', 'لین دین', 'شامل کریں', 'رپورٹس', 'مزید']) {
+    for (final label in ['ہوم', 'لین دین', 'رپورٹس', 'مزید']) {
       expect(_navLabel(label), findsOneWidget, reason: label);
     }
+    expect(find.bySemanticsLabel('شامل کریں'), findsOneWidget);
 
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
@@ -121,5 +126,24 @@ void main() {
       TextDirection.ltr,
     );
     expect(_navLabel('Home'), findsOneWidget);
+  });
+
+  testWidgets('theme and language survive a restart', (tester) async {
+    await pumpApp(tester);
+    await tester.tap(_navLabel('More'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Dark'));
+    await tester.tap(find.text('اردو'));
+    await tester.pumpAndSettle();
+
+    // Simulate a cold start against the same database.
+    final db = getIt<AppDatabase>();
+    await getIt.reset(dispose: false);
+    getIt.registerSingleton<AppDatabase>(db);
+    configureDependencies(environment: Environment.test);
+    await tester.runAsync(bootstrap);
+
+    expect(getIt<ThemeCubit>().state, ThemeMode.dark);
+    expect(getIt<LocaleCubit>().state, LocaleCubit.urdu);
   });
 }

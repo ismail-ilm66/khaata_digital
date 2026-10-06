@@ -52,4 +52,20 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get languageUrdu => 'اردو';
+
+  @override
+  String get homeEmpty => 'آپ کا مہینہ ایک نظر میں: بیلنس، بجٹ اور حالیہ خرچ۔';
+
+  @override
+  String get transactionsEmpty => 'ہر خرچ، آمدنی اور منتقلی، دن کے حساب سے۔';
+
+  @override
+  String get reportsEmpty =>
+      'کسی بھی تاریخ کی حد کے چارٹس، پوری ہسٹری کے ساتھ۔';
+
+  @override
+  String get addEmpty => 'تین ٹیپ میں خرچ درج کریں۔';
+
+  @override
+  String get settingsAppearance => 'ظاہری شکل';
 }

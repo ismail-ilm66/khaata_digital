@@ -14,5 +14,10 @@
   "themeDark": "تاریک",
   "settingsLanguage": "زبان",
   "languageEnglish": "English",
-  "languageUrdu": "اردو"
+  "languageUrdu": "اردو",
+  "homeEmpty": "آپ کا مہینہ ایک نظر میں: بیلنس، بجٹ اور حالیہ خرچ۔",
+  "transactionsEmpty": "ہر خرچ، آمدنی اور منتقلی، دن کے حساب سے۔",
+  "reportsEmpty": "کسی بھی تاریخ کی حد کے چارٹس، پوری ہسٹری کے ساتھ۔",
+  "addEmpty": "تین ٹیپ میں خرچ درج کریں۔",
+  "settingsAppearance": "ظاہری شکل"
 }

@@ -187,6 +187,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'اردو'**
   String get languageUrdu;
+
+  /// No description provided for @homeEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Your month at a glance: balance, budgets and recent spending.'**
+  String get homeEmpty;
+
+  /// No description provided for @transactionsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Every expense, income and transfer, grouped by day.'**
+  String get transactionsEmpty;
+
+  /// No description provided for @reportsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts for any date range, with your full history.'**
+  String get reportsEmpty;
+
+  /// No description provided for @addEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Log an expense in three taps.'**
+  String get addEmpty;
+
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
 }
 
 class _AppLocalizationsDelegate
