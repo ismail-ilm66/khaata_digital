@@ -53,6 +53,7 @@ Last results: all three pass on the iPhone 17 simulator (iOS 26); 10,000 rows im
 - [ ] Set `SUPPORT_EMAIL` in `.env`, and the same address on the store listing.
 - [ ] Back up `android/app/kharcha-upload.jks` and its password somewhere safe.
 - [ ] Create the app in Play Console with id `com.expensetracker.kharcha`; enroll in Play App Signing; upload `build/app/outputs/bundle/release/app-release.aab`.
+- [ ] Google Cloud → Google Auth Platform → Audience: **Publish app** (Testing → In production). While in Testing, only listed test users can connect Drive ("Access blocked … verification process"). `drive.file` is non-sensitive, so no scope review; Google may ask for brand verification (hosted privacy policy + verified home-page domain).
 - [ ] After the first upload, add the **Play app-signing SHA-1** (Play Console → App integrity) as another Android OAuth client in Google Cloud, or Drive sign-in fails for Play installs.
 - [ ] Content rating questionnaire; target audience 13+; ads: **No**.
 - [ ] Data safety form — see below.
