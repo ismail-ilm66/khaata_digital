@@ -15,6 +15,8 @@ import '../../../core/widgets/surface_card.dart';
 import '../../../core/widgets/watch.dart';
 import '../data/diagnostics.dart';
 import '../domain/changelog.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/router/routes.dart';
 
 /// More → About (spec 3.2 #10): version, changelog, contact us with a
 /// prefilled diagnostics email, and the "No ads, ever" promise.
@@ -83,6 +85,13 @@ class AboutScreen extends StatelessWidget {
                         ? l.copyDiagnosticsHint
                         : l.contactUsHint,
                     onTap: () => _contact(context),
+                  ),
+                  SettingTile(
+                    key: const Key('privacyTile'),
+                    icon: AppIcons.lock,
+                    title: l.privacyPolicy,
+                    subtitle: l.privacyPolicyHint,
+                    onTap: () => context.push(Routes.privacy),
                   ),
                 ],
               ),

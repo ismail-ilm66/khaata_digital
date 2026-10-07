@@ -6,9 +6,10 @@ import 'package:drift/drift.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/db/app_database.dart';
+import '../../../core/db/columns.dart';
 import '../../../core/money/currency.dart';
 import '../../../core/money/money.dart';
-import '../../accounts/domain/account_type.dart';
+import '../../accounts/domain/account_presets.dart';
 import '../../categories/domain/category_kind.dart';
 import '../../transactions/domain/transaction_type.dart';
 import '../domain/exchange_record.dart';
@@ -222,7 +223,7 @@ class ImportService {
       final canBePerson = !ownEntries.contains(name) && !isAccount;
       final person =
           canBePerson &&
-          (people.contains(lower) || !AccountGuess.looksLikeMoney(name));
+          (people.contains(lower) || !AccountPresets.looksLikeAccount(name));
       names.add(
         ImportName(
           name: name,
@@ -247,45 +248,6 @@ class ImportService {
   /// Imports every new record of [draft] (with its roles) atomically.
   Future<ImportReport> run(ImportDraft draft) =>
       _db.transaction(() => _Writer(_db, draft).run());
-}
-
-/// Guesses an account's type from its name (spec 3.3) and whether a name
-/// sounds like a money account at all (vs a person).
-abstract final class AccountGuess {
-  static final _wallet = RegExp(
-    r'easy\s?paisa|jazz\s?cash|sada\s?pay|naya\s?pay|upaisa|payoneer|paypal|'
-    r'wallet|zindigi|keenu',
-    caseSensitive: false,
-  );
-  static final _bank = RegExp(
-    r'\bbank|\bhbl\b|\bubl\b|\bmcb\b|\babl\b|\bnbp\b|\bbop\b|meezan|'
-    r'alfalah|askari|faysal|habib|allied|islami|soneri|summit|silk|'
-    r'chartered|al\s?baraka|\bjs\b|limited|\bltd\b',
-    caseSensitive: false,
-  );
-  static final _card = RegExp(
-    r'\bcard\b|credit|visa|master',
-    caseSensitive: false,
-  );
-  static final _savings = RegExp(
-    r'saving|committee|\bbc\b|invest|fund|deposit',
-    caseSensitive: false,
-  );
-  static final _cash = RegExp(
-    r'\bcash\b|account|purse|pocket',
-    caseSensitive: false,
-  );
-
-  static AccountType typeOf(String name) {
-    if (_wallet.hasMatch(name)) return AccountType.wallet;
-    if (_bank.hasMatch(name)) return AccountType.bank;
-    if (_card.hasMatch(name)) return AccountType.card;
-    if (_savings.hasMatch(name)) return AccountType.savings;
-    return AccountType.cash;
-  }
-
-  static bool looksLikeMoney(String name) =>
-      [_wallet, _bank, _card, _savings, _cash].any((r) => r.hasMatch(name));
 }
 
 /// One import run, inside a database transaction.
@@ -315,30 +277,63 @@ class _Writer {
     final skipped = <({ImportSkip reason, List<int> lines})>[];
     final now = DateTime.now().toUtc();
 
-    for (var i = 0; i < _draft.records.length; i++) {
-      if (_draft.duplicates.contains(i)) continue;
+    // Labels for the whole file, resolved once.
+    final fresh = [
+      for (var i = 0; i < _draft.records.length; i++)
+        if (!_draft.duplicates.contains(i)) i,
+    ];
+    final tagIds = await _labelIds(_db.labelsDao.tagIds, [
+      for (final i in fresh) ..._draft.records[i].tags,
+    ]);
+    final eventIds = await _labelIds(_db.labelsDao.eventIds, [
+      for (final i in fresh) ..._draft.records[i].events,
+    ]);
+
+    // Build every row in memory, then write them in one batch: one round
+    // trip to the database instead of several per record.
+    final entries = <TransactionsCompanion>[];
+    final tagLinks = <TransactionTagsCompanion>[];
+    final eventLinks = <TransactionEventsCompanion>[];
+    final hashes = <ImportHashesCompanion>[];
+    for (final i in fresh) {
       final r = _draft.records[i];
       final entry = await _entry(r);
       if (entry is ImportSkip) {
         skipped.add((reason: entry, lines: _draft.lines[i]));
         continue;
       }
-      final id = await _db.transactionsDao.add(
-        entry as TransactionsCompanion,
-        tags: r.tags,
-        events: r.events,
+      final id = r.id ?? newId();
+      entries.add((entry as TransactionsCompanion).copyWith(id: Value(id)));
+      for (final t in {
+        for (final t in r.tags) tagIds[t.trim().toLowerCase()]!,
+      }) {
+        tagLinks.add(
+          TransactionTagsCompanion.insert(transactionId: id, tagId: t),
+        );
+      }
+      for (final e in {
+        for (final e in r.events) eventIds[e.trim().toLowerCase()]!,
+      }) {
+        eventLinks.add(
+          TransactionEventsCompanion.insert(transactionId: id, eventId: e),
+        );
+      }
+      hashes.add(
+        ImportHashesCompanion.insert(
+          hash: _draft.hashes[i],
+          transactionId: Value(id),
+          importedAt: now,
+        ),
       );
-      await _db
-          .into(_db.importHashes)
-          .insert(
-            ImportHashesCompanion.insert(
-              hash: _draft.hashes[i],
-              transactionId: Value(id),
-              importedAt: now,
-            ),
-          );
-      imported++;
     }
+    await _db.batch((b) {
+      b
+        ..insertAll(_db.transactions, entries)
+        ..insertAll(_db.transactionTags, tagLinks)
+        ..insertAll(_db.transactionEvents, eventLinks)
+        ..insertAll(_db.importHashes, hashes);
+    });
+    imported = entries.length;
     await _personOpenings();
 
     return ImportReport(
@@ -350,6 +345,20 @@ class _Writer {
       peopleCreated: _newPeople.length,
       categoriesCreated: _categoriesCreated,
     );
+  }
+
+  /// Name (lower case) → id for every distinct label, created as needed.
+  static Future<Map<String, String>> _labelIds(
+    Future<List<String>> Function(Iterable<String>) findOrCreate,
+    Iterable<String> names,
+  ) async {
+    final distinct = <String, String>{}; // lower → as written first
+    for (final n in names) {
+      final name = n.trim();
+      if (name.isNotEmpty) distinct.putIfAbsent(name.toLowerCase(), () => name);
+    }
+    final ids = await findOrCreate(distinct.values);
+    return Map.fromIterables(distinct.keys, ids);
   }
 
   Future<void> _load() async {
@@ -478,9 +487,13 @@ class _Writer {
       _accountUse.update(known, (v) => v + 1, ifAbsent: () => 1);
       return known;
     }
+    // A known bank or wallet gets its badge, as if picked by hand.
+    final preset = AccountPresets.match(name);
     final id = await _db.accountsDao.create(
       name: name,
-      type: AccountGuess.typeOf(name),
+      type: AccountPresets.guessType(name),
+      icon: preset?.key,
+      color: preset?.color,
       currencyCode: (opening?.currency ?? currency).code,
       openingBalanceMinor: opening?.minor ?? 0,
     );

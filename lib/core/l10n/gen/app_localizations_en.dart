@@ -1359,4 +1359,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String enableBiometricReason(String name) {
     return 'Confirm to turn on $name for Kharcha';
   }
+
+  @override
+  String get privacyPolicy => 'Privacy policy';
+
+  @override
+  String get privacyPolicyHint => 'What Kharcha stores, and where';
 }

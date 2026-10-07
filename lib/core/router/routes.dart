@@ -28,6 +28,7 @@ abstract final class Routes {
   static const welcome = '/welcome';
   static const categories = '/categories';
   static const about = '/about';
+  static const privacy = '/privacy';
 
   static String entry(String id) => '/entry/$id';
   static String editEntry(String id) => '/edit/$id';

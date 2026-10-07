@@ -398,5 +398,7 @@
   "offerBiometricBody": "پن لکھنے سے تیز۔ آپ کا پن بھی کام کرتا رہے گا۔",
   "useBiometricNamed": "{name} استعمال کریں",
   "notNow": "ابھی نہیں",
-  "enableBiometricReason": "خرچہ کے لیے {name} آن کرنے کی تصدیق کریں"
+  "enableBiometricReason": "خرچہ کے لیے {name} آن کرنے کی تصدیق کریں",
+  "privacyPolicy": "پرائیویسی پالیسی",
+  "privacyPolicyHint": "خرچہ کیا محفوظ کرتا ہے اور کہاں"
 }

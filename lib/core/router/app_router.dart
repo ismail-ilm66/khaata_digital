@@ -25,6 +25,7 @@ import '../../features/security/presentation/lock_settings_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/categories/presentation/categories_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
+import '../../features/settings/presentation/privacy_screen.dart';
 
 /// Builds a fresh router.
 ///
@@ -126,6 +127,10 @@ GoRouter createRouter({String initialLocation = Routes.home}) {
       GoRoute(
         path: Routes.importData,
         builder: (context, state) => const ImportScreen(),
+      ),
+      GoRoute(
+        path: Routes.privacy,
+        builder: (context, state) => const PrivacyScreen(),
       ),
       GoRoute(
         path: Routes.about,

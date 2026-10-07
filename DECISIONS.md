@@ -151,6 +151,21 @@ or could not be followed literally. Newest milestone at the bottom.
 | 99 | Home month selector | The "This month" header on Home's summary card is a compact ‹ › navigator: step back through past cycles (totals and budgets follow), never into the future; changing the month start snaps back to the current cycle. | Spec 3.2 #2: "month selector respecting custom start day". |
 | 98 | RTL smoke test | `test/rtl_smoke_test.dart` opens every route (21) plus the lock screen in Urdu on a 360 × 640 dp phone, at text ×1.0 and ×1.3, with real data, and fails on any layout error or non-RTL direction. | Spec M6 acceptance: "RTL smoke test passes". |
 
+## M7 — Release readiness
+
+| # | Topic | Decision | Why |
+|---|-------|----------|-----|
+| 100 | Release gate without CI | `tool/release_check.sh`: format, analyze, all tests, golden backups on their own, coverage gate, signed AAB with signature check. Stops at the first failure. | The owner removed CI; spec M7 wants the golden-backup suite as a gate. |
+| 101 | Coverage gate | `tool/coverage_gate.dart` requires ≥ 80 % line coverage for core and for domain code. Not counted, each with a reason in the file: generated migration steps, Drift table declarations (never executed), the Android background entry point (its logic is tested directly) and thin plugin wrappers (tested through fakes). Now 94.8 % core, 90.2 % domain. | Spec M7; exclusions are code that can't run in the test VM, not untested logic. |
+| 102 | On-device key flows | `integration_test/key_flows_test.dart` runs the real app from a fresh install: onboarding skip → add, edit, delete, undo → Urdu across tabs → PIN lock → 10,000-row import; fails on any framework error. Passes on the iOS simulator. | Spec M7 "crash-free instrumentation run of key flows". |
+| 103 | Import batching | The importer resolves accounts, people, categories and labels once, then inserts every entry, label link and import hash in a single batch. 10k rows on a device: 93 s → 1.4 s. | The per-row round trips to the database isolate were close to the 2-minute budget on a simulator; slower phones would have missed it. |
+| 104 | Account guessing in one place | `AccountPresets.guessType` / `looksLikeAccount` (with Pakistani bank and wallet names) replace the importer's own copy; imported accounts that match a curated preset get its badge and colour. | Found duplicated (and unused) logic while raising coverage. |
+| 105 | Store assets | `store/`: English and Urdu listings, the 8 captioned 1080×1920 screenshots, the 1024×500 feature graphic and the 512 px icon, all rendered from the real app with demo data by `tool/store/render_store_test.dart`. | Spec 2.2; regenerated in seconds after any UI change. |
+| 106 | Icon direction | The icon is the K-and-coin mark (#88), not the spec's rupee-sign tick. | The owner plans markets beyond Pakistan; a rupee-specific icon would date quickly. Easy to revisit. |
+| 107 | Privacy policy | One file, `docs/privacy-policy.md`, bundled in the app (More → About → Privacy policy, rendered by a small `SimpleMarkdown`) and published for Google Play. A test checks it keeps its key promises. | Spec M7; the published and in-app texts can't drift apart. |
+| 108 | Narrow-phone tab labels | Bottom-bar labels shrink to fit instead of clipping ("Transactions" on 360 dp phones). | Found in the store screenshots. |
+| 109 | Deferred | In-app review prompt (spec 2.3) waits for the first update; automatic exchange rates, PDF reports, subcategories, home widget and sync are v2. Recorded in `docs/release-readiness.md`. | Out of M7's acceptance; spec roadmap. |
+
 ## Open items carried forward
 
 - **Seed data on first run:** a Cash account (PKR) is created at database creation. Onboarding (M6) changes its currency if the user picks another default.

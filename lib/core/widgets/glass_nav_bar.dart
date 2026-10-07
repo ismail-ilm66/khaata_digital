@@ -156,11 +156,13 @@ class _NavTab extends StatelessWidget {
                 color: selected ? c.ink : c.inkMuted,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
               ),
-              child: Text(
-                item.label,
-                maxLines: 1,
-                overflow: TextOverflow.fade,
-                softWrap: false,
+              // Shrinks rather than clipping on narrow phones (360 dp).
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 2),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(item.label, maxLines: 1, softWrap: false),
+                ),
               ),
             ),
           ],

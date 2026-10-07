@@ -643,5 +643,7 @@
         "type": "String"
       }
     }
-  }
+  },
+  "privacyPolicy": "Privacy policy",
+  "privacyPolicyHint": "What Kharcha stores, and where"
 }

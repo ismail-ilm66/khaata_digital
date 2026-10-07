@@ -93,6 +93,7 @@ void main() {
     Routes.appLock: () => null,
     Routes.categories: () => null,
     Routes.about: () => null,
+    Routes.privacy: () => null,
     Routes.welcome: () => null,
   };
 

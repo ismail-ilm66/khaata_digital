@@ -1353,4 +1353,10 @@ class AppLocalizationsUr extends AppLocalizations {
   String enableBiometricReason(String name) {
     return 'خرچہ کے لیے $name آن کرنے کی تصدیق کریں';
   }
+
+  @override
+  String get privacyPolicy => 'پرائیویسی پالیسی';
+
+  @override
+  String get privacyPolicyHint => 'خرچہ کیا محفوظ کرتا ہے اور کہاں';
 }

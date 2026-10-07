@@ -110,6 +110,8 @@ flutter:
     # Build settings (Google client ids, support email). Git-ignored; copy
     # .env.example to .env. Must exist to build. No secrets: it ships in the app.
     - .env
+    # Shown in-app and published for Google Play.
+    - docs/privacy-policy.md
     # Splash hand-off (same images as the native launch screen).
     - assets/splash/mark.png
     - assets/splash/wordmark.png

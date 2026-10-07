@@ -2491,6 +2491,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Confirm to turn on {name} for Kharcha'**
   String enableBiometricReason(String name);
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @privacyPolicyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What Kharcha stores, and where'**
+  String get privacyPolicyHint;
 }
 
 class _AppLocalizationsDelegate

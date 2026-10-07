@@ -154,18 +154,47 @@ abstract final class AccountPresets {
     return null;
   }
 
-  static const _walletWords = ['easypaisa', 'jazzcash', 'sadapay', 'nayapay'];
+  static final _wallet = RegExp(
+    r'easy\s?paisa|jazz\s?cash|sada\s?pay|naya\s?pay|upaisa|payoneer|paypal|'
+    r'wallet|zindigi|keenu',
+    caseSensitive: false,
+  );
+  static final _bank = RegExp(
+    r'\bbank|\bhbl\b|\bubl\b|\bmcb\b|\babl\b|\bnbp\b|\bbop\b|meezan|'
+    r'alfalah|askari|faysal|habib|allied|islami|soneri|summit|silk|'
+    r'chartered|al\s?baraka|\bjs\b|limited|\bltd\b',
+    caseSensitive: false,
+  );
+  static final _card = RegExp(
+    r'\bcard\b|credit|visa|master',
+    caseSensitive: false,
+  );
+  static final _savings = RegExp(
+    r'saving|committee|\bbc\b|invest|fund|deposit',
+    caseSensitive: false,
+  );
+  static final _cash = RegExp(
+    r'\bcash\b|account|purse|pocket',
+    caseSensitive: false,
+  );
 
   /// Best-guess account type from a free-text name (spec 3.3 import rule):
-  /// known preset → its type; "bank" → bank; wallet brands → wallet;
-  /// "saving" → savings; otherwise cash.
+  /// a known preset's type; else wallet brands → wallet, bank words and
+  /// Pakistani bank names → bank, card → card, savings / committee →
+  /// savings, otherwise cash.
   static AccountType guessType(String accountName) {
     final preset = match(accountName);
     if (preset != null) return preset.type;
-    final n = accountName.toLowerCase().replaceAll(' ', '');
-    if (n.contains('bank')) return AccountType.bank;
-    if (_walletWords.any(n.contains)) return AccountType.wallet;
-    if (n.contains('saving')) return AccountType.savings;
+    if (_wallet.hasMatch(accountName)) return AccountType.wallet;
+    if (_bank.hasMatch(accountName)) return AccountType.bank;
+    if (_card.hasMatch(accountName)) return AccountType.card;
+    if (_savings.hasMatch(accountName)) return AccountType.savings;
     return AccountType.cash;
   }
+
+  /// Whether a name sounds like a money account at all — used to tell
+  /// Hysab Kytab's person "accounts" (Mudassir Bhai) from real ones.
+  static bool looksLikeAccount(String name) =>
+      match(name) != null ||
+      [_wallet, _bank, _card, _savings, _cash].any((r) => r.hasMatch(name));
 }
