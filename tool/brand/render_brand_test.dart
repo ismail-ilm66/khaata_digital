@@ -25,37 +25,55 @@ Future<void> _font() async {
   await loader.load();
 }
 
-/// The mark: a softly lit brand-green rounded square with a white "K".
+/// The mark: a brand-green tile with a white monoline "K" whose open
+/// arms hold a gold coin — the letter and money in one simple shape that
+/// stays clear down to 24 px.
 void paintMark(Canvas canvas, Offset origin, double side) {
   final rect = origin & Size.square(side);
-  final tile = RRect.fromRectAndRadius(rect, Radius.circular(side * 0.28));
   canvas.drawRRect(
-    tile,
-    Paint()
-      ..shader = ui.Gradient.linear(rect.topLeft, rect.bottomRight, const [
-        Color(0xFF16A363),
-        AppColors.brandGreen,
-      ]),
+    RRect.fromRectAndRadius(rect, Radius.circular(side * 0.27)),
+    _ground(rect),
   );
-  final k = TextPainter(
-    text: TextSpan(
-      text: 'K',
-      style: TextStyle(
-        fontFamily: 'Manrope',
-        fontSize: side * 0.62,
-        fontVariations: const [FontVariation('wght', 800)],
-        color: Colors.white,
-        height: 1,
-      ),
-    ),
-    textDirection: TextDirection.ltr,
-  )..layout();
-  // Optical centring: cap height sits a touch above the box centre.
-  k.paint(
-    canvas,
-    rect.center -
-        Offset(k.width / 2 - side * 0.01, k.height / 2 + side * 0.005),
-  );
+  paintGlyph(canvas, origin, side);
+}
+
+Paint _ground(Rect rect) => Paint()
+  ..shader = ui.Gradient.linear(rect.topLeft, rect.bottomRight, const [
+    Color(0xFF16A363),
+    Color(0xFF0B6B40),
+  ]);
+
+/// The K and coin, laid out for a tile of [side] at [origin]. [mono] draws
+/// everything white (Android themed icons tint it).
+void paintGlyph(
+  Canvas canvas,
+  Offset origin,
+  double side, {
+  bool mono = false,
+}) {
+  // Glyph spans 0.265–0.805 of the tile; shifted to sit optically centred.
+  const dx = -0.03;
+  Offset at(double x, double y) => origin + Offset(side * (x + dx), side * y);
+  final ink = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = side * 0.13
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round;
+  canvas
+    ..drawLine(at(.33, .27), at(.33, .73), ink)
+    ..drawPath(
+      Path()
+        ..moveTo(at(.655, .27).dx, at(.655, .27).dy)
+        ..lineTo(at(.44, .50).dx, at(.44, .50).dy)
+        ..lineTo(at(.655, .73).dx, at(.655, .73).dy),
+      ink,
+    )
+    ..drawCircle(
+      at(.725, .50),
+      side * 0.08,
+      Paint()..color = mono ? Colors.white : const Color(0xFFF2C14E),
+    );
 }
 
 Future<void> _save(
@@ -104,6 +122,30 @@ void main() {
       1152,
       1152,
       (c) => paintMark(c, const Offset(296, 296), 560),
+    );
+    // App icons. iOS: full-bleed square (the system rounds it). Android
+    // adaptive: the K and coin sit in the central 66 % safe zone over a
+    // gradient background layer.
+    await _save('icon_ios.png', 1024, 1024, (c) {
+      const r = Rect.fromLTWH(0, 0, 1024, 1024);
+      c.drawRect(r, _ground(r));
+      paintGlyph(c, const Offset(112, 112), 800);
+    });
+    await _save('icon_android_bg.png', 1024, 1024, (c) {
+      const r = Rect.fromLTWH(0, 0, 1024, 1024);
+      c.drawRect(r, _ground(r));
+    });
+    await _save(
+      'icon_android_fg.png',
+      1024,
+      1024,
+      (c) => paintGlyph(c, const Offset(232, 232), 560),
+    );
+    await _save(
+      'icon_android_mono.png',
+      1024,
+      1024,
+      (c) => paintGlyph(c, const Offset(232, 232), 560, mono: true),
     );
     const word = Size(800, 200);
     await _save(

@@ -92,6 +92,7 @@ dev_dependencies:
   sqlite3: ^2.9.4
   integration_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -136,3 +137,16 @@ flutter_native_splash:
     branding_dark: assets/splash/wordmark_dark.png
   ios_content_mode: center
   fullscreen: false
+
+# App icons (generated: dart run flutter_launcher_icons). Images come from
+# tool/brand/render_brand_test.dart.
+flutter_launcher_icons:
+  ios: true
+  image_path_ios: assets/splash/icon_ios.png
+  remove_alpha_ios: true
+  android: true
+  image_path_android: assets/splash/icon_ios.png
+  adaptive_icon_background: assets/splash/icon_android_bg.png
+  adaptive_icon_foreground: assets/splash/icon_android_fg.png
+  adaptive_icon_monochrome: assets/splash/icon_android_mono.png
+  min_sdk_android: 21
