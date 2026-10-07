@@ -21,6 +21,7 @@ import '../../../core/di/injection.dart';
 import '../../../core/widgets/app_switch.dart';
 import '../../security/presentation/lock_cubit.dart';
 import '../../../core/money/currency.dart';
+import '../../security/presentation/reveal_balances.dart';
 
 /// More/Settings tab (spec 3.2 #10). Accounts and appearance for now; the
 /// rest of the settings land with their milestones.
@@ -151,8 +152,7 @@ class MoreScreen extends StatelessWidget {
                         subtitle: l10n.hideBalancesHint,
                         trailing: AppSwitch(
                           value: hidden,
-                          onChanged: (_) =>
-                              context.read<HideBalanceCubit>().toggle(),
+                          onChanged: (_) => toggleBalances(context),
                         ),
                       ),
                     ),

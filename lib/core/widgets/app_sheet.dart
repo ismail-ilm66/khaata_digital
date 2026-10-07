@@ -317,3 +317,50 @@ class _TextSheetState extends State<_TextSheet> {
     );
   }
 }
+
+/// Asks before something hard to see coming (a delete). True only when the
+/// user taps [confirmLabel]; dismissing or Cancel is false.
+Future<bool> confirmSheet(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String confirmLabel,
+  bool destructive = true,
+}) async {
+  final cancel = MaterialLocalizations.of(context).cancelButtonLabel;
+  final yes = await showAppSheet<bool>(
+    context,
+    title: title,
+    builder: (sheet) => Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        0,
+        AppSpacing.xl,
+        AppSpacing.xl,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(message, style: sheet.text.bodyMedium),
+          const SizedBox(height: AppSpacing.xl),
+          FilledButton(
+            key: const Key('confirmAction'),
+            style: destructive
+                ? FilledButton.styleFrom(backgroundColor: sheet.colors.danger)
+                : null,
+            onPressed: () => Navigator.pop(sheet, true),
+            child: Text(confirmLabel),
+          ),
+          const SizedBox(height: AppSpacing.s),
+          TextButton(
+            key: const Key('cancelAction'),
+            onPressed: () => Navigator.pop(sheet, false),
+            child: Text(cancel),
+          ),
+        ],
+      ),
+    ),
+  );
+  return yes ?? false;
+}

@@ -62,17 +62,24 @@ class BudgetLineView extends StatelessWidget {
     required this.name,
     required this.line,
     this.barHeight = 8,
+    this.masked = false,
   });
 
   final String name;
   final BudgetLine line;
   final double barHeight;
 
+  /// Hide-balances mode: amounts become dots; the bar still shows how much
+  /// of the budget is used.
+  final bool masked;
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final over = line.left.isNegative;
-    final left = const MoneyFormat().format(line.left.abs());
+    final left = masked
+        ? '${line.left.currency.symbol} ${AmountText.maskedDigits}'
+        : const MoneyFormat().format(line.left.abs());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -87,7 +94,11 @@ class BudgetLineView extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.s),
-            AmountText(line.spent, style: context.text.titleSmall),
+            AmountText(
+              line.spent,
+              masked: masked,
+              style: context.text.titleSmall,
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.s),
@@ -107,7 +118,11 @@ class BudgetLineView extends StatelessWidget {
               ),
             ),
             Text('/ ', style: context.text.bodySmall),
-            AmountText(line.limit, style: context.text.bodySmall),
+            AmountText(
+              line.limit,
+              masked: masked,
+              style: context.text.bodySmall,
+            ),
           ],
         ),
       ],

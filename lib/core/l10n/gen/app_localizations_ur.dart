@@ -1359,4 +1359,54 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get privacyPolicyHint => 'خرچہ کیا محفوظ کرتا ہے اور کہاں';
+
+  @override
+  String get showBalancesReason => 'اپنے بیلنس دکھائیں';
+
+  @override
+  String get deleteEntryTitle => 'یہ اندراج حذف کریں؟';
+
+  @override
+  String get deleteEntryBody =>
+      'یہ آپ کے بیلنس اور رپورٹس سے ہٹ جائے گا۔ فوراً بعد واپس لا سکتے ہیں۔';
+
+  @override
+  String get searchPeople => 'لوگ تلاش کریں';
+
+  @override
+  String get sortLargest => 'سب سے بڑی رقم پہلے';
+
+  @override
+  String get sortSmallest => 'سب سے چھوٹی رقم پہلے';
+
+  @override
+  String get sortName => 'نام کے حساب سے';
+
+  @override
+  String get sortBy => 'ترتیب';
+
+  @override
+  String get nobodyOwesYou => 'ابھی کسی نے آپ کو کچھ نہیں دینا۔';
+
+  @override
+  String get youOweNobody => 'ابھی آپ نے کسی کو کچھ نہیں دینا۔';
+
+  @override
+  String get noneSettled => 'ابھی کوئی حساب برابر نہیں ہوا۔';
+
+  @override
+  String noPeopleMatch(String query) {
+    return '“$query” سے کوئی نہیں ملا';
+  }
+
+  @override
+  String peopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count لوگ',
+      one: '1 شخص',
+    );
+    return '$_temp0';
+  }
 }

@@ -16,6 +16,7 @@ import '../form/entry_editor_screen.dart';
 import '../widgets/day_header.dart';
 import '../widgets/entry_tile.dart';
 import 'transaction_list_bloc.dart';
+import '../../../../core/widgets/app_sheet.dart';
 
 /// The grouped list body shared by Transactions and Search: a sticky
 /// header per budget cycle, day headers with totals, and swipeable rows
@@ -128,7 +129,13 @@ class _SwipeableEntry extends StatelessWidget {
           await EntryEditor.open(context, editId: id);
           return false;
         }
-        return true;
+        final l = context.l10n;
+        return confirmSheet(
+          context,
+          title: l.deleteEntryTitle,
+          message: l.deleteEntryBody,
+          confirmLabel: l.delete,
+        );
       },
       onDismissed: (_) {
         final bloc = context.read<TransactionListBloc>()..add(EntryDeleted(id));

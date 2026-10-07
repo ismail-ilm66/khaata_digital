@@ -645,5 +645,32 @@
     }
   },
   "privacyPolicy": "Privacy policy",
-  "privacyPolicyHint": "What Kharcha stores, and where"
+  "privacyPolicyHint": "What Kharcha stores, and where",
+  "showBalancesReason": "Show your balances",
+  "deleteEntryTitle": "Delete this entry?",
+  "deleteEntryBody": "It comes off your balances and reports. You can undo right after.",
+  "searchPeople": "Search people",
+  "sortLargest": "Largest first",
+  "sortSmallest": "Smallest first",
+  "sortName": "Name A–Z",
+  "sortBy": "Sort",
+  "nobodyOwesYou": "Nobody owes you anything right now.",
+  "youOweNobody": "You don't owe anyone right now.",
+  "noneSettled": "No settled people yet.",
+  "noPeopleMatch": "No one matches “{query}”",
+  "@noPeopleMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "peopleCount": "{count, plural, =1{1 person} other{{count} people}}",
+  "@peopleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

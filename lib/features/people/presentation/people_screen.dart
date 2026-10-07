@@ -15,15 +15,33 @@ import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/feedback.dart';
 import '../../../core/widgets/page_scaffold.dart';
+import '../../../core/widgets/segmented_picker.dart';
+import '../../../core/widgets/pill_button.dart';
 import '../../../core/widgets/surface_card.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../domain/person.dart';
 import 'person_badge.dart';
 import '../../../core/widgets/watch.dart';
 
-/// People / Udhaar (spec 3.2 #7): who owes you, whom you owe.
-class PeopleScreen extends StatelessWidget {
-  const PeopleScreen({super.key});
+/// Which people the People screen lists.
+enum PeopleTab {
+  receive,
+  owe,
+  settled;
+
+  /// The `?tab=` value in the route (Home's totals open a tab directly).
+  static PeopleTab parse(String? value) =>
+      values.asNameMap()[value] ?? PeopleTab.receive;
+}
+
+enum _Sort { largest, smallest, name }
+
+/// People / Udhaar (spec 3.2 #7): who owes you, whom you owe — one tab
+/// each, plus everyone who's settled, with search and sorting.
+class PeopleScreen extends StatefulWidget {
+  const PeopleScreen({super.key, this.initialTab = PeopleTab.receive});
+
+  final PeopleTab initialTab;
 
   static Future<void> addPerson(BuildContext context) async {
     final l = context.l10n;
@@ -44,17 +62,75 @@ class PeopleScreen extends StatelessWidget {
   }
 
   @override
+  State<PeopleScreen> createState() => _PeopleScreenState();
+}
+
+class _PeopleScreenState extends State<PeopleScreen> {
+  late PeopleTab _tab = widget.initialTab;
+  _Sort _sort = _Sort.largest;
+  String _query = '';
+
+  /// This person's balance in the home currency (else any currency).
+  static Money _balance(PersonSummary p, Currency currency) =>
+      p.balance[currency] ??
+      p.balance.values.firstOrNull ??
+      Money.zero(currency);
+
+  List<PersonSummary> _visible(List<PersonSummary> all, Currency currency) {
+    final q = _query.trim().toLowerCase();
+    final list = [
+      for (final p in all)
+        if (q.isEmpty || p.person.name.toLowerCase().contains(q))
+          if (switch (_tab) {
+            PeopleTab.receive => _balance(p, currency).isPositive,
+            PeopleTab.owe => _balance(p, currency).isNegative,
+            PeopleTab.settled => p.isSettled,
+          })
+            p,
+    ];
+    int size(PersonSummary p) => _balance(p, currency).minor.abs();
+    switch (_sort) {
+      case _Sort.largest:
+        list.sort((a, b) => size(b).compareTo(size(a)));
+      case _Sort.smallest:
+        list.sort((a, b) => size(a).compareTo(size(b)));
+      case _Sort.name:
+        list.sort(
+          (a, b) => a.person.name.toLowerCase().compareTo(
+            b.person.name.toLowerCase(),
+          ),
+        );
+    }
+    return list;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = context.l10n;
+    final c = context.colors;
+    final currency = context.watch<CurrencyCubit>().state;
+    final sortLabels = {
+      _Sort.largest: l.sortLargest,
+      _Sort.smallest: l.sortSmallest,
+      _Sort.name: l.sortName,
+    };
     return Watch<PeopleOverview>(
       getIt<PeopleRepository>().watchOverview,
       builder: (context, o) {
+        final people = o == null
+            ? const <PersonSummary>[]
+            : _visible(o.people, currency);
+        final total = switch (_tab) {
+          PeopleTab.receive => o?.receivable[currency],
+          PeopleTab.owe => o?.payable[currency],
+          PeopleTab.settled => null,
+        };
         return PageScaffold(
           title: l.people,
           trailing: IconButton.filled(
             key: const Key('addPerson'),
             tooltip: l.addPerson,
-            onPressed: () => addPerson(context),
+            onPressed: () => PeopleScreen.addPerson(context),
             icon: const Icon(AppIcons.plus),
           ),
           slivers: [
@@ -65,23 +141,91 @@ class PeopleScreen extends StatelessWidget {
                 ),
                 sliver: SliverList.list(
                   children: [
-                    UdhaarTotals(overview: o),
-                    const SizedBox(height: AppSpacing.xl),
+                    SegmentedPicker<PeopleTab>(
+                      key: const Key('peopleTabs'),
+                      value: _tab,
+                      onChanged: (t) => setState(() => _tab = t),
+                      options: [
+                        PickerOption(PeopleTab.receive, l.youllReceive),
+                        PickerOption(PeopleTab.owe, l.youOwe),
+                        PickerOption(PeopleTab.settled, l.settled),
+                      ],
+                    ),
+                    if (total != null) ...[
+                      const SizedBox(height: AppSpacing.l),
+                      AmountText(
+                        total,
+                        key: const Key('peopleTabTotal'),
+                        style: context.text.headlineMedium!.copyWith(
+                          color: _tab == PeopleTab.receive ? c.income : c.ink,
+                        ),
+                      ),
+                      Text(
+                        l.peopleCount(people.length),
+                        style: context.text.bodySmall,
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.l),
+                    TextField(
+                      key: const Key('peopleSearch'),
+                      onChanged: (q) => setState(() => _query = q),
+                      textInputAction: TextInputAction.search,
+                      decoration: InputDecoration(
+                        hintText: l.searchPeople,
+                        prefixIcon: const Icon(AppIcons.search),
+                        isDense: true,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: PillButton(
+                        key: const Key('peopleSort'),
+                        label: sortLabels[_sort]!,
+                        icon: AppIcons.filter,
+                        showChevron: true,
+                        onTap: () async {
+                          final picked = await pickOne<_Sort>(
+                            context,
+                            title: l.sortBy,
+                            selected: _sort,
+                            items: [
+                              for (final MapEntry(:key, :value)
+                                  in sortLabels.entries)
+                                PickItem(value: key, title: value),
+                            ],
+                          );
+                          if (picked != null) setState(() => _sort = picked);
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.l),
                     if (o.people.isEmpty)
                       EmptyState(
                         icon: AppIcons.people.filled,
                         title: l.noPeople,
                         message: l.noPeopleBody,
                         action: FilledButton(
-                          onPressed: () => addPerson(context),
+                          onPressed: () => PeopleScreen.addPerson(context),
                           child: Text(l.addPerson),
                         ),
+                      )
+                    else if (people.isEmpty)
+                      EmptyState(
+                        icon: AppIcons.people.filled,
+                        message: _query.trim().isNotEmpty
+                            ? l.noPeopleMatch(_query.trim())
+                            : switch (_tab) {
+                                PeopleTab.receive => l.nobodyOwesYou,
+                                PeopleTab.owe => l.youOweNobody,
+                                PeopleTab.settled => l.noneSettled,
+                              },
                       )
                     else
                       SurfaceCard(
                         padding: EdgeInsets.zero,
                         children: [
-                          for (final p in o.people) PersonTile(summary: p),
+                          for (final p in people) PersonTile(summary: p),
                         ],
                       ),
                   ],
@@ -96,10 +240,22 @@ class PeopleScreen extends StatelessWidget {
 
 /// "You'll receive" / "You owe" side by side (also on Home).
 class UdhaarTotals extends StatelessWidget {
-  const UdhaarTotals({super.key, required this.overview, this.onTap});
+  const UdhaarTotals({
+    super.key,
+    required this.overview,
+    this.onReceivable,
+    this.onPayable,
+    this.masked = false,
+  });
 
   final PeopleOverview overview;
-  final VoidCallback? onTap;
+
+  /// Opens "You'll receive" / "You owe".
+  final VoidCallback? onReceivable;
+  final VoidCallback? onPayable;
+
+  /// Dots instead of amounts (Home, while balances are hidden).
+  final bool masked;
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +267,7 @@ class UdhaarTotals extends StatelessWidget {
       Map<Currency, Money> totals,
       Color color,
       Key key,
+      VoidCallback? onTap,
     ) => Expanded(
       child: Material(
         key: key,
@@ -125,6 +282,7 @@ class UdhaarTotals extends StatelessWidget {
               label: label,
               value: AmountText(
                 totals[currency] ?? Money.zero(currency),
+                masked: masked,
                 style: context.text.titleLarge!.copyWith(color: color),
               ),
             ),
@@ -139,9 +297,16 @@ class UdhaarTotals extends StatelessWidget {
           overview.receivable,
           c.income,
           const Key('receivable'),
+          onReceivable,
         ),
         const SizedBox(width: AppSpacing.s),
-        tile(l.youOwe, overview.payable, c.ink, const Key('payable')),
+        tile(
+          l.youOwe,
+          overview.payable,
+          c.ink,
+          const Key('payable'),
+          onPayable,
+        ),
       ],
     );
   }

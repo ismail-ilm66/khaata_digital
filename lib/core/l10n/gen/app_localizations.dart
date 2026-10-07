@@ -2503,6 +2503,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'What Kharcha stores, and where'**
   String get privacyPolicyHint;
+
+  /// No description provided for @showBalancesReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Show your balances'**
+  String get showBalancesReason;
+
+  /// No description provided for @deleteEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this entry?'**
+  String get deleteEntryTitle;
+
+  /// No description provided for @deleteEntryBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It comes off your balances and reports. You can undo right after.'**
+  String get deleteEntryBody;
+
+  /// No description provided for @searchPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Search people'**
+  String get searchPeople;
+
+  /// No description provided for @sortLargest.
+  ///
+  /// In en, this message translates to:
+  /// **'Largest first'**
+  String get sortLargest;
+
+  /// No description provided for @sortSmallest.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest first'**
+  String get sortSmallest;
+
+  /// No description provided for @sortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name A–Z'**
+  String get sortName;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get sortBy;
+
+  /// No description provided for @nobodyOwesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Nobody owes you anything right now.'**
+  String get nobodyOwesYou;
+
+  /// No description provided for @youOweNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t owe anyone right now.'**
+  String get youOweNobody;
+
+  /// No description provided for @noneSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'No settled people yet.'**
+  String get noneSettled;
+
+  /// No description provided for @noPeopleMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No one matches “{query}”'**
+  String noPeopleMatch(String query);
+
+  /// No description provided for @peopleCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person} other{{count} people}}'**
+  String peopleCount(int count);
 }
 
 class _AppLocalizationsDelegate

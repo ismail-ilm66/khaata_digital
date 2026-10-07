@@ -22,6 +22,7 @@ import 'form/entry_editor_screen.dart';
 import 'widgets/entry_tile.dart';
 import 'widgets/receipts.dart';
 import '../../../core/widgets/watch.dart';
+import '../../../core/widgets/app_sheet.dart';
 
 /// One transaction in full, with its receipts (spec 3.2 #4 "tap → detail").
 class EntryDetailScreen extends StatelessWidget {
@@ -56,6 +57,13 @@ class _Detail extends StatelessWidget {
     final id = view.entry.id;
     final messenger = ScaffoldMessenger.of(context);
     final l = context.l10n;
+    final sure = await confirmSheet(
+      context,
+      title: l.deleteEntryTitle,
+      message: l.deleteEntryBody,
+      confirmLabel: l.delete,
+    );
+    if (!sure || !context.mounted) return;
     Navigator.pop(context);
     await repo.delete(id);
     messenger.undo(

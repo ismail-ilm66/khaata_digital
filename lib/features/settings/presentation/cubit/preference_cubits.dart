@@ -11,7 +11,7 @@ import 'setting_cubit.dart';
 @lazySingleton
 class HideBalanceCubit extends SettingCubit<bool> {
   HideBalanceCubit(SettingsRepository r)
-    : super(r, SettingKey.hideBalance, false);
+    : super(r, SettingKey.hideBalance, true);
 
   @override
   bool decode(String stored) => stored == 'true';

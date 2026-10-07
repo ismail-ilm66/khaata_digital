@@ -190,6 +190,13 @@ void main() {
 
     await t.drag(find.byType(EntryTile), const Offset(-600, 0));
     await t.pumpAndSettle();
+    expect(
+      find.text('Delete this entry?'),
+      findsOneWidget,
+      reason: 'asks first',
+    );
+    await t.tap(find.byKey(const Key('confirmAction')));
+    await t.pumpAndSettle();
     expect(find.byType(EntryTile), findsNothing);
     expect(find.text('Transaction deleted'), findsOneWidget);
 

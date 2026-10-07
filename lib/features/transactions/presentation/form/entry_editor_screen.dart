@@ -118,6 +118,10 @@ class _EditorState extends State<_Editor> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
+        // The editor has no text fields of its own (amounts use the
+        // in-app keypad); sheets over it lift themselves above the
+        // keyboard, so it must not squash itself behind them.
+        resizeToAvoidBottomInset: false,
         body: AmbientBackground(
           child: SafeArea(
             child: BlocConsumer<TransactionFormBloc, TransactionFormState>(

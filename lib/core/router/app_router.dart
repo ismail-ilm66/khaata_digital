@@ -102,7 +102,9 @@ GoRouter createRouter({String initialLocation = Routes.home}) {
       ),
       GoRoute(
         path: Routes.people,
-        builder: (context, state) => const PeopleScreen(),
+        builder: (context, state) => PeopleScreen(
+          initialTab: PeopleTab.parse(state.uri.queryParameters['tab']),
+        ),
         routes: [
           GoRoute(
             path: ':id',

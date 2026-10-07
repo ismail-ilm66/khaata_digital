@@ -400,5 +400,18 @@
   "notNow": "ابھی نہیں",
   "enableBiometricReason": "خرچہ کے لیے {name} آن کرنے کی تصدیق کریں",
   "privacyPolicy": "پرائیویسی پالیسی",
-  "privacyPolicyHint": "خرچہ کیا محفوظ کرتا ہے اور کہاں"
+  "privacyPolicyHint": "خرچہ کیا محفوظ کرتا ہے اور کہاں",
+  "showBalancesReason": "اپنے بیلنس دکھائیں",
+  "deleteEntryTitle": "یہ اندراج حذف کریں؟",
+  "deleteEntryBody": "یہ آپ کے بیلنس اور رپورٹس سے ہٹ جائے گا۔ فوراً بعد واپس لا سکتے ہیں۔",
+  "searchPeople": "لوگ تلاش کریں",
+  "sortLargest": "سب سے بڑی رقم پہلے",
+  "sortSmallest": "سب سے چھوٹی رقم پہلے",
+  "sortName": "نام کے حساب سے",
+  "sortBy": "ترتیب",
+  "nobodyOwesYou": "ابھی کسی نے آپ کو کچھ نہیں دینا۔",
+  "youOweNobody": "ابھی آپ نے کسی کو کچھ نہیں دینا۔",
+  "noneSettled": "ابھی کوئی حساب برابر نہیں ہوا۔",
+  "noPeopleMatch": "“{query}” سے کوئی نہیں ملا",
+  "peopleCount": "{count, plural, =1{1 شخص} other{{count} لوگ}}"
 }

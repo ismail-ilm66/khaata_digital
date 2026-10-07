@@ -236,6 +236,12 @@ class LockCubit extends Cubit<AppLockState> {
     emit(state.copyWith(lockAfter: after));
   }
 
+  /// Fingerprint / face check that doesn't touch the lock state (e.g.
+  /// before showing hidden balances). False when off, failed or cancelled.
+  Future<bool> confirmWithBiometrics(String reason) async =>
+      state.biometric &&
+      await _device.authenticate(reason, biometricOnly: true);
+
   /// Checks a PIN without changing the lock (e.g. before turning it off).
   Future<bool> checkPin(String pin) async =>
       PinHasher.verify(pin, await _settings.read(SettingKey.lockPin));

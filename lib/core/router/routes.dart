@@ -33,4 +33,7 @@ abstract final class Routes {
   static String entry(String id) => '/entry/$id';
   static String editEntry(String id) => '/edit/$id';
   static String person(String id) => '/people/$id';
+
+  /// People on a given tab (`receive`, `owe`, `settled`).
+  static String peopleTab(String tab) => '/people?tab=$tab';
 }

@@ -4,7 +4,9 @@ enum SettingKey {
   monthStartDay('1'),
   themeMode('system'),
   locale('en'),
-  hideBalance('false'),
+
+  /// Balances start hidden; revealing asks for the app lock when it's on.
+  hideBalance('true'),
   lockEnabled('false'),
 
   /// PBKDF2 of the 4-digit PIN: "iterations:salt:hash" (base64). Device-only.

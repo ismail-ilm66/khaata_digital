@@ -1365,4 +1365,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacyPolicyHint => 'What Kharcha stores, and where';
+
+  @override
+  String get showBalancesReason => 'Show your balances';
+
+  @override
+  String get deleteEntryTitle => 'Delete this entry?';
+
+  @override
+  String get deleteEntryBody =>
+      'It comes off your balances and reports. You can undo right after.';
+
+  @override
+  String get searchPeople => 'Search people';
+
+  @override
+  String get sortLargest => 'Largest first';
+
+  @override
+  String get sortSmallest => 'Smallest first';
+
+  @override
+  String get sortName => 'Name A–Z';
+
+  @override
+  String get sortBy => 'Sort';
+
+  @override
+  String get nobodyOwesYou => 'Nobody owes you anything right now.';
+
+  @override
+  String get youOweNobody => 'You don\'t owe anyone right now.';
+
+  @override
+  String get noneSettled => 'No settled people yet.';
+
+  @override
+  String noPeopleMatch(String query) {
+    return 'No one matches “$query”';
+  }
+
+  @override
+  String peopleCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0';
+  }
 }

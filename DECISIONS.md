@@ -61,7 +61,7 @@ or could not be followed literally. Newest milestone at the bottom.
 | 39 | Receipts | Compressed to ≤1600 px JPEG q75 in `<app documents>/receipts/`; SHA-256 stored. New images are compressed *before* the DB transaction, and partial files are cleaned up on any failure. Removing a receipt in an edit deletes its file. iOS camera/photo usage descriptions added. | Spec 1.5 #3 / 3.4. The end-to-end attach → backup → restore → view test lands in M5 with the backup archive. |
 | 40 | Last-used account | Stored in `settings` as `last_account_id`; new entries default to it. | Spec 3.2 #3 "account (defaults last-used)". No schema change. |
 | 41 | Home in M2 | Home shows net worth (with the hide-balance eye), this cycle's income / spent / left, an accounts carousel and the 5 most recent entries. Budgets and Udhaar cards come in M3. | With real data in M2, a "Coming soon" Home would hide it. |
-| 42 | Hide balance | Masks net worth and account balances (Home and Accounts). Individual transaction amounts stay visible. | Spec quote: "hide 'what you have in all accounts'". |
+| 42 | Hide balance | Masks net worth and account balances (Home and Accounts). Individual transaction amounts stay visible. **Superseded by #110.** | Spec quote: "hide 'what you have in all accounts'". |
 | 44 | Navigation structure (fix after owner review) | Tabs are shell branches. **Every other page (Accounts, account form, transaction detail, Search) is a top-level route on the root navigator**, pushed full-screen over the shell. All bottom sheets open on the root navigator (`showAppSheet`). Pages paint their own ambient background, so they're opaque. | Owner saw rough transitions and a sheet hidden behind the glass nav bar. Root cause: transparent pages overlapped during push, cross-tab pushes switched tabs mid-animation, and sheets opened inside the tab under the floating bar. UI tests now fail on any mis-targeted tap. |
 | 45 | Add / edit is a full screen (owner feedback) | The bottom sheet is replaced by `EntryEditorScreen`, pushed full-screen from `/add` and `/edit/:id`. Top to bottom: type picker → amount, with account and date chips → a **quick row of the 4 most-used categories + "All"** (full grid in a sheet) → Note / Tags / Receipt pills (each in its own small sheet) → keypad → a Save button that names the action ("Save expense"). Transfers swap the category row for From/To account cards with a swap button. Compact key height on short screens. | The sheet showed everything at once. One job per area keeps the 4-tap path (+ → amount → category → Save) and nothing is hidden off-screen on small phones. |
 | 43 | Account currency change | Allowed in the edit form; existing transactions keep their stored `currency_code`. | Rare; a guard or conversion flow can come later if needed. |
@@ -165,6 +165,17 @@ or could not be followed literally. Newest milestone at the bottom.
 | 107 | Privacy policy | One file, `docs/privacy-policy.md`, bundled in the app (More → About → Privacy policy, rendered by a small `SimpleMarkdown`) and published for Google Play. A test checks it keeps its key promises. | Spec M7; the published and in-app texts can't drift apart. |
 | 108 | Narrow-phone tab labels | Bottom-bar labels shrink to fit instead of clipping ("Transactions" on 360 dp phones). | Found in the store screenshots. |
 | 109 | Deferred | In-app review prompt (spec 2.3) waits for the first update; automatic exchange rates, PDF reports, subcategories, home widget and sync are v2. Recorded in `docs/release-readiness.md`. | Out of M7's acceptance; spec roadmap. |
+
+## Owner feedback after M7
+
+| # | Decision | Choice | Why |
+|---|----------|--------|-----|
+| 110 | Balances hidden by default | Hide balance starts on. With the app lock on, showing balances asks for Face ID / fingerprint first (if turned on), then the PIN. Hiding again needs nothing. | Owner request: someone glancing at the phone should not see totals, and the lock should guard them. |
+| 111 | What hiding covers | Net worth, account balances, this month's income / spent / left, the Home people totals and the Home budget amounts. Single entries, the Reports screen and the people list stay visible. | Owner asked for income/spent/left. The Home people and budget totals give away the same figures, so they are hidden too. |
+| 112 | Delete needs confirming | Swipe-to-delete and the Delete button on an entry both open a "Delete this entry?" sheet (`confirmSheet`). The Undo toast stays. | Owner request: a swipe deleted entries by accident. |
+| 113 | Note sheet over the editor | The entry editor does not resize when the keyboard opens. The note sheet rises over it. | Owner screenshot: the editor behind the sheet was squashed. |
+| 114 | Home order | Summary card, backup nudge, Accounts, Budgets, People, Recent. | Owner request: accounts right below the main card. |
+| 115 | People tabs | The People screen has You'll receive / You owe / Settled tabs, a total for the open tab, search, and a sort (largest, smallest, name). Home's "You'll receive" and "Manage" open the receive tab, "You owe" the owe tab (`/people?tab=`). | Owner request for tabs and filters. Settled people get their own tab so the two money tabs stay short. |
 
 ## Open items carried forward
 

@@ -27,6 +27,7 @@ import 'home_cubit.dart';
 import '../../../core/feedback/haptics.dart';
 import '../../../core/app_refresh.dart';
 import '../../../core/widgets/period_navigator.dart';
+import '../../security/presentation/reveal_balances.dart';
 
 /// Home (spec 3.2 #2). Budgets and Udhaar cards join in M3.
 class HomeScreen extends StatelessWidget {
@@ -62,10 +63,7 @@ class _HomeView extends StatelessWidget {
       trailing: IconButton.filledTonal(
         key: const Key('hideBalance'),
         tooltip: masked ? l.showBalances : l.hideBalances,
-        onPressed: () {
-          Haptics.selection();
-          context.read<HideBalanceCubit>().toggle();
-        },
+        onPressed: () => toggleBalances(context),
         style: IconButton.styleFrom(backgroundColor: context.colors.surface),
         icon: Icon(
           masked ? AppIcons.hide : AppIcons.show,
@@ -82,14 +80,6 @@ class _HomeView extends StatelessWidget {
                 BackupNudge(hasData: s.recent?.isNotEmpty ?? false),
                 const SizedBox(height: AppSpacing.xl),
                 Section(
-                  title: l.budgets,
-                  trailing: TextButton(
-                    onPressed: () => context.push(Routes.budgets),
-                    child: Text(l.manage),
-                  ),
-                  child: _BudgetsCard(overview: s.budgets!),
-                ),
-                Section(
                   title: l.accounts,
                   trailing: TextButton(
                     onPressed: () => context.push(Routes.accounts),
@@ -101,14 +91,27 @@ class _HomeView extends StatelessWidget {
                   ),
                 ),
                 Section(
+                  title: l.budgets,
+                  trailing: TextButton(
+                    onPressed: () => context.push(Routes.budgets),
+                    child: Text(l.manage),
+                  ),
+                  child: _BudgetsCard(overview: s.budgets!),
+                ),
+                Section(
                   title: l.people,
                   trailing: TextButton(
-                    onPressed: () => context.push(Routes.people),
+                    onPressed: () =>
+                        context.push(Routes.peopleTab(PeopleTab.receive.name)),
                     child: Text(l.manage),
                   ),
                   child: UdhaarTotals(
                     overview: s.people!,
-                    onTap: () => context.push(Routes.people),
+                    masked: masked,
+                    onReceivable: () =>
+                        context.push(Routes.peopleTab(PeopleTab.receive.name)),
+                    onPayable: () =>
+                        context.push(Routes.peopleTab(PeopleTab.owe.name)),
                   ),
                 ),
                 Section(
@@ -219,6 +222,7 @@ class _SummaryCard extends StatelessWidget {
                       income,
                       signed: true,
                       colored: true,
+                      masked: masked,
                       style: context.text.titleMedium,
                     ),
                   ),
@@ -226,7 +230,11 @@ class _SummaryCard extends StatelessWidget {
                 Expanded(
                   child: StatTile(
                     label: l.spent,
-                    value: AmountText(spent, style: context.text.titleMedium),
+                    value: AmountText(
+                      spent,
+                      masked: masked,
+                      style: context.text.titleMedium,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -234,6 +242,7 @@ class _SummaryCard extends StatelessWidget {
                     label: l.left,
                     value: AmountText(
                       income - spent,
+                      masked: masked,
                       style: context.text.titleMedium,
                     ),
                   ),
@@ -360,8 +369,11 @@ class _BudgetsCard extends StatelessWidget {
         ],
       );
     }
-    Widget row(String name, BudgetLine line) =>
-        BudgetLineView(name: name, line: line);
+    Widget row(String name, BudgetLine line) => BudgetLineView(
+      name: name,
+      line: line,
+      masked: context.watch<HideBalanceCubit>().state,
+    );
     return Material(
       color: context.colors.surface,
       borderRadius: BorderRadius.circular(AppRadii.l),
