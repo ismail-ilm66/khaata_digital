@@ -587,7 +587,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get monthStartHint => 'For salaries paid on a set date, e.g. the 25th';
+  String get monthStartHint =>
+      'When your month begins: a date, or the last working day';
 
   @override
   String get settingsGeneral => 'General';
@@ -1097,4 +1098,265 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hapticsHint => 'Gentle taps when you choose, save or delete';
+
+  @override
+  String get appLock => 'App lock';
+
+  @override
+  String get appLockHint =>
+      'A PIN, or your fingerprint or face, to open Kharcha';
+
+  @override
+  String get on => 'On';
+
+  @override
+  String get off => 'Off';
+
+  @override
+  String get turnOnLock => 'Turn on app lock';
+
+  @override
+  String get choosePin => 'Choose a 4-digit PIN';
+
+  @override
+  String get confirmPin => 'Enter it again';
+
+  @override
+  String get pinMismatch => 'Those didn\'t match. Try again.';
+
+  @override
+  String get enterPin => 'Enter your PIN';
+
+  @override
+  String get currentPin => 'Enter your current PIN';
+
+  @override
+  String get wrongPin => 'Wrong PIN';
+
+  @override
+  String pinPaused(String time) {
+    return 'Too many tries. Try again in $time.';
+  }
+
+  @override
+  String get forgotPin => 'Forgot PIN?';
+
+  @override
+  String get forgotPinReason => 'Confirm it\'s you to turn off Kharcha\'s lock';
+
+  @override
+  String get lockTurnedOff =>
+      'App lock is off. You can set a new PIN in More → App lock.';
+
+  @override
+  String get unlockReason => 'Unlock Kharcha';
+
+  @override
+  String get useBiometrics => 'Fingerprint or face';
+
+  @override
+  String get useBiometricsHint => 'Unlock without typing your PIN';
+
+  @override
+  String get changePin => 'Change PIN';
+
+  @override
+  String get turnOffLock => 'Turn off app lock';
+
+  @override
+  String get lockAfter => 'Lock after';
+
+  @override
+  String get lockAfterHint => 'How long Kharcha can be in the background';
+
+  @override
+  String get lockImmediately => 'Immediately';
+
+  @override
+  String lockSeconds(int n) {
+    return '$n seconds';
+  }
+
+  @override
+  String lockMinutes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get lockIsOn => 'App lock is on';
+
+  @override
+  String get pinChanged => 'PIN changed';
+
+  @override
+  String get welcomeTitle => 'Know where your money goes';
+
+  @override
+  String get welcomeBody =>
+      'Add an expense in seconds. Kharcha keeps the totals, budgets and reports.';
+
+  @override
+  String get promiseOffline => 'Works offline. No sign-up, ever.';
+
+  @override
+  String get promiseBackup => 'Backups to your phone or your own Google Drive';
+
+  @override
+  String get promisePayday => 'Budgets that follow your payday';
+
+  @override
+  String get promiseFree => 'Free, with no ads, ever';
+
+  @override
+  String get setupTitle => 'Make it yours';
+
+  @override
+  String get setupBody => 'You can change these anytime in More.';
+
+  @override
+  String get homeCurrency => 'Currency';
+
+  @override
+  String get homeCurrencyHint => 'For totals and new accounts';
+
+  @override
+  String get extrasTitle => 'A couple of extras';
+
+  @override
+  String get extrasBody => 'Both are optional.';
+
+  @override
+  String get extrasImport => 'Coming from Hysab Kytab?';
+
+  @override
+  String get extrasImportHint => 'Bring your history in one go';
+
+  @override
+  String get extrasLock => 'Lock Kharcha with a PIN';
+
+  @override
+  String get extrasLockHint => 'Or your fingerprint or face';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get startUsing => 'Start using Kharcha';
+
+  @override
+  String get categories => 'Categories';
+
+  @override
+  String get categoriesHint => 'Add, rename, reorder or archive';
+
+  @override
+  String get addCategory => 'Add category';
+
+  @override
+  String get editCategory => 'Edit category';
+
+  @override
+  String get categoryName => 'Name';
+
+  @override
+  String get categoryIcon => 'Icon';
+
+  @override
+  String get categoryArchived => 'Category archived';
+
+  @override
+  String duplicateCategoryName(String name) {
+    return 'You already have a category called $name';
+  }
+
+  @override
+  String get noCategories => 'No categories here yet';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String get aboutHint => 'Version, what\'s new and contact';
+
+  @override
+  String version(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get noAds =>
+      'No ads, ever. Your data stays on your phone unless you back it up.';
+
+  @override
+  String get whatsNew => 'What\'s new';
+
+  @override
+  String get contactUs => 'Contact us';
+
+  @override
+  String get contactUsHint =>
+      'Email us, with a short technical report attached';
+
+  @override
+  String get copyDiagnostics => 'Copy diagnostics';
+
+  @override
+  String get diagnosticsCopied =>
+      'Diagnostics copied. Paste them into your message.';
+
+  @override
+  String get supportSubject => 'Kharcha support';
+
+  @override
+  String get hideBalancesHint => 'Hide totals and balances behind dots';
+
+  @override
+  String get copyDiagnosticsHint =>
+      'A short technical report to paste into a message to us';
+
+  @override
+  String get noAccounts => 'No accounts yet. Add one to start recording.';
+
+  @override
+  String get bioFaceId => 'Face ID';
+
+  @override
+  String get bioTouchId => 'Touch ID';
+
+  @override
+  String get bioFace => 'Face unlock';
+
+  @override
+  String get bioFingerprint => 'Fingerprint';
+
+  @override
+  String offerBiometricTitle(String name) {
+    return 'Use $name to unlock?';
+  }
+
+  @override
+  String get offerBiometricBody =>
+      'Quicker than typing your PIN. Your PIN still works.';
+
+  @override
+  String useBiometricNamed(String name) {
+    return 'Use $name';
+  }
+
+  @override
+  String get notNow => 'Not now';
+
+  @override
+  String enableBiometricReason(String name) {
+    return 'Confirm to turn on $name for Kharcha';
+  }
 }

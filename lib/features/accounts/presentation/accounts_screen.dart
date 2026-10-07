@@ -20,6 +20,8 @@ import '../domain/account_type.dart';
 import 'account_badge.dart';
 import 'account_form_screen.dart';
 import 'accounts_bloc.dart';
+import '../../../core/widgets/archived_section.dart';
+import '../../../core/widgets/empty_state.dart';
 
 /// Accounts (spec 3.2 #5): balances, drag to reorder, net worth, archive.
 class AccountsScreen extends StatelessWidget {
@@ -56,7 +58,6 @@ class _AccountsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final c = context.colors;
     final masked = context.watch<HideBalanceCubit>().state;
     return BlocConsumer<AccountsBloc, AccountsState>(
       listenWhen: (a, b) => b.duplicateName != null,
@@ -73,6 +74,17 @@ class _AccountsView extends StatelessWidget {
             icon: const Icon(AppIcons.plus),
           ),
           slivers: [
+            if (accounts.isEmpty)
+              SliverToBoxAdapter(
+                child: EmptyState(
+                  icon: AppIcons.accounts.filled,
+                  message: l.noAccounts,
+                  action: FilledButton(
+                    onPressed: () => addAccount(context),
+                    child: Text(l.addAccount),
+                  ),
+                ),
+              ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
               sliver: SliverReorderableList(
@@ -138,50 +150,17 @@ class _AccountsView extends StatelessWidget {
                   0,
                 ),
                 sliver: SliverToBoxAdapter(
-                  child: Theme(
-                    data: Theme.of(
-                      context,
-                    ).copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      key: const Key('archivedSection'),
-                      tilePadding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xs,
-                      ),
-                      title: Text(
-                        '${l.archived} · ${s.archived.length}',
-                        style: context.text.labelLarge!.copyWith(
-                          color: c.inkMuted,
+                  child: ArchivedSection(
+                    items: [
+                      for (final a in s.archived)
+                        ArchivedItem(
+                          badge: AccountBadge.of(a, size: 32),
+                          name: a.name,
+                          onRestore: () => context.read<AccountsBloc>().add(
+                            AccountUnarchived(a.id),
+                          ),
                         ),
-                      ),
-                      children: [
-                        SurfaceCard(
-                          children: [
-                            for (final a in s.archived)
-                              Row(
-                                children: [
-                                  Opacity(
-                                    opacity: 0.6,
-                                    child: AccountBadge.of(a, size: 32),
-                                  ),
-                                  const SizedBox(width: AppSpacing.m),
-                                  Expanded(
-                                    child: Text(
-                                      a.name,
-                                      style: context.text.bodyMedium,
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => context
-                                        .read<AccountsBloc>()
-                                        .add(AccountUnarchived(a.id)),
-                                    child: Text(l.restore),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -248,10 +227,16 @@ class _AccountRow extends StatelessWidget {
                   ],
                 ),
               ),
-              AmountText(
-                summary.balance,
-                masked: masked,
-                style: context.text.titleSmall,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: AmountText(
+                    summary.balance,
+                    masked: masked,
+                    style: context.text.titleSmall,
+                  ),
+                ),
               ),
               ReorderableDragStartListener(
                 index: index,

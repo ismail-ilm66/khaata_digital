@@ -9,12 +9,14 @@ import 'core/di/injection.dart';
 import 'core/background/background_jobs.dart';
 import 'features/settings/domain/setting_key.dart';
 import 'features/settings/domain/settings_repository.dart';
+import 'core/config/app_config.dart';
 
 Future<void> main() async {
   // Keep the native launch screen up until the app is ready to draw.
   FlutterNativeSplash.preserve(
     widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
   );
+  await AppConfig.load();
   configureDependencies();
   await bootstrap();
   await BackgroundJobs.register(

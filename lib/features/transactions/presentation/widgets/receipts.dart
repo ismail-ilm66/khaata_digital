@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_sheet.dart';
 import '../../domain/ledger_entry.dart';
 import '../../domain/transactions_repository.dart';
 import '../../../../core/widgets/watch.dart';
+import '../../../../core/lifecycle/system_screens.dart';
 
 /// A receipt to show: either already stored ([attachment]) or just picked
 /// and not yet saved ([path]).
@@ -213,6 +214,8 @@ Future<String?> pickReceiptImage(BuildContext context) async {
     ],
   );
   if (source == null) return null;
-  final file = await ImagePicker().pickImage(source: source);
+  final file = await SystemScreens.show(
+    () => ImagePicker().pickImage(source: source),
+  );
   return file?.path;
 }

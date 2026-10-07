@@ -311,6 +311,28 @@ void main() {
     });
   });
 
+  test('a restore keeps this phone\'s lock and Google account', () async {
+    await old.db.settingsDao.write(SettingKey.lockEnabled, 'true');
+    await old.db.settingsDao.write(SettingKey.lockPin, 'old-phone-hash');
+    await old.db.settingsDao.write(SettingKey.driveAccount, 'old@x.com');
+    await old.db.settingsDao.write(SettingKey.monthStartDay, '25');
+    final backup = await old.backups.create();
+
+    await fresh.db.settingsDao.write(SettingKey.lockPin, 'this-phone-hash');
+    for (final mode in RestoreMode.values) {
+      await fresh.backups.restore(backup.bytes, mode: mode);
+      expect(
+        await fresh.db.settingsDao.read(SettingKey.lockPin),
+        'this-phone-hash',
+      );
+      expect(await fresh.db.settingsDao.read(SettingKey.lockEnabled), 'false');
+      expect(await fresh.db.settingsDao.read(SettingKey.driveAccount), '');
+    }
+    // Ordinary settings still come across with Replace.
+    await fresh.backups.restore(backup.bytes, mode: RestoreMode.replace);
+    expect(await fresh.db.settingsDao.read(SettingKey.monthStartDay), '25');
+  });
+
   group('history', () {
     test('on-device copies keep the newest 8; status ignores them', () async {
       final status = <BackupRecord?>[];

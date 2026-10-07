@@ -25,6 +25,8 @@ import '../../transactions/presentation/form/entry_editor_screen.dart';
 import '../../transactions/presentation/widgets/entry_tile.dart';
 import 'home_cubit.dart';
 import '../../../core/feedback/haptics.dart';
+import '../../../core/app_refresh.dart';
+import '../../../core/widgets/period_navigator.dart';
 
 /// Home (spec 3.2 #2). Budgets and Udhaar cards join in M3.
 class HomeScreen extends StatelessWidget {
@@ -52,6 +54,10 @@ class _HomeView extends StatelessWidget {
 
     return PageScaffold(
       title: l.appTitle,
+      onRefresh: () async {
+        Haptics.selection();
+        await getIt<AppRefresh>().recurring();
+      },
       subtitle: s.cycle == null ? null : cycle.label(s.cycle!, locale: locale),
       trailing: IconButton.filledTonal(
         key: const Key('hideBalance'),
@@ -188,9 +194,20 @@ class _SummaryCard extends StatelessWidget {
                 style: context.text.titleMedium!.copyWith(color: c.inkMuted),
               ),
             const SizedBox(height: AppSpacing.xl),
-            Text(
-              l.thisCycle,
-              style: context.text.labelLarge!.copyWith(color: c.inkMuted),
+            PeriodNavigator(
+              dense: true,
+              label: state.isCurrent
+                  ? l.thisCycle
+                  : context.watch<BudgetCycleCubit>().state.label(
+                      state.cycle!,
+                      locale: Localizations.localeOf(context).toLanguageTag(),
+                    ),
+              previousTooltip: l.previousPeriod,
+              nextTooltip: l.nextPeriod,
+              onPrevious: () => context.read<HomeCubit>().step(-1),
+              onNext: state.isCurrent
+                  ? null
+                  : () => context.read<HomeCubit>().step(1),
             ),
             const SizedBox(height: AppSpacing.s),
             Row(

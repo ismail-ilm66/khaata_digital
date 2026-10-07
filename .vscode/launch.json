@@ -5,16 +5,14 @@
       "name": "Kharcha",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main.dart",
-      "toolArgs": ["--dart-define-from-file=.env"]
+      "program": "lib/main.dart"
     },
     {
       "name": "Kharcha (release)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
-      "program": "lib/main.dart",
-      "toolArgs": ["--dart-define-from-file=.env"]
+      "program": "lib/main.dart"
     }
   ]
 }

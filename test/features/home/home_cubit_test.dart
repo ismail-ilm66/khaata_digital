@@ -89,4 +89,31 @@ void main() {
     );
     await home.close();
   });
+
+  test('steps back through cycles, never past the current one', () async {
+    await save(TransactionType.expense, 700, DateTime(2026, 9, 10, 12));
+    await save(TransactionType.expense, 300, DateTime(2026, 10, 2, 12));
+    final home = r.homeCubit(cycle)..start(now: () => DateTime(2026, 10, 6));
+    await pumpEventQueue();
+    expect(home.state.isCurrent, isTrue);
+
+    home.step(1);
+    await pumpEventQueue();
+    expect(home.state.cycle, const CycleId(2026, 10), reason: 'no future');
+
+    home.step(-1);
+    await pumpEventQueue();
+    expect(home.state.cycle, const CycleId(2026, 9));
+    expect(home.state.isCurrent, isFalse);
+    expect(
+      home.state.totals!.expenseIn(Currency.pkr),
+      Money.major(700, Currency.pkr),
+    );
+
+    // A new month-start setting snaps back to the current cycle.
+    await cycle.set(const BudgetCycle.lastWorkingDay());
+    await pumpEventQueue();
+    expect(home.state.isCurrent, isTrue);
+    await home.close();
+  });
 }

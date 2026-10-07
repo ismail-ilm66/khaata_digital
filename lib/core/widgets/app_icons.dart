@@ -117,6 +117,10 @@ abstract final class AppIcons {
   static const IconData history = PhosphorIconsRegular.clockCounterClockwise;
   static const IconData wifi = PhosphorIconsRegular.wifiHigh;
   static const IconData haptics = PhosphorIconsFill.vibrate;
+  static const IconData fingerprint = PhosphorIconsRegular.fingerprint;
+  static const IconData faceId = PhosphorIconsRegular.userFocus;
+  static const IconData timer = PhosphorIconsRegular.timer;
+  static const IconData key = PhosphorIconsRegular.password;
 
   /// Account types → icon, for accounts without a preset monogram.
   static const Map<String, AppIcon> accountTypes = {

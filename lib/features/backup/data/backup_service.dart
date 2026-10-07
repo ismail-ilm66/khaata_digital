@@ -9,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../core/db/app_database.dart';
+import '../../settings/domain/setting_key.dart';
 import '../../transactions/data/receipt_store.dart';
 import '../domain/backup.dart';
 import 'backup_archive.dart';
@@ -265,7 +266,9 @@ class BackupService {
       try {
         await _db.transaction(() async {
           await _db.customStatement('PRAGMA defer_foreign_keys = ON');
+          final mine = await _deviceSettings();
           await (mode == RestoreMode.replace ? _replace() : _merge());
+          await _keepDeviceSettings(mine);
         });
       } on BackupFailure {
         rethrow;
@@ -295,6 +298,30 @@ class BackupService {
     } finally {
       if (await incoming.exists()) await incoming.delete(recursive: true);
       await tmp.delete(recursive: true);
+    }
+  }
+
+  /// Settings that belong to this phone (app lock, Google account); a
+  /// restore never takes another phone's.
+  static final _deviceKeys = [
+    for (final k in SettingKey.deviceOnly) k.storageKey,
+  ];
+
+  Future<Map<String, String>> _deviceSettings() async => {
+    for (final r in await (_db.select(
+      _db.settings,
+    )..where((s) => s.key.isIn(_deviceKeys))).get())
+      r.key: r.value,
+  };
+
+  Future<void> _keepDeviceSettings(Map<String, String> mine) async {
+    await (_db.delete(
+      _db.settings,
+    )..where((s) => s.key.isIn(_deviceKeys))).go();
+    for (final MapEntry(:key, :value) in mine.entries) {
+      await _db
+          .into(_db.settings)
+          .insert(SettingsCompanion.insert(key: key, value: value));
     }
   }
 

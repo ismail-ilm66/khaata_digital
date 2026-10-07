@@ -1,5 +1,6 @@
 package com.expensetracker.kharcha
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// FragmentActivity: required by local_auth for the fingerprint / face prompt.
+class MainActivity : FlutterFragmentActivity()

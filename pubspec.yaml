@@ -71,6 +71,9 @@ dependencies:
   googleapis: ^17.0.0
   extension_google_sign_in_as_googleapis_auth: ^3.0.0
   flutter_native_splash: ^2.4.4
+  local_auth: ^3.0.2
+  url_launcher: ^6.3.2
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
@@ -103,6 +106,9 @@ flutter:
   uses-material-design: true
 
   assets:
+    # Build settings (Google client ids, support email). Git-ignored; copy
+    # .env.example to .env. Must exist to build. No secrets: it ships in the app.
+    - .env
     # Splash hand-off (same images as the native launch screen).
     - assets/splash/mark.png
     - assets/splash/wordmark.png

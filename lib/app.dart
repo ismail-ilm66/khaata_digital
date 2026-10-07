@@ -12,6 +12,9 @@ import 'core/widgets/splash_handoff.dart';
 import 'features/settings/presentation/cubit/locale_cubit.dart';
 import 'features/settings/presentation/cubit/preference_cubits.dart';
 import 'features/settings/presentation/cubit/theme_cubit.dart';
+import 'features/security/presentation/lock_gate.dart';
+import 'core/router/routes.dart';
+import 'features/onboarding/data/app_start.dart';
 
 class KharchaApp extends StatefulWidget {
   const KharchaApp({super.key});
@@ -21,7 +24,11 @@ class KharchaApp extends StatefulWidget {
 }
 
 class _KharchaAppState extends State<KharchaApp> {
-  final GoRouter _router = createRouter();
+  final GoRouter _router = createRouter(
+    initialLocation: getIt<AppStart>().showWelcome
+        ? Routes.welcome
+        : Routes.home,
+  );
 
   /// Recurring entries due while the app sat in the background appear as
   /// soon as it comes back (iOS has no background job).
@@ -74,7 +81,8 @@ class _KharchaAppState extends State<KharchaApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
             routerConfig: _router,
-            builder: (context, child) => SplashHandoff(child: child!),
+            builder: (context, child) =>
+                SplashHandoff(child: LockGate(child: child!)),
           );
         },
       ),

@@ -19,6 +19,8 @@ import 'month_start_label.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/widgets/app_switch.dart';
+import '../../security/presentation/lock_cubit.dart';
+import '../../../core/money/currency.dart';
 
 /// More/Settings tab (spec 3.2 #10). Accounts and appearance for now; the
 /// rest of the settings land with their milestones.
@@ -59,6 +61,13 @@ class MoreScreen extends StatelessWidget {
                       title: l10n.people,
                       subtitle: l10n.peopleSubtitle,
                       onTap: () => context.push(Routes.people),
+                    ),
+                    SettingTile(
+                      key: const Key('categoriesTile'),
+                      icon: AppIcons.tag,
+                      title: l10n.categories,
+                      subtitle: l10n.categoriesHint,
+                      onTap: () => context.push(Routes.categories),
                     ),
                     SettingTile(
                       key: const Key('recurringTile'),
@@ -102,6 +111,65 @@ class MoreScreen extends StatelessWidget {
                 title: l10n.settingsGeneral,
                 child: SurfaceCard(
                   children: [
+                    BlocBuilder<CurrencyCubit, Currency>(
+                      builder: (context, currency) => SettingTile(
+                        key: const Key('currencyTile'),
+                        icon: AppIcons.accounts.filled,
+                        title: l10n.homeCurrency,
+                        subtitle: l10n.homeCurrencyHint,
+                        trailing: Text(
+                          currency.code,
+                          style: context.text.titleSmall,
+                        ),
+                        onTap: () async {
+                          final c = await pickOne<Currency>(
+                            context,
+                            title: l10n.homeCurrency,
+                            selected: currency,
+                            items: [
+                              for (final c in Currency.known)
+                                PickItem(
+                                  value: c,
+                                  title: c.code,
+                                  subtitle: c.symbol == c.code
+                                      ? null
+                                      : c.symbol,
+                                ),
+                            ],
+                          );
+                          if (c != null && context.mounted) {
+                            await context.read<CurrencyCubit>().set(c);
+                          }
+                        },
+                      ),
+                    ),
+                    BlocBuilder<HideBalanceCubit, bool>(
+                      builder: (context, hidden) => SettingTile(
+                        key: const Key('hideBalanceTile'),
+                        icon: AppIcons.hide,
+                        title: l10n.hideBalances,
+                        subtitle: l10n.hideBalancesHint,
+                        trailing: AppSwitch(
+                          value: hidden,
+                          onChanged: (_) =>
+                              context.read<HideBalanceCubit>().toggle(),
+                        ),
+                      ),
+                    ),
+                    BlocBuilder<LockCubit, AppLockState>(
+                      bloc: getIt<LockCubit>(),
+                      builder: (context, lock) => SettingTile(
+                        key: const Key('appLockTile'),
+                        icon: AppIcons.lock,
+                        title: l10n.appLock,
+                        subtitle: l10n.appLockHint,
+                        trailing: Text(
+                          lock.enabled ? l10n.on : l10n.off,
+                          style: context.text.titleSmall,
+                        ),
+                        onTap: () => context.push(Routes.appLock),
+                      ),
+                    ),
                     BlocBuilder<HapticsCubit, bool>(
                       bloc: getIt<HapticsCubit>(),
                       builder: (context, on) => SettingTile(
@@ -187,6 +255,17 @@ class MoreScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              SurfaceCard(
+                children: [
+                  SettingTile(
+                    key: const Key('aboutTile'),
+                    icon: AppIcons.shield,
+                    title: l10n.about,
+                    subtitle: l10n.aboutHint,
+                    onTap: () => context.push(Routes.about),
+                  ),
+                ],
               ),
             ],
           ),

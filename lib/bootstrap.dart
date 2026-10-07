@@ -5,6 +5,8 @@ import 'core/db/app_database.dart';
 import 'core/di/injection.dart';
 import 'features/backup/data/auto_backup.dart';
 import 'features/backup/presentation/backup_health.dart';
+import 'features/security/presentation/lock_cubit.dart';
+import 'features/onboarding/data/app_start.dart';
 
 /// Startup work shared by the app and widget tests: verify the database,
 /// load persisted settings and catch up recurring entries before the first
@@ -17,6 +19,8 @@ Future<void> bootstrap() async {
     debugPrint('Kharcha: database integrity check failed');
   }
   getIt<BackupHealth>().databaseOk = healthy;
+  await getIt<LockCubit>().load();
+  await getIt<AppStart>().load();
   await getIt<AppRefresh>().all();
 }
 

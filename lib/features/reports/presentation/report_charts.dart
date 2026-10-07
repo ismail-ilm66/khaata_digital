@@ -236,7 +236,17 @@ class _CategoryDonutState extends State<CategoryDonut> {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.m),
-                  AmountText(s.total, style: context.text.labelLarge),
+                  // Large text on a small phone: shrink rather than spill.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: AmountText(
+                        s.total,
+                        style: context.text.labelLarge,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

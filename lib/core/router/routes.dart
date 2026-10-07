@@ -24,6 +24,10 @@ abstract final class Routes {
   static const backup = '/backup';
   static const restore = '/restore';
   static const importData = '/import';
+  static const appLock = '/app-lock';
+  static const welcome = '/welcome';
+  static const categories = '/categories';
+  static const about = '/about';
 
   static String entry(String id) => '/entry/$id';
   static String editEntry(String id) => '/edit/$id';

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../money/amount_buffer.dart';
 import '../theme/app_typography.dart';
 import '../theme/context_x.dart';
-import 'app_icons.dart';
 import '../feedback/haptics.dart';
+import 'app_icons.dart';
 
 /// The in-app number pad for amounts: always open, no system keyboard.
 /// Long-press backspace clears.
@@ -14,10 +14,15 @@ class Keypad extends StatelessWidget {
     required this.onKey,
     this.allowDecimal = true,
     this.keyHeight = 54,
+    this.bottomLeft,
   });
 
   final ValueChanged<KeypadKey> onKey;
   final bool allowDecimal;
+
+  /// Fills the bottom-left slot when there's no decimal point (e.g. the
+  /// fingerprint / face button on the lock screen).
+  final Widget? bottomLeft;
 
   /// Row height; smaller on short screens.
   final double keyHeight;
@@ -38,11 +43,17 @@ class Keypad extends StatelessWidget {
         row([KeypadKey.d1, KeypadKey.d2, KeypadKey.d3]),
         row([KeypadKey.d4, KeypadKey.d5, KeypadKey.d6]),
         row([KeypadKey.d7, KeypadKey.d8, KeypadKey.d9]),
-        row([
-          allowDecimal ? KeypadKey.decimal : null,
-          KeypadKey.d0,
-          KeypadKey.backspace,
-        ]),
+        Row(
+          children: [
+            Expanded(
+              child: allowDecimal
+                  ? _Key(KeypadKey.decimal, onKey, keyHeight)
+                  : SizedBox(height: keyHeight, child: bottomLeft),
+            ),
+            Expanded(child: _Key(KeypadKey.d0, onKey, keyHeight)),
+            Expanded(child: _Key(KeypadKey.backspace, onKey, keyHeight)),
+          ],
+        ),
       ],
     );
   }

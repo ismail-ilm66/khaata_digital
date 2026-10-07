@@ -20,6 +20,7 @@ class PageScaffold extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.bottom,
+    this.onRefresh,
   });
 
   final String title;
@@ -32,10 +33,14 @@ class PageScaffold extends StatelessWidget {
   /// Pinned under the content (a page's main action, e.g. "Import").
   final Widget? bottom;
 
+  /// Enables pull-to-refresh.
+  final Future<void> Function()? onRefresh;
+
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final scroll = CustomScrollView(
+    final Widget list = CustomScrollView(
+      physics: onRefresh == null ? null : const AlwaysScrollableScrollPhysics(),
       slivers: [
         SliverToBoxAdapter(
           child: PageHeader(
@@ -54,6 +59,9 @@ class PageScaffold extends StatelessWidget {
         ),
       ],
     );
+    final scroll = onRefresh == null
+        ? list
+        : RefreshIndicator(onRefresh: onRefresh!, child: list);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(

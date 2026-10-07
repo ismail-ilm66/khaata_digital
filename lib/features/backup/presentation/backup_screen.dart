@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -128,7 +130,7 @@ class _BackupViewState extends State<_BackupView> {
       listener: (context, s) {
         switch (s.notice!) {
           case BackupNotice.saved || BackupNotice.uploaded:
-            Haptics.success();
+            unawaited(Haptics.success());
           case BackupNotice.failed || BackupNotice.driveFailed:
             Haptics.warning();
         }

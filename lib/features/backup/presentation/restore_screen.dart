@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -30,7 +32,7 @@ class RestoreScreen extends StatelessWidget {
     child: BlocListener<RestoreBloc, RestoreState>(
       listenWhen: (a, b) => a.status != b.status || a.failure != b.failure,
       listener: (context, s) {
-        if (s.status == RestoreStatus.done) Haptics.success();
+        if (s.status == RestoreStatus.done) unawaited(Haptics.success());
         if (s.failure != null) Haptics.warning();
       },
       child: const _RestoreView(),

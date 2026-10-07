@@ -15,6 +15,7 @@ import '../../../core/widgets/section.dart';
 import '../../../core/widgets/segmented_picker.dart';
 import '../../transactions/domain/entry_query.dart';
 import '../domain/exporter.dart';
+import '../../../core/lifecycle/system_screens.dart';
 
 /// Export to Excel / CSV in Hysab Kytab's layout, then share or save.
 /// With [view], offers "This view" (its filters and period) or everything.
@@ -66,10 +67,12 @@ class _ExportSheetState extends State<_ExportSheet> {
     final dir = await getTemporaryDirectory();
     final path = p.join(dir.path, file.name);
     await File(path).writeAsBytes(file.bytes, flush: true);
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile(path, mimeType: file.mime)],
-        subject: file.name,
+    await SystemScreens.show(
+      () => SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(path, mimeType: file.mime)],
+          subject: file.name,
+        ),
       ),
     );
     if (mounted) Navigator.pop(context);

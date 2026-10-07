@@ -47,6 +47,8 @@ import 'package:khaata_digital/features/categories/data/categories_repository_im
     as _i787;
 import 'package:khaata_digital/features/categories/domain/category.dart'
     as _i420;
+import 'package:khaata_digital/features/categories/presentation/categories_cubit.dart'
+    as _i276;
 import 'package:khaata_digital/features/home/presentation/home_cubit.dart'
     as _i24;
 import 'package:khaata_digital/features/import_export/data/export_service.dart'
@@ -57,6 +59,10 @@ import 'package:khaata_digital/features/import_export/domain/exporter.dart'
     as _i1;
 import 'package:khaata_digital/features/import_export/presentation/import_bloc.dart'
     as _i178;
+import 'package:khaata_digital/features/onboarding/data/app_start.dart'
+    as _i397;
+import 'package:khaata_digital/features/onboarding/presentation/onboarding_cubit.dart'
+    as _i109;
 import 'package:khaata_digital/features/people/data/people_repository_impl.dart'
     as _i733;
 import 'package:khaata_digital/features/people/domain/person.dart' as _i260;
@@ -70,6 +76,14 @@ import 'package:khaata_digital/features/reports/data/reports_repository_impl.dar
 import 'package:khaata_digital/features/reports/domain/report.dart' as _i318;
 import 'package:khaata_digital/features/reports/presentation/reports_bloc.dart'
     as _i556;
+import 'package:khaata_digital/features/security/data/local_device_auth.dart'
+    as _i36;
+import 'package:khaata_digital/features/security/domain/device_auth.dart'
+    as _i234;
+import 'package:khaata_digital/features/security/presentation/lock_cubit.dart'
+    as _i246;
+import 'package:khaata_digital/features/settings/data/diagnostics.dart'
+    as _i756;
 import 'package:khaata_digital/features/settings/data/settings_repository_impl.dart'
     as _i744;
 import 'package:khaata_digital/features/settings/domain/settings_repository.dart'
@@ -129,6 +143,10 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i511.ImportService>(
       () => _i511.ImportService(gh<_i577.AppDatabase>()),
     );
+    gh.lazySingleton<_i234.DeviceAuth>(
+      () => _i36.LocalDeviceAuth(),
+      registerFor: {_prod},
+    );
     gh.lazySingleton<_i635.FileGateway>(
       () => _i635.SystemFileGateway(),
       registerFor: {_prod},
@@ -151,8 +169,21 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i610.TransactionListBloc>(
       () => _i610.TransactionListBloc(gh<_i208.TransactionsRepository>()),
     );
+    gh.lazySingleton<_i756.Diagnostics>(
+      () => _i756.Diagnostics(
+        gh<_i122.BackupService>(),
+        gh<_i904.BackupHealth>(),
+        gh<_i577.AppDatabase>(),
+      ),
+    );
     gh.lazySingleton<_i109.SettingsRepository>(
       () => _i744.SettingsRepositoryImpl(gh<_i577.AppDatabase>()),
+    );
+    gh.lazySingleton<_i246.LockCubit>(
+      () => _i246.LockCubit(
+        gh<_i109.SettingsRepository>(),
+        gh<_i234.DeviceAuth>(),
+      ),
     );
     gh.lazySingleton<_i1.Exporter>(
       () => _i644.ExportService(
@@ -221,6 +252,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i720.AccountsRepository>(),
       ),
     );
+    gh.lazySingleton<_i397.AppStart>(
+      () => _i397.AppStart(
+        gh<_i109.SettingsRepository>(),
+        gh<_i577.AppDatabase>(),
+      ),
+    );
     gh.lazySingleton<_i746.AutoBackup>(
       () => _i746.AutoBackup(
         gh<_i122.BackupService>(),
@@ -257,11 +294,22 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i795.CurrencyCubit>(),
       ),
     );
+    gh.factory<_i276.CategoriesCubit>(
+      () => _i276.CategoriesCubit(gh<_i420.CategoriesRepository>()),
+    );
     gh.factory<_i556.ReportsBloc>(
       () => _i556.ReportsBloc(
         gh<_i318.ReportsRepository>(),
         gh<_i795.BudgetCycleCubit>(),
         gh<_i795.CurrencyCubit>(),
+      ),
+    );
+    gh.factory<_i109.OnboardingCubit>(
+      () => _i109.OnboardingCubit(
+        gh<_i795.CurrencyCubit>(),
+        gh<_i795.BudgetCycleCubit>(),
+        gh<_i720.AccountsRepository>(),
+        gh<_i397.AppStart>(),
       ),
     );
     gh.lazySingleton<_i825.AppRefresh>(

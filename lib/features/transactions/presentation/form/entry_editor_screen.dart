@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -122,7 +124,7 @@ class _EditorState extends State<_Editor> {
               listenWhen: (a, b) => a.status != b.status,
               listener: (context, s) {
                 if (s.status == FormStatus.saved) {
-                  Haptics.success();
+                  unawaited(Haptics.success());
                   final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(context);
                   messenger.toast(context.l10n.saved);
@@ -252,49 +254,60 @@ class _AmountHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _AmountDisplay(state: state),
-          if (state.crossCurrency) _ReceivesRow(state: state),
-          _ProblemText(state.problem),
-          const SizedBox(height: AppSpacing.l),
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: AppSpacing.s,
-            runSpacing: AppSpacing.s,
-            children: [
-              if (!state.isTransfer)
-                PillButton(
-                  key: const Key('accountChip'),
-                  label: state.account?.name ?? context.l10n.chooseAccount,
-                  leading: state.account == null
-                      ? null
-                      : AccountBadge.of(state.account!, size: 20),
-                  showChevron: true,
-                  onTap: () async {
-                    final bloc = context.read<TransactionFormBloc>();
-                    final id = await _chooseAccount(
-                      context,
-                      state,
-                      state.accountId,
-                    );
-                    if (id != null) bloc.add(AccountChanged(id));
-                  },
-                ),
-              PillButton(
-                key: const Key('dateChip'),
-                icon: AppIcons.calendar,
-                label: context.dateTimeLabel(state.occurredAt),
-                showChevron: true,
-                onTap: () => _chooseDate(context, state),
-              ),
-            ],
-          ),
-        ],
+    // Centred when there's room; scrolls on a short phone with large text
+    // rather than overflowing.
+    return LayoutBuilder(
+      builder: (context, box) => SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: box.maxHeight),
+          child: _heroColumn(context),
+        ),
       ),
+    );
+  }
+
+  Widget _heroColumn(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _AmountDisplay(state: state),
+        if (state.crossCurrency) _ReceivesRow(state: state),
+        _ProblemText(state.problem),
+        const SizedBox(height: AppSpacing.l),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: AppSpacing.s,
+          runSpacing: AppSpacing.s,
+          children: [
+            if (!state.isTransfer)
+              PillButton(
+                key: const Key('accountChip'),
+                label: state.account?.name ?? context.l10n.chooseAccount,
+                leading: state.account == null
+                    ? null
+                    : AccountBadge.of(state.account!, size: 20),
+                showChevron: true,
+                onTap: () async {
+                  final bloc = context.read<TransactionFormBloc>();
+                  final id = await _chooseAccount(
+                    context,
+                    state,
+                    state.accountId,
+                  );
+                  if (id != null) bloc.add(AccountChanged(id));
+                },
+              ),
+            PillButton(
+              key: const Key('dateChip'),
+              icon: AppIcons.calendar,
+              label: context.dateTimeLabel(state.occurredAt),
+              showChevron: true,
+              onTap: () => _chooseDate(context, state),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -24,6 +24,13 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
       ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]);
   }
 
+  /// Archived categories of [kind], by name.
+  Stream<List<CategoryRow>> watchArchived(CategoryKind kind) =>
+      (select(categories)
+            ..where((c) => c.deletedAt.isNotNull() & c.kind.equalsValue(kind))
+            ..orderBy([(c) => OrderingTerm.asc(c.name)]))
+          .watch();
+
   Future<List<CategoryRow>> active({CategoryKind? kind}) => _active(kind).get();
   Stream<List<CategoryRow>> watchActive({CategoryKind? kind}) =>
       _active(kind).watch();
@@ -65,5 +72,8 @@ class CategoriesDao extends DatabaseAccessor<AppDatabase>
 
   Future<void> archive(String id) => softDelete(categories, id);
   Future<void> unarchive(String id) => undelete(categories, id);
+
+  Future<CategoryRow?> byId(String id) =>
+      (select(categories)..where((c) => c.id.equals(id))).getSingleOrNull();
   Future<void> reorderCategories(List<String> ids) => reorder(categories, ids);
 }

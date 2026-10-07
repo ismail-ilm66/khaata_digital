@@ -21,6 +21,10 @@ import '../../features/transactions/presentation/transactions_screen.dart';
 import '../files/file_gateway.dart';
 import 'app_shell.dart';
 import 'routes.dart';
+import '../../features/security/presentation/lock_settings_screen.dart';
+import '../../features/onboarding/presentation/onboarding_screen.dart';
+import '../../features/categories/presentation/categories_screen.dart';
+import '../../features/settings/presentation/about_screen.dart';
 
 /// Builds a fresh router.
 ///
@@ -28,11 +32,11 @@ import 'routes.dart';
 /// [AppShell]). Every other page is a top-level route on the root
 /// navigator: it slides in over the whole app — glass nav bar included —
 /// from any tab, without switching tabs underneath.
-GoRouter createRouter() {
+GoRouter createRouter({String initialLocation = Routes.home}) {
   final root = GlobalKey<NavigatorState>(debugLabel: 'root');
   return GoRouter(
     navigatorKey: root,
-    initialLocation: Routes.home,
+    initialLocation: initialLocation,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(shell: shell),
@@ -122,6 +126,22 @@ GoRouter createRouter() {
       GoRoute(
         path: Routes.importData,
         builder: (context, state) => const ImportScreen(),
+      ),
+      GoRoute(
+        path: Routes.about,
+        builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: Routes.categories,
+        builder: (context, state) => const CategoriesScreen(),
+      ),
+      GoRoute(
+        path: Routes.welcome,
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: Routes.appLock,
+        builder: (context, state) => const LockSettingsScreen(),
       ),
       GoRoute(
         path: Routes.search,

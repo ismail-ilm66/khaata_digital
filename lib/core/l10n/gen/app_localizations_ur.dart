@@ -585,7 +585,8 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String get monthStartHint => 'مقررہ تاریخ پر تنخواہ کے لیے، مثلاً 25 تاریخ';
+  String get monthStartHint =>
+      'آپ کا مہینہ کب شروع ہو: کوئی تاریخ یا آخری کاروباری دن';
 
   @override
   String get settingsGeneral => 'عمومی';
@@ -1091,4 +1092,265 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get hapticsHint => 'انتخاب، محفوظ یا حذف کرنے پر ہلکا سا احساس';
+
+  @override
+  String get appLock => 'ایپ لاک';
+
+  @override
+  String get appLockHint => 'خرچہ کھولنے کے لیے پن، فنگر پرنٹ یا چہرہ';
+
+  @override
+  String get on => 'آن';
+
+  @override
+  String get off => 'آف';
+
+  @override
+  String get turnOnLock => 'ایپ لاک آن کریں';
+
+  @override
+  String get choosePin => '4 ہندسوں کا پن چنیں';
+
+  @override
+  String get confirmPin => 'دوبارہ درج کریں';
+
+  @override
+  String get pinMismatch => 'دونوں ایک جیسے نہیں تھے۔ دوبارہ کوشش کریں۔';
+
+  @override
+  String get enterPin => 'اپنا پن درج کریں';
+
+  @override
+  String get currentPin => 'اپنا موجودہ پن درج کریں';
+
+  @override
+  String get wrongPin => 'غلط پن';
+
+  @override
+  String pinPaused(String time) {
+    return 'بہت زیادہ کوششیں۔ $time بعد دوبارہ کوشش کریں۔';
+  }
+
+  @override
+  String get forgotPin => 'پن بھول گئے؟';
+
+  @override
+  String get forgotPinReason => 'خرچہ کا لاک بند کرنے کے لیے تصدیق کریں';
+
+  @override
+  String get lockTurnedOff =>
+      'ایپ لاک بند ہے۔ نیا پن مزید → ایپ لاک میں رکھیں۔';
+
+  @override
+  String get unlockReason => 'خرچہ ان لاک کریں';
+
+  @override
+  String get useBiometrics => 'فنگر پرنٹ یا چہرہ';
+
+  @override
+  String get useBiometricsHint => 'پن لکھے بغیر کھولیں';
+
+  @override
+  String get changePin => 'پن تبدیل کریں';
+
+  @override
+  String get turnOffLock => 'ایپ لاک بند کریں';
+
+  @override
+  String get lockAfter => 'کب لاک ہو';
+
+  @override
+  String get lockAfterHint => 'خرچہ کتنی دیر پس منظر میں رہ سکتا ہے';
+
+  @override
+  String get lockImmediately => 'فوراً';
+
+  @override
+  String lockSeconds(int n) {
+    return '$n سیکنڈ';
+  }
+
+  @override
+  String lockMinutes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n منٹ',
+      one: '1 منٹ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get lockIsOn => 'ایپ لاک آن ہے';
+
+  @override
+  String get pinChanged => 'پن تبدیل ہو گیا';
+
+  @override
+  String get welcomeTitle => 'جانیں آپ کا پیسہ کہاں جاتا ہے';
+
+  @override
+  String get welcomeBody =>
+      'چند سیکنڈ میں خرچ لکھیں۔ باقی حساب، بجٹ اور رپورٹس خرچہ سنبھالتا ہے۔';
+
+  @override
+  String get promiseOffline => 'آف لائن چلتا ہے۔ کبھی سائن اپ نہیں۔';
+
+  @override
+  String get promiseBackup => 'بیک اپ آپ کے فون یا آپ کی اپنی گوگل ڈرائیو میں';
+
+  @override
+  String get promisePayday => 'بجٹ جو آپ کی تنخواہ کی تاریخ کے ساتھ چلیں';
+
+  @override
+  String get promiseFree => 'مفت، اور کبھی کوئی اشتہار نہیں';
+
+  @override
+  String get setupTitle => 'اسے اپنا بنائیں';
+
+  @override
+  String get setupBody => 'یہ سب بعد میں مزید میں بدل سکتے ہیں۔';
+
+  @override
+  String get homeCurrency => 'کرنسی';
+
+  @override
+  String get homeCurrencyHint => 'کل رقم اور نئے اکاؤنٹس کے لیے';
+
+  @override
+  String get extrasTitle => 'کچھ اضافی چیزیں';
+
+  @override
+  String get extrasBody => 'دونوں اختیاری ہیں۔';
+
+  @override
+  String get extrasImport => 'حساب کتاب سے آ رہے ہیں؟';
+
+  @override
+  String get extrasImportHint => 'اپنا پرانا ریکارڈ ایک ساتھ لے آئیں';
+
+  @override
+  String get extrasLock => 'خرچہ کو پن سے لاک کریں';
+
+  @override
+  String get extrasLockHint => 'یا فنگر پرنٹ یا چہرے سے';
+
+  @override
+  String get skip => 'چھوڑیں';
+
+  @override
+  String get next => 'آگے';
+
+  @override
+  String get startUsing => 'خرچہ شروع کریں';
+
+  @override
+  String get categories => 'کیٹیگریز';
+
+  @override
+  String get categoriesHint =>
+      'شامل کریں، نام بدلیں، ترتیب دیں یا آرکائیو کریں';
+
+  @override
+  String get addCategory => 'کیٹیگری شامل کریں';
+
+  @override
+  String get editCategory => 'کیٹیگری میں ترمیم';
+
+  @override
+  String get categoryName => 'نام';
+
+  @override
+  String get categoryIcon => 'آئیکن';
+
+  @override
+  String get categoryArchived => 'کیٹیگری آرکائیو ہو گئی';
+
+  @override
+  String duplicateCategoryName(String name) {
+    return '$name نام کی کیٹیگری پہلے سے موجود ہے';
+  }
+
+  @override
+  String get noCategories => 'یہاں ابھی کوئی کیٹیگری نہیں';
+
+  @override
+  String get about => 'تعارف';
+
+  @override
+  String get aboutHint => 'ورژن، نیا کیا ہے اور رابطہ';
+
+  @override
+  String version(String version) {
+    return 'ورژن $version';
+  }
+
+  @override
+  String get noAds =>
+      'کبھی اشتہار نہیں۔ آپ کا ڈیٹا آپ کے فون پر رہتا ہے، جب تک آپ خود بیک اپ نہ کریں۔';
+
+  @override
+  String get whatsNew => 'نیا کیا ہے';
+
+  @override
+  String get contactUs => 'ہم سے رابطہ';
+
+  @override
+  String get contactUsHint => 'ہمیں ای میل کریں، ساتھ ایک مختصر تکنیکی رپورٹ';
+
+  @override
+  String get copyDiagnostics => 'تشخیصی معلومات کاپی کریں';
+
+  @override
+  String get diagnosticsCopied =>
+      'معلومات کاپی ہو گئیں۔ اپنے پیغام میں پیسٹ کریں۔';
+
+  @override
+  String get supportSubject => 'خرچہ سپورٹ';
+
+  @override
+  String get hideBalancesHint => 'کل رقم اور بیلنس نقطوں کے پیچھے چھپائیں';
+
+  @override
+  String get copyDiagnosticsHint =>
+      'ایک مختصر تکنیکی رپورٹ، ہمیں پیغام میں پیسٹ کرنے کے لیے';
+
+  @override
+  String get noAccounts =>
+      'ابھی کوئی اکاؤنٹ نہیں۔ لکھنا شروع کرنے کے لیے ایک شامل کریں۔';
+
+  @override
+  String get bioFaceId => 'فیس آئی ڈی';
+
+  @override
+  String get bioTouchId => 'ٹچ آئی ڈی';
+
+  @override
+  String get bioFace => 'چہرے سے ان لاک';
+
+  @override
+  String get bioFingerprint => 'فنگر پرنٹ';
+
+  @override
+  String offerBiometricTitle(String name) {
+    return '$name سے ان لاک کریں؟';
+  }
+
+  @override
+  String get offerBiometricBody =>
+      'پن لکھنے سے تیز۔ آپ کا پن بھی کام کرتا رہے گا۔';
+
+  @override
+  String useBiometricNamed(String name) {
+    return '$name استعمال کریں';
+  }
+
+  @override
+  String get notNow => 'ابھی نہیں';
+
+  @override
+  String enableBiometricReason(String name) {
+    return 'خرچہ کے لیے $name آن کرنے کی تصدیق کریں';
+  }
 }

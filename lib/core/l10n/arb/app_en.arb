@@ -211,7 +211,7 @@
   "recurringEntry": "Repeating payment",
   "monthStart": "Month starts on",
   "monthStartDay": "Day {day}",
-  "monthStartHint": "For salaries paid on a set date, e.g. the 25th",
+  "monthStartHint": "When your month begins: a date, or the last working day",
   "settingsGeneral": "General",
   "@copiedBudgets": {
     "placeholders": {
@@ -510,5 +510,138 @@
   "integrityBody": "A safety check found damage. Restore from a backup to be safe.",
   "monthStartLastWorking": "Last working day",
   "haptics": "Haptics",
-  "hapticsHint": "Gentle taps when you choose, save or delete"
+  "hapticsHint": "Gentle taps when you choose, save or delete",
+  "appLock": "App lock",
+  "appLockHint": "A PIN, or your fingerprint or face, to open Kharcha",
+  "on": "On",
+  "off": "Off",
+  "turnOnLock": "Turn on app lock",
+  "choosePin": "Choose a 4-digit PIN",
+  "confirmPin": "Enter it again",
+  "pinMismatch": "Those didn't match. Try again.",
+  "enterPin": "Enter your PIN",
+  "currentPin": "Enter your current PIN",
+  "wrongPin": "Wrong PIN",
+  "pinPaused": "Too many tries. Try again in {time}.",
+  "@pinPaused": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "forgotPin": "Forgot PIN?",
+  "forgotPinReason": "Confirm it's you to turn off Kharcha's lock",
+  "lockTurnedOff": "App lock is off. You can set a new PIN in More → App lock.",
+  "unlockReason": "Unlock Kharcha",
+  "useBiometrics": "Fingerprint or face",
+  "useBiometricsHint": "Unlock without typing your PIN",
+  "changePin": "Change PIN",
+  "turnOffLock": "Turn off app lock",
+  "lockAfter": "Lock after",
+  "lockAfterHint": "How long Kharcha can be in the background",
+  "lockImmediately": "Immediately",
+  "lockSeconds": "{n} seconds",
+  "@lockSeconds": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "lockMinutes": "{n, plural, =1{1 minute} other{{n} minutes}}",
+  "@lockMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "lockIsOn": "App lock is on",
+  "pinChanged": "PIN changed",
+  "welcomeTitle": "Know where your money goes",
+  "welcomeBody": "Add an expense in seconds. Kharcha keeps the totals, budgets and reports.",
+  "promiseOffline": "Works offline. No sign-up, ever.",
+  "promiseBackup": "Backups to your phone or your own Google Drive",
+  "promisePayday": "Budgets that follow your payday",
+  "promiseFree": "Free, with no ads, ever",
+  "setupTitle": "Make it yours",
+  "setupBody": "You can change these anytime in More.",
+  "homeCurrency": "Currency",
+  "homeCurrencyHint": "For totals and new accounts",
+  "extrasTitle": "A couple of extras",
+  "extrasBody": "Both are optional.",
+  "extrasImport": "Coming from Hysab Kytab?",
+  "extrasImportHint": "Bring your history in one go",
+  "extrasLock": "Lock Kharcha with a PIN",
+  "extrasLockHint": "Or your fingerprint or face",
+  "skip": "Skip",
+  "next": "Next",
+  "startUsing": "Start using Kharcha",
+  "categories": "Categories",
+  "categoriesHint": "Add, rename, reorder or archive",
+  "addCategory": "Add category",
+  "editCategory": "Edit category",
+  "categoryName": "Name",
+  "categoryIcon": "Icon",
+  "categoryArchived": "Category archived",
+  "duplicateCategoryName": "You already have a category called {name}",
+  "@duplicateCategoryName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noCategories": "No categories here yet",
+  "about": "About",
+  "aboutHint": "Version, what's new and contact",
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "noAds": "No ads, ever. Your data stays on your phone unless you back it up.",
+  "whatsNew": "What's new",
+  "contactUs": "Contact us",
+  "contactUsHint": "Email us, with a short technical report attached",
+  "copyDiagnostics": "Copy diagnostics",
+  "diagnosticsCopied": "Diagnostics copied. Paste them into your message.",
+  "supportSubject": "Kharcha support",
+  "hideBalancesHint": "Hide totals and balances behind dots",
+  "copyDiagnosticsHint": "A short technical report to paste into a message to us",
+  "noAccounts": "No accounts yet. Add one to start recording.",
+  "bioFaceId": "Face ID",
+  "bioTouchId": "Touch ID",
+  "bioFace": "Face unlock",
+  "bioFingerprint": "Fingerprint",
+  "offerBiometricTitle": "Use {name} to unlock?",
+  "@offerBiometricTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "offerBiometricBody": "Quicker than typing your PIN. Your PIN still works.",
+  "useBiometricNamed": "Use {name}",
+  "@useBiometricNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notNow": "Not now",
+  "enableBiometricReason": "Confirm to turn on {name} for Kharcha",
+  "@enableBiometricReason": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

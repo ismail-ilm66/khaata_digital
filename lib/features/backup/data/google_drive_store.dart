@@ -8,22 +8,20 @@ import 'package:injectable/injectable.dart';
 
 import '../domain/backup.dart';
 import '../domain/cloud_backup_store.dart';
+import '../../../core/lifecycle/system_screens.dart';
+import '../../../core/config/app_config.dart';
 
 /// Google Drive backups with the narrow `drive.file` scope: Kharcha can
 /// only see files it created, in a "Kharcha Backups" folder the user can
 /// open, copy and share like any other.
 ///
-/// OAuth client ids are supplied at build time (see DECISIONS.md):
-///   `--dart-define=GOOGLE_SERVER_CLIENT_ID=…` (Android: the web client id)
-///   `--dart-define=GOOGLE_IOS_CLIENT_ID=…` (iOS client id)
+/// OAuth client ids come from `.env` via [AppConfig] (see `.env.example`).
 /// Without them [available] is false and the app offers file backups only.
 @prod
 @LazySingleton(as: CloudBackupStore)
 class GoogleDriveStore implements CloudBackupStore {
-  static const _serverClientId = String.fromEnvironment(
-    'GOOGLE_SERVER_CLIENT_ID',
-  );
-  static const _iosClientId = String.fromEnvironment('GOOGLE_IOS_CLIENT_ID');
+  static String get _serverClientId => AppConfig.googleServerClientId;
+  static String get _iosClientId => AppConfig.googleIosClientId;
   static const _scopes = [drive.DriveApi.driveFileScope];
   static const folderName = 'Kharcha Backups';
   static const _folderMime = 'application/vnd.google-apps.folder';
@@ -53,8 +51,12 @@ class GoogleDriveStore implements CloudBackupStore {
   @override
   Future<String> connect() async {
     await _ready();
-    _account = await _signIn.authenticate(scopeHint: _scopes);
-    await _account!.authorizationClient.authorizeScopes(_scopes);
+    _account = await SystemScreens.show(
+      () => _signIn.authenticate(scopeHint: _scopes),
+    );
+    await SystemScreens.show(
+      () => _account!.authorizationClient.authorizeScopes(_scopes),
+    );
     return _account!.email;
   }
 
@@ -74,7 +76,9 @@ class GoogleDriveStore implements CloudBackupStore {
     final auth =
         await client.authorizationForScopes(_scopes) ??
         (interactive
-            ? await client.authorizeScopes(_scopes)
+            ? await SystemScreens.show<GoogleSignInClientAuthorization>(
+                () => client.authorizeScopes(_scopes),
+              )
             : throw StateError('Drive access needs the user'));
     return drive.DriveApi(auth.authClient(scopes: _scopes));
   }

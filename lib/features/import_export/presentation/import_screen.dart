@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -32,7 +34,7 @@ class ImportScreen extends StatelessWidget {
     child: BlocListener<ImportBloc, ImportState>(
       listenWhen: (a, b) => a.step != b.step || a.problem != b.problem,
       listener: (context, s) {
-        if (s.step == ImportStep.report) Haptics.success();
+        if (s.step == ImportStep.report) unawaited(Haptics.success());
         if (s.problem != null) Haptics.warning();
       },
       child: const _ImportView(),

@@ -21,6 +21,7 @@ class HomeState extends Equatable {
     this.budgets,
     this.people,
     this.cycle,
+    this.current,
   });
 
   final AccountsOverview? overview;
@@ -30,7 +31,12 @@ class HomeState extends Equatable {
   final List<EntryView>? recent;
   final BudgetOverview? budgets;
   final PeopleOverview? people;
+
+  /// The cycle shown, and the one "now" is in.
   final CycleId? cycle;
+  final CycleId? current;
+
+  bool get isCurrent => cycle == current;
 
   /// Until every card has data, show nothing rather than half a screen.
   bool get loading =>
@@ -47,6 +53,7 @@ class HomeState extends Equatable {
     BudgetOverview? budgets,
     PeopleOverview? people,
     CycleId? cycle,
+    CycleId? current,
   }) => HomeState(
     overview: overview ?? this.overview,
     totals: totals ?? this.totals,
@@ -54,10 +61,19 @@ class HomeState extends Equatable {
     budgets: budgets ?? this.budgets,
     people: people ?? this.people,
     cycle: cycle ?? this.cycle,
+    current: current ?? this.current,
   );
 
   @override
-  List<Object?> get props => [overview, totals, recent, budgets, people, cycle];
+  List<Object?> get props => [
+    overview,
+    totals,
+    recent,
+    budgets,
+    people,
+    cycle,
+    current,
+  ];
 }
 
 /// Home dashboard (spec 3.2 #2): net worth, this cycle, budgets, accounts,
@@ -104,17 +120,32 @@ class HomeCubit extends Cubit<HomeState> {
       ..add(
         _people.watchOverview().listen((p) => emit(state.copyWith(people: p))),
       )
-      ..add(_cycle.stream.listen((c) => _watchCycle(c, now())));
-    _watchCycle(_cycle.state, now());
+      ..add(_cycle.stream.listen((c) => _showCurrent(c, now())));
+    _showCurrent(_cycle.state, now());
   }
 
-  /// Totals and budgets depend on which cycle "now" is in.
-  void _watchCycle(BudgetCycle cycle, DateTime now) {
+  void _showCurrent(BudgetCycle cycle, DateTime now) {
+    final id = cycle.idFor(now);
+    emit(state.copyWith(current: id));
+    _watchCycle(cycle, id);
+  }
+
+  /// Steps back (−) or forward (+) through cycles, never past the current.
+  void step(int steps) {
+    var id = state.cycle!;
+    for (var i = 0; i < steps.abs(); i++) {
+      id = steps > 0 ? id.next : id.previous;
+    }
+    if (id.compareTo(state.current!) > 0) return;
+    _watchCycle(_cycle.state, id);
+  }
+
+  /// Totals and budgets for cycle [id].
+  void _watchCycle(BudgetCycle cycle, CycleId id) {
     for (final s in _cycleSubs) {
       s.cancel();
     }
     _cycleSubs.clear();
-    final id = cycle.idFor(now);
     emit(state.copyWith(cycle: id));
     _cycleSubs
       ..add(

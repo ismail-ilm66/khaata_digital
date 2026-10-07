@@ -15,6 +15,7 @@ import '../../features/settings/data/settings_repository_impl.dart';
 import '../../features/transactions/data/receipt_store.dart';
 import '../../features/transactions/data/transactions_repository_impl.dart';
 import '../db/app_database.dart';
+import '../config/app_config.dart';
 
 /// Android periodic jobs. iOS has no equivalent here: it catches up on
 /// launch and resume instead (see `bootstrap.dart`).
@@ -58,6 +59,7 @@ abstract final class BackgroundJobs {
 void backgroundDispatcher() {
   Workmanager().executeTask((task, input) async {
     WidgetsFlutterBinding.ensureInitialized();
+    await AppConfig.load(); // the Drive client id, for weekly backups
     final db = AppDatabase.open();
     try {
       final settings = SettingsRepositoryImpl(db);

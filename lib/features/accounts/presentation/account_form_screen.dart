@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -106,7 +108,7 @@ class _AccountFormState extends State<_AccountForm> {
       listener: (context, s) {
         if (s.status
             case AccountFormStatus.saved || AccountFormStatus.archived) {
-          Haptics.success();
+          unawaited(Haptics.success());
           Navigator.pop(context);
           showToast(
             context,

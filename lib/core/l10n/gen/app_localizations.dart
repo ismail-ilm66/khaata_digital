@@ -1163,7 +1163,7 @@ abstract class AppLocalizations {
   /// No description provided for @monthStartHint.
   ///
   /// In en, this message translates to:
-  /// **'For salaries paid on a set date, e.g. the 25th'**
+  /// **'When your month begins: a date, or the last working day'**
   String get monthStartHint;
 
   /// No description provided for @settingsGeneral.
@@ -2029,6 +2029,468 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Gentle taps when you choose, save or delete'**
   String get hapticsHint;
+
+  /// No description provided for @appLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get appLock;
+
+  /// No description provided for @appLockHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A PIN, or your fingerprint or face, to open Kharcha'**
+  String get appLockHint;
+
+  /// No description provided for @on.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get on;
+
+  /// No description provided for @off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get off;
+
+  /// No description provided for @turnOnLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on app lock'**
+  String get turnOnLock;
+
+  /// No description provided for @choosePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a 4-digit PIN'**
+  String get choosePin;
+
+  /// No description provided for @confirmPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter it again'**
+  String get confirmPin;
+
+  /// No description provided for @pinMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Those didn\'t match. Try again.'**
+  String get pinMismatch;
+
+  /// No description provided for @enterPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your PIN'**
+  String get enterPin;
+
+  /// No description provided for @currentPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your current PIN'**
+  String get currentPin;
+
+  /// No description provided for @wrongPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong PIN'**
+  String get wrongPin;
+
+  /// No description provided for @pinPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries. Try again in {time}.'**
+  String pinPaused(String time);
+
+  /// No description provided for @forgotPin.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot PIN?'**
+  String get forgotPin;
+
+  /// No description provided for @forgotPinReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm it\'s you to turn off Kharcha\'s lock'**
+  String get forgotPinReason;
+
+  /// No description provided for @lockTurnedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is off. You can set a new PIN in More → App lock.'**
+  String get lockTurnedOff;
+
+  /// No description provided for @unlockReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Kharcha'**
+  String get unlockReason;
+
+  /// No description provided for @useBiometrics.
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprint or face'**
+  String get useBiometrics;
+
+  /// No description provided for @useBiometricsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock without typing your PIN'**
+  String get useBiometricsHint;
+
+  /// No description provided for @changePin.
+  ///
+  /// In en, this message translates to:
+  /// **'Change PIN'**
+  String get changePin;
+
+  /// No description provided for @turnOffLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn off app lock'**
+  String get turnOffLock;
+
+  /// No description provided for @lockAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock after'**
+  String get lockAfter;
+
+  /// No description provided for @lockAfterHint.
+  ///
+  /// In en, this message translates to:
+  /// **'How long Kharcha can be in the background'**
+  String get lockAfterHint;
+
+  /// No description provided for @lockImmediately.
+  ///
+  /// In en, this message translates to:
+  /// **'Immediately'**
+  String get lockImmediately;
+
+  /// No description provided for @lockSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} seconds'**
+  String lockSeconds(int n);
+
+  /// No description provided for @lockMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n, plural, =1{1 minute} other{{n} minutes}}'**
+  String lockMinutes(int n);
+
+  /// No description provided for @lockIsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock is on'**
+  String get lockIsOn;
+
+  /// No description provided for @pinChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN changed'**
+  String get pinChanged;
+
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Know where your money goes'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense in seconds. Kharcha keeps the totals, budgets and reports.'**
+  String get welcomeBody;
+
+  /// No description provided for @promiseOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Works offline. No sign-up, ever.'**
+  String get promiseOffline;
+
+  /// No description provided for @promiseBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups to your phone or your own Google Drive'**
+  String get promiseBackup;
+
+  /// No description provided for @promisePayday.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets that follow your payday'**
+  String get promisePayday;
+
+  /// No description provided for @promiseFree.
+  ///
+  /// In en, this message translates to:
+  /// **'Free, with no ads, ever'**
+  String get promiseFree;
+
+  /// No description provided for @setupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Make it yours'**
+  String get setupTitle;
+
+  /// No description provided for @setupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change these anytime in More.'**
+  String get setupBody;
+
+  /// No description provided for @homeCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get homeCurrency;
+
+  /// No description provided for @homeCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For totals and new accounts'**
+  String get homeCurrencyHint;
+
+  /// No description provided for @extrasTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A couple of extras'**
+  String get extrasTitle;
+
+  /// No description provided for @extrasBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Both are optional.'**
+  String get extrasBody;
+
+  /// No description provided for @extrasImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming from Hysab Kytab?'**
+  String get extrasImport;
+
+  /// No description provided for @extrasImportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring your history in one go'**
+  String get extrasImportHint;
+
+  /// No description provided for @extrasLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock Kharcha with a PIN'**
+  String get extrasLock;
+
+  /// No description provided for @extrasLockHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or your fingerprint or face'**
+  String get extrasLockHint;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @startUsing.
+  ///
+  /// In en, this message translates to:
+  /// **'Start using Kharcha'**
+  String get startUsing;
+
+  /// No description provided for @categories.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categories;
+
+  /// No description provided for @categoriesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add, rename, reorder or archive'**
+  String get categoriesHint;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add category'**
+  String get addCategory;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get editCategory;
+
+  /// No description provided for @categoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get categoryName;
+
+  /// No description provided for @categoryIcon.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get categoryIcon;
+
+  /// No description provided for @categoryArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Category archived'**
+  String get categoryArchived;
+
+  /// No description provided for @duplicateCategoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have a category called {name}'**
+  String duplicateCategoryName(String name);
+
+  /// No description provided for @noCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'No categories here yet'**
+  String get noCategories;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @aboutHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Version, what\'s new and contact'**
+  String get aboutHint;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String version(String version);
+
+  /// No description provided for @noAds.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads, ever. Your data stays on your phone unless you back it up.'**
+  String get noAds;
+
+  /// No description provided for @whatsNew.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get whatsNew;
+
+  /// No description provided for @contactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact us'**
+  String get contactUs;
+
+  /// No description provided for @contactUsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Email us, with a short technical report attached'**
+  String get contactUsHint;
+
+  /// No description provided for @copyDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy diagnostics'**
+  String get copyDiagnostics;
+
+  /// No description provided for @diagnosticsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics copied. Paste them into your message.'**
+  String get diagnosticsCopied;
+
+  /// No description provided for @supportSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Kharcha support'**
+  String get supportSubject;
+
+  /// No description provided for @hideBalancesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide totals and balances behind dots'**
+  String get hideBalancesHint;
+
+  /// No description provided for @copyDiagnosticsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A short technical report to paste into a message to us'**
+  String get copyDiagnosticsHint;
+
+  /// No description provided for @noAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts yet. Add one to start recording.'**
+  String get noAccounts;
+
+  /// No description provided for @bioFaceId.
+  ///
+  /// In en, this message translates to:
+  /// **'Face ID'**
+  String get bioFaceId;
+
+  /// No description provided for @bioTouchId.
+  ///
+  /// In en, this message translates to:
+  /// **'Touch ID'**
+  String get bioTouchId;
+
+  /// No description provided for @bioFace.
+  ///
+  /// In en, this message translates to:
+  /// **'Face unlock'**
+  String get bioFace;
+
+  /// No description provided for @bioFingerprint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fingerprint'**
+  String get bioFingerprint;
+
+  /// No description provided for @offerBiometricTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {name} to unlock?'**
+  String offerBiometricTitle(String name);
+
+  /// No description provided for @offerBiometricBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Quicker than typing your PIN. Your PIN still works.'**
+  String get offerBiometricBody;
+
+  /// No description provided for @useBiometricNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {name}'**
+  String useBiometricNamed(String name);
+
+  /// No description provided for @notNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notNow;
+
+  /// No description provided for @enableBiometricReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm to turn on {name} for Kharcha'**
+  String enableBiometricReason(String name);
 }
 
 class _AppLocalizationsDelegate
