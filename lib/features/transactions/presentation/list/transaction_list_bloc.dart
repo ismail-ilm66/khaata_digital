@@ -123,8 +123,19 @@ class TransactionListBloc
       add(const _Subscribe());
     });
     on<EntryDeleted>((e, emit) async {
+      // Gone from the list at once: a swiped-away row must leave the tree
+      // on the next frame, before the database stream catches up.
+      emit(
+        state.copyWith(
+          days: DayGroup.group([
+            for (final d in state.days)
+              for (final v in d.entries)
+                if (v.entry.id != e.id) v,
+          ]),
+          lastDeletedId: () => e.id,
+        ),
+      );
       await _repo.delete(e.id);
-      emit(state.copyWith(lastDeletedId: () => e.id));
     });
     on<DeleteUndone>((e, emit) async {
       final id = state.lastDeletedId;

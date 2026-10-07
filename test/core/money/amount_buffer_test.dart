@@ -64,4 +64,28 @@ void main() {
     expect(AmountBuffer.fromMoney(const Money(252000, pkr)).text, '2520');
     expect(AmountBuffer.fromMoney(const Money(252050, pkr)).text, '2520.5');
   });
+
+  group('typed (system keyboard)', () {
+    String? read(String raw, [Currency c = pkr]) =>
+        AmountBuffer.typed(raw, c)?.text;
+
+    test('reads plain, grouped and Urdu digits', () {
+      expect(read('2520.5'), '2520.5');
+      expect(read('12,500'), '12500');
+      expect(read('۱۲۵۰۰٫۵'), '12500.5');
+      expect(read(''), '');
+    });
+
+    test('same rules as the keypad', () {
+      expect(read('0007'), '7');
+      expect(read('.5'), '0.5');
+      expect(read('1.'), '1.');
+      expect(read('1.2.3'), isNull);
+      expect(read('1.234'), isNull);
+      expect(read('12a'), isNull);
+      expect(read('-5'), isNull);
+      expect(read('1' * 13), isNull);
+      expect(read('1.5', const Currency('JPY', '¥', 0)), isNull);
+    });
+  });
 }

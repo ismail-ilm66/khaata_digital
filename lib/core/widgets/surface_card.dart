@@ -169,3 +169,22 @@ class StatTile extends StatelessWidget {
     );
   }
 }
+
+/// [StatTile]s side by side in equal shares, with a gap between them so
+/// large amounts shrink to fit instead of running into each other.
+class StatRow extends StatelessWidget {
+  const StatRow({super.key, required this.children});
+
+  final List<StatTile> children;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      for (final (i, tile) in children.indexed) ...[
+        if (i > 0) const SizedBox(width: AppSpacing.l),
+        Expanded(child: tile),
+      ],
+    ],
+  );
+}

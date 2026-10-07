@@ -30,4 +30,5 @@ enum EntryProblem {
   sameAccount,
   conversionRequired,
   personRequired,
+  categoryRequired,
 }

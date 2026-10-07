@@ -57,6 +57,9 @@ abstract interface class TransactionsRepository {
   /// Category ids by how often live entries use them, most used first.
   Future<List<String>> frequentCategoryIds({int limit = 8});
 
+  /// Account ids by how often live entries use them, most used first.
+  Future<List<String>> frequentAccountIds();
+
   /// Absolute path of a stored receipt image.
   Future<String> receiptPath(Attachment attachment);
 }

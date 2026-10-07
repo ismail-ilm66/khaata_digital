@@ -213,38 +213,32 @@ class _SummaryCard extends StatelessWidget {
                   : () => context.read<HomeCubit>().step(1),
             ),
             const SizedBox(height: AppSpacing.s),
-            Row(
+            StatRow(
               children: [
-                Expanded(
-                  child: StatTile(
-                    label: l.income,
-                    value: AmountText(
-                      income,
-                      signed: true,
-                      colored: true,
-                      masked: masked,
-                      style: context.text.titleMedium,
-                    ),
+                StatTile(
+                  label: l.income,
+                  value: AmountText(
+                    income,
+                    signed: true,
+                    colored: true,
+                    masked: masked,
+                    style: context.text.titleMedium,
                   ),
                 ),
-                Expanded(
-                  child: StatTile(
-                    label: l.spent,
-                    value: AmountText(
-                      spent,
-                      masked: masked,
-                      style: context.text.titleMedium,
-                    ),
+                StatTile(
+                  label: l.spent,
+                  value: AmountText(
+                    spent,
+                    masked: masked,
+                    style: context.text.titleMedium,
                   ),
                 ),
-                Expanded(
-                  child: StatTile(
-                    label: l.left,
-                    value: AmountText(
-                      income - spent,
-                      masked: masked,
-                      style: context.text.titleMedium,
-                    ),
+                StatTile(
+                  label: l.left,
+                  value: AmountText(
+                    income - spent,
+                    masked: masked,
+                    style: context.text.titleMedium,
                   ),
                 ),
               ],

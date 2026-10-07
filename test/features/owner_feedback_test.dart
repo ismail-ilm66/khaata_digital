@@ -14,7 +14,6 @@ import 'package:khaata_digital/features/security/domain/device_auth.dart';
 import 'package:khaata_digital/features/security/presentation/lock_cubit.dart';
 import 'package:khaata_digital/features/settings/domain/setting_key.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
-import 'package:khaata_digital/features/transactions/presentation/form/entry_editor_screen.dart';
 import 'package:khaata_digital/features/transactions/presentation/widgets/entry_tile.dart';
 
 import '../helpers/fake_device_auth.dart';
@@ -127,21 +126,6 @@ void main() {
     await t.tap(find.byKey(const Key('cancelAction')));
     await t.pumpAndSettle();
     expect(find.byType(EntryTile), findsOneWidget);
-  });
-
-  testWidgets('the editor never squashes under a sheet\'s keyboard', (t) async {
-    await start(t);
-    await t.tap(find.bySemanticsLabel('Add'));
-    await t.pumpAndSettle();
-    final scaffold = t.widget<Scaffold>(
-      find
-          .descendant(
-            of: find.byType(EntryEditorScreen),
-            matching: find.byType(Scaffold),
-          )
-          .first,
-    );
-    expect(scaffold.resizeToAvoidBottomInset, isFalse);
   });
 
   testWidgets('Home: accounts sit right below the main card', (t) async {

@@ -78,14 +78,11 @@ final class TypeChanged extends TransactionFormEvent {
   final TransactionType type;
 }
 
-final class KeyPressed extends TransactionFormEvent {
-  const KeyPressed(this.key);
-  final KeypadKey key;
-}
-
-/// Which amount the keypad types into (cross-currency transfers have two).
-final class AmountFocused extends TransactionFormEvent {
-  const AmountFocused(this.target);
+/// Text typed into an amount field (grouping commas allowed). Text that
+/// isn't a valid amount for the currency is ignored.
+final class AmountTyped extends TransactionFormEvent {
+  const AmountTyped(this.text, {this.target = AmountTarget.amount});
+  final String text;
   final AmountTarget target;
 }
 
@@ -154,7 +151,6 @@ class TransactionFormState extends Equatable {
     this.type = TransactionType.expense,
     this.amount = const AmountBuffer(),
     this.toAmount = const AmountBuffer(),
-    this.focus = AmountTarget.amount,
     this.accountId,
     this.toAccountId,
     this.categoryId,
@@ -169,6 +165,8 @@ class TransactionFormState extends Equatable {
     this.accounts = const [],
     this.categories = const [],
     this.frequentCategoryIds = const [],
+    this.frequentAccountIds = const [],
+    this.homeCurrency = Currency.pkr,
     this.isUdhaar = false,
     this.people = const [],
     this.repeat,
@@ -183,7 +181,6 @@ class TransactionFormState extends Equatable {
 
   /// Cross-currency transfers: what the destination receives.
   final AmountBuffer toAmount;
-  final AmountTarget focus;
   final String? accountId;
   final String? toAccountId;
   final String? categoryId;
@@ -211,6 +208,12 @@ class TransactionFormState extends Equatable {
   /// Most-used category ids first (from history), for [quickCategories].
   final List<String> frequentCategoryIds;
 
+  /// Most-used account ids first, for [accountsByUse].
+  final List<String> frequentAccountIds;
+
+  /// Shown on the amount until an account is chosen.
+  final Currency homeCurrency;
+
   /// Udhaar mode: [type] is expense ("I gave") or income ("I received")
   /// and the entry is linked to [personId], with no category.
   final bool isUdhaar;
@@ -235,7 +238,7 @@ class TransactionFormState extends Equatable {
 
   Account? get account => _find(accountId);
   Account? get toAccount => _find(toAccountId);
-  Currency get currency => account?.currency ?? Currency.pkr;
+  Currency get currency => account?.currency ?? homeCurrency;
   Currency get toCurrency => toAccount?.currency ?? currency;
 
   bool get crossCurrency =>
@@ -265,6 +268,26 @@ class TransactionFormState extends Equatable {
     ];
   }
 
+  /// Most-used first; never-used ones keep their usual order after.
+  static List<T> _byUse<T>(
+    List<T> items,
+    String Function(T) id,
+    List<String> ids,
+  ) {
+    final rank = {for (final (i, x) in ids.indexed) x: i};
+    final unused = ids.length;
+    return [
+      ...items,
+    ]..sort((a, b) => (rank[id(a)] ?? unused).compareTo(rank[id(b)] ?? unused));
+  }
+
+  List<Account> get accountsByUse =>
+      _byUse(accounts, (a) => a.id, frequentAccountIds);
+
+  /// The full category list (the "All" grid), most-used first.
+  List<Category> get categoriesByUse =>
+      _byUse(visibleCategories, (c) => c.id, frequentCategoryIds);
+
   /// Fits one row on every phone alongside "All" — no hidden overflow.
   static const int quickCount = 4;
 
@@ -288,8 +311,18 @@ class TransactionFormState extends Equatable {
 
   int get receiptCount => keptAttachments.length + newReceiptPaths.length;
 
-  bool get canSave =>
-      status == FormStatus.ready && money.isPositive && account != null;
+  /// What's missing before saving, checked when Save is tapped (the
+  /// amount instead keeps Save disabled until it's typed).
+  EntryProblem? get missing {
+    if (account == null) return EntryProblem.accountRequired;
+    if (isUdhaar && personId == null) return EntryProblem.personRequired;
+    if (!isTransfer && !isUdhaar && selectedCategory == null) {
+      return EntryProblem.categoryRequired;
+    }
+    return null;
+  }
+
+  bool get canSave => status == FormStatus.ready && money.isPositive;
 
   EntryDraft toDraft() => EntryDraft(
     type: type,
@@ -302,7 +335,7 @@ class TransactionFormState extends Equatable {
     personId: isUdhaar ? personId : null,
     place: place,
     occurredAt: occurredAt.toUtc(),
-    note: note,
+    note: note.trim(),
     tags: tags,
     events: events,
     keptAttachments: keptAttachments,
@@ -315,7 +348,6 @@ class TransactionFormState extends Equatable {
     TransactionType? type,
     AmountBuffer? amount,
     AmountBuffer? toAmount,
-    AmountTarget? focus,
     String? accountId,
     String? Function()? toAccountId,
     String? Function()? categoryId,
@@ -329,6 +361,8 @@ class TransactionFormState extends Equatable {
     List<Account>? accounts,
     List<Category>? categories,
     List<String>? frequentCategoryIds,
+    List<String>? frequentAccountIds,
+    Currency? homeCurrency,
     bool? isUdhaar,
     List<Person>? people,
     RecurrenceFrequency? Function()? repeat,
@@ -340,7 +374,6 @@ class TransactionFormState extends Equatable {
     type: type ?? this.type,
     amount: amount ?? this.amount,
     toAmount: toAmount ?? this.toAmount,
-    focus: focus ?? this.focus,
     accountId: accountId ?? this.accountId,
     toAccountId: toAccountId != null ? toAccountId() : this.toAccountId,
     categoryId: categoryId != null ? categoryId() : this.categoryId,
@@ -355,6 +388,8 @@ class TransactionFormState extends Equatable {
     accounts: accounts ?? this.accounts,
     categories: categories ?? this.categories,
     frequentCategoryIds: frequentCategoryIds ?? this.frequentCategoryIds,
+    frequentAccountIds: frequentAccountIds ?? this.frequentAccountIds,
+    homeCurrency: homeCurrency ?? this.homeCurrency,
     isUdhaar: isUdhaar ?? this.isUdhaar,
     people: people ?? this.people,
     repeat: repeat != null ? repeat() : this.repeat,
@@ -369,7 +404,6 @@ class TransactionFormState extends Equatable {
     type,
     amount,
     toAmount,
-    focus,
     accountId,
     toAccountId,
     categoryId,
@@ -384,6 +418,8 @@ class TransactionFormState extends Equatable {
     accounts,
     categories,
     frequentCategoryIds,
+    frequentAccountIds,
+    homeCurrency,
     isUdhaar,
     people,
     repeat,
@@ -409,8 +445,7 @@ class TransactionFormBloc
   ) : super(TransactionFormState(occurredAt: DateTime.now())) {
     on<FormStarted>(_onStarted);
     on<TypeChanged>(_onType);
-    on<KeyPressed>(_onKey);
-    on<AmountFocused>((e, emit) => emit(state.copyWith(focus: e.target)));
+    on<AmountTyped>(_onAmount);
     on<AccountChanged>(_onAccount);
     on<ToAccountChanged>(
       (e, emit) => emit(
@@ -422,6 +457,7 @@ class TransactionFormBloc
         state.copyWith(
           categoryId: () =>
               state.categoryId == e.categoryId ? null : e.categoryId,
+          problem: () => null,
         ),
       ),
     );
@@ -487,7 +523,9 @@ class TransactionFormBloc
         s.account,
     ];
     final categories = await _categories.all();
-    final frequent = await _transactions.frequentCategoryIds(limit: 12);
+    final frequent = await _transactions.frequentCategoryIds(limit: 200);
+    final frequentAccounts = await _transactions.frequentAccountIds();
+    final home = Currency.of(await _settings.read(SettingKey.currencyCode));
     final people = [
       for (final p in (await _people.watchOverview().first).people) p.person,
     ];
@@ -527,6 +565,8 @@ class TransactionFormBloc
           accounts: accounts,
           categories: categories,
           frequentCategoryIds: frequent,
+          frequentAccountIds: frequentAccounts,
+          homeCurrency: home,
           isUdhaar: entry.personId != null,
           people: people,
         ),
@@ -534,16 +574,15 @@ class TransactionFormBloc
       return;
     }
 
-    final last = await _settings.read(SettingKey.lastAccountId);
-    final account =
-        accounts.where((a) => a.id == last).firstOrNull ?? accounts.firstOrNull;
+    // Nothing is pre-chosen: the account is picked each time, on purpose.
     final base = TransactionFormState(
       status: FormStatus.ready,
-      accountId: account?.id,
       occurredAt: DateTime.now(),
       accounts: accounts,
       categories: categories,
       frequentCategoryIds: frequent,
+      frequentAccountIds: frequentAccounts,
+      homeCurrency: home,
       people: people,
     );
     if (e.udhaar != null || e.personId != null) {
@@ -572,19 +611,14 @@ class TransactionFormBloc
       categoryId: () => null,
       toAccountId: () => null,
       toAmount: const AmountBuffer(),
-      focus: AmountTarget.amount,
       problem: () => null,
     ),
   );
 
   /// Switching type drops a category of the wrong kind and, for transfers,
-  /// picks a destination different from the source.
+  /// a destination that is the same as the source.
   TransactionFormState _withType(TransactionFormState s, TransactionType type) {
-    var next = s.copyWith(
-      type: type,
-      focus: AmountTarget.amount,
-      problem: () => null,
-    );
+    var next = s.copyWith(type: type, problem: () => null);
     final selected = next.categories
         .where((c) => c.id == next.categoryId)
         .firstOrNull;
@@ -592,27 +626,23 @@ class TransactionFormBloc
       next = next.copyWith(categoryId: () => null);
     }
     if (type == TransactionType.transfer &&
-        (next.toAccountId == null || next.toAccountId == next.accountId)) {
-      final other = next.accounts
-          .where((a) => a.id != next.accountId)
-          .firstOrNull;
-      next = next.copyWith(toAccountId: () => other?.id);
+        next.toAccountId != null &&
+        next.toAccountId == next.accountId) {
+      next = next.copyWith(toAccountId: () => null);
     }
     return next;
   }
 
-  void _onKey(KeyPressed e, Emitter<TransactionFormState> emit) {
-    if (state.focus == AmountTarget.toAmount && state.crossCurrency) {
-      emit(
-        state.copyWith(toAmount: state.toAmount.apply(e.key, state.toCurrency)),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          amount: state.amount.apply(e.key, state.currency),
-          problem: () => null,
-        ),
-      );
+  void _onAmount(AmountTyped e, Emitter<TransactionFormState> emit) {
+    if (e.target == AmountTarget.toAmount) {
+      if (!state.crossCurrency) return;
+      final typed = AmountBuffer.typed(e.text, state.toCurrency);
+      if (typed != null) emit(state.copyWith(toAmount: typed));
+      return;
+    }
+    final typed = AmountBuffer.typed(e.text, state.currency);
+    if (typed != null) {
+      emit(state.copyWith(amount: typed, problem: () => null));
     }
   }
 
@@ -627,7 +657,10 @@ class TransactionFormBloc
       state.copyWith(
         accountId: e.accountId,
         amount: retyped == null ? const AmountBuffer() : state.amount,
-        toAccountId: state.toAccountId == e.accountId ? () => null : null,
+        // Picking the destination as the source swaps the two.
+        toAccountId: state.toAccountId == e.accountId
+            ? () => state.accountId
+            : null,
         problem: () => null,
       ),
     );
@@ -644,7 +677,6 @@ class TransactionFormBloc
         toAccountId: () => state.accountId,
         amount: keep ? null : const AmountBuffer(),
         toAmount: const AmountBuffer(),
-        focus: AmountTarget.amount,
         problem: () => null,
       ),
     );
@@ -670,8 +702,8 @@ class TransactionFormBloc
     Emitter<TransactionFormState> emit,
   ) async {
     if (state.status == FormStatus.saving) return;
-    if (state.isUdhaar && state.personId == null) {
-      emit(state.copyWith(problem: () => EntryProblem.personRequired));
+    if (state.missing case final problem?) {
+      emit(state.copyWith(problem: () => problem));
       return;
     }
     emit(state.copyWith(status: FormStatus.saving, problem: () => null));
@@ -685,9 +717,6 @@ class TransactionFormBloc
         } catch (_) {
           // Reminders are best-effort; the entry and rule are saved.
         }
-      }
-      if (state.accountId case final id?) {
-        await _settings.write(SettingKey.lastAccountId, id);
       }
       emit(state.copyWith(status: FormStatus.saved));
     } on ValidationFailure catch (f) {

@@ -384,6 +384,22 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
     return [for (final r in rows) r.read<String>('category_id')];
   }
 
+  /// Account ids ordered by use count across live entries (a transfer
+  /// counts for both its accounts).
+  Future<List<String>> frequentAccountIds() async {
+    final rows = await customSelect(
+      'SELECT id FROM ('
+      ' SELECT account_id AS id, occurred_at FROM transactions'
+      ' WHERE deleted_at IS NULL'
+      ' UNION ALL'
+      ' SELECT to_account_id, occurred_at FROM transactions'
+      ' WHERE deleted_at IS NULL AND to_account_id IS NOT NULL'
+      ') GROUP BY id ORDER BY COUNT(*) DESC, MAX(occurred_at) DESC',
+      readsFrom: {transactions},
+    ).get();
+    return [for (final r in rows) r.read<String>('id')];
+  }
+
   static const _escape = r'\';
 
   /// `%needle%` with LIKE wildcards in [needle] matched literally.

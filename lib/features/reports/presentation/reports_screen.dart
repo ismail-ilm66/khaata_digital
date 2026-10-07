@@ -211,36 +211,30 @@ class _ReportsViewState extends State<_ReportsView> {
               children: [
                 SurfaceCard(
                   children: [
-                    Row(
+                    StatRow(
                       children: [
-                        Expanded(
-                          child: StatTile(
-                            label: l.income,
-                            value: AmountText(
-                              data.income,
-                              signed: true,
-                              colored: true,
-                              style: context.text.titleMedium,
-                            ),
+                        StatTile(
+                          label: l.income,
+                          value: AmountText(
+                            data.income,
+                            signed: true,
+                            colored: true,
+                            style: context.text.titleMedium,
                           ),
                         ),
-                        Expanded(
-                          child: StatTile(
-                            label: l.spent,
-                            value: AmountText(
-                              data.expense,
-                              style: context.text.titleMedium,
-                            ),
+                        StatTile(
+                          label: l.spent,
+                          value: AmountText(
+                            data.expense,
+                            style: context.text.titleMedium,
                           ),
                         ),
-                        Expanded(
-                          child: StatTile(
-                            label: l.net,
-                            value: AmountText(
-                              data.net,
-                              key: const Key('reportNet'),
-                              style: context.text.titleMedium,
-                            ),
+                        StatTile(
+                          label: l.net,
+                          value: AmountText(
+                            data.net,
+                            key: const Key('reportNet'),
+                            style: context.text.titleMedium,
                           ),
                         ),
                       ],

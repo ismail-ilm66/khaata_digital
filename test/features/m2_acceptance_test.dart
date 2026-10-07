@@ -48,7 +48,9 @@ void main() {
   Future<List<EntryView>> entries() async =>
       (await repo().watch(const EntryQuery()).first).items;
 
-  testWidgets('the 3-second path takes 4 taps: + → 5 → category → Save', (
+  // Owner decision #117: nothing is pre-chosen, so the account is one more
+  // tap than the spec's 4.
+  testWidgets('the quick path: + → type 5 → account → category → Save', (
     t,
   ) async {
     await pumpApp(t);
@@ -60,11 +62,14 @@ void main() {
     }
 
     await tap(find.bySemanticsLabel('Add'));
-    await tap(find.byKey(const Key('key-d5')));
+    taps++; // typing the amount on the number pad
+    await t.enterText(find.byKey(const Key('amountField')), '5');
+    await t.pumpAndSettle();
+    await tap(find.byKey(const Key('account-Cash')));
     await tap(find.byKey(const Key('category-Food & Drink')));
     await tap(find.byKey(const Key('saveEntry')));
 
-    expect(taps, lessThanOrEqualTo(4));
+    expect(taps, lessThanOrEqualTo(5));
     final saved = (await t.runAsync(entries))!.single;
     expect(saved.entry.amount, Money.major(5, Currency.pkr));
     expect(saved.category!.name, 'Food & Drink');
@@ -111,7 +116,10 @@ void main() {
     expect(dateChip.data, contains('2025'), reason: 'not reset to today');
     expect(find.text('2,520'), findsOneWidget);
 
-    await t.tap(find.byKey(const Key('key-d0')));
+    await t.enterText(find.byKey(const Key('amountField')), '25200');
+    await t.pumpAndSettle();
+    // An expense can't be saved without a category (#118).
+    await t.tap(find.byKey(const Key('category-Food & Drink')));
     await t.pumpAndSettle();
     await t.tap(find.byKey(const Key('saveEntry')));
     await t.pumpAndSettle();
@@ -164,9 +172,11 @@ void main() {
     await t.pumpAndSettle();
     await t.tap(find.text('Transfer'));
     await t.pumpAndSettle();
-    await t.tap(find.byKey(const Key('key-d3')));
-    await t.tap(find.byKey(const Key('key-d0')));
-    await t.tap(find.byKey(const Key('key-d0')));
+    await t.enterText(find.byKey(const Key('amountField')), '300');
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const Key('account-Cash')).first);
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const Key('account-Meezan Bank')).last);
     await t.pumpAndSettle();
     await t.tap(find.byKey(const Key('saveEntry')));
     await t.pumpAndSettle();

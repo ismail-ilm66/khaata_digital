@@ -520,6 +520,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get problemPerson => 'Choose a person';
 
   @override
+  String get problemCategory => 'Choose a category';
+
+  @override
   String get repeat => 'Repeat';
 
   @override

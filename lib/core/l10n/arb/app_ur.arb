@@ -157,6 +157,7 @@
   "noLedger": "ابھی کوئی اندراج نہیں",
   "noLedgerBody": "دی یا لی گئی رقم درج کریں۔",
   "problemPerson": "شخص منتخب کریں",
+  "problemCategory": "زمرہ منتخب کریں",
   "repeat": "دہرائیں",
   "repeatNever": "کبھی نہیں",
   "repeatDaily": "روزانہ",

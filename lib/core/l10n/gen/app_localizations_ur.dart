@@ -519,6 +519,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get problemPerson => 'شخص منتخب کریں';
 
   @override
+  String get problemCategory => 'زمرہ منتخب کریں';
+
+  @override
   String get repeat => 'دہرائیں';
 
   @override

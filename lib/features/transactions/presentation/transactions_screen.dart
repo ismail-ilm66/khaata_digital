@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -48,11 +50,15 @@ class _TransactionsView extends StatelessWidget {
           icon: Icon(AppIcons.search, color: context.colors.ink),
         ),
         slivers: [
-          SliverToBoxAdapter(
-            child: FilterBar(
-              query: state.query,
-              onChanged: (q) =>
-                  context.read<TransactionListBloc>().add(FiltersChanged(q)),
+          // Stays put while the list scrolls under it, like the cycle
+          // header below.
+          PinnedHeaderSliver(
+            child: _FrostedBar(
+              child: FilterBar(
+                query: state.query,
+                onChanged: (q) =>
+                    context.read<TransactionListBloc>().add(FiltersChanged(q)),
+              ),
             ),
           ),
           if (state.isEmpty)
@@ -87,4 +93,26 @@ class _TransactionsView extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A full-width strip of frosted page colour, so rows scrolling beneath a
+/// pinned header blur out instead of showing through.
+class _FrostedBar extends StatelessWidget {
+  const _FrostedBar({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => ClipRect(
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+      child: ColoredBox(
+        color: context.colors.paper.withValues(alpha: 0.72),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
+          child: child,
+        ),
+      ),
+    ),
+  );
 }

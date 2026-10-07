@@ -91,7 +91,11 @@ void main() {
     bloc.add(const ListStarted());
     final id = (await settle()).days.single.entries.single.entry.id;
 
+    // The very first state after a swipe already lacks the row (a
+    // dismissed Dismissible must leave the tree on the next frame).
+    final next = bloc.stream.first;
     bloc.add(EntryDeleted(id));
+    expect((await next).days, isEmpty);
     var s = await settle();
     expect(s.isEmpty, isTrue);
     expect(s.lastDeletedId, id);

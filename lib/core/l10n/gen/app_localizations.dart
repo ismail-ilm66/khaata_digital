@@ -1040,6 +1040,12 @@ abstract class AppLocalizations {
   /// **'Choose a person'**
   String get problemPerson;
 
+  /// No description provided for @problemCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get problemCategory;
+
   /// No description provided for @repeat.
   ///
   /// In en, this message translates to:

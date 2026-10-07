@@ -109,9 +109,8 @@ void main() {
       final calls = recordHaptics(t);
       await t.tap(find.bySemanticsLabel('Add'));
       await t.pumpAndSettle();
-      for (final d in [5, 0, 0]) {
-        await t.tap(find.byKey(Key('key-d$d')));
-      }
+      await t.enterText(find.byKey(const Key('amountField')), '500');
+      await t.tap(find.byKey(const Key('account-Cash')));
       await t.tap(find.byKey(const Key('category-Food & Drink')));
       await t.pumpAndSettle();
       calls.clear();

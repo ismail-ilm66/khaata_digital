@@ -231,6 +231,9 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
       _dao.frequentCategoryIds(limit);
 
   @override
+  Future<List<String>> frequentAccountIds() => _dao.frequentAccountIds();
+
+  @override
   Future<String> receiptPath(Attachment attachment) =>
       _receipts.pathOf(attachment.fileName);
 }

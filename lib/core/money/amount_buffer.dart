@@ -46,6 +46,37 @@ class AmountBuffer {
     );
   }
 
+  /// Reads what was typed on the system keyboard: grouping commas are
+  /// ignored and Urdu / Arabic-Indic digits accepted. Null when it breaks
+  /// the same rules as the keypad (second point, too many decimals, too
+  /// long, anything else); leading zeros are dropped ("05" → "5").
+  static AmountBuffer? typed(String raw, Currency currency) {
+    final ascii = StringBuffer();
+    for (final rune in raw.runes) {
+      final ch = String.fromCharCode(rune);
+      if (ch == ',' || ch == '٬' || ch == ' ') continue;
+      if (ch == '٫') {
+        ascii.write('.');
+      } else if (rune >= 0x06F0 && rune <= 0x06F9) {
+        ascii.write(rune - 0x06F0); // Extended Arabic-Indic (Urdu)
+      } else if (rune >= 0x0660 && rune <= 0x0669) {
+        ascii.write(rune - 0x0660); // Arabic-Indic
+      } else {
+        ascii.write(ch);
+      }
+    }
+    final text = ascii.toString();
+    final match = RegExp(r'^(\d*)(\.(\d*))?$').firstMatch(text);
+    if (match == null) return null;
+    final hasPoint = match.group(2) != null;
+    if (hasPoint && currency.decimals == 0) return null;
+    if ((match.group(3) ?? '').length > currency.decimals) return null;
+    var whole = match.group(1)!.replaceFirst(RegExp(r'^0+(?=\d)'), '');
+    if (whole.length > maxIntegerDigits) return null;
+    if (hasPoint && whole.isEmpty) whole = '0';
+    return AmountBuffer(hasPoint ? '$whole.${match.group(3)}' : whole);
+  }
+
   final String text;
 
   static const int maxIntegerDigits = 12;

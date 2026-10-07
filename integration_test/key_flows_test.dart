@@ -52,26 +52,26 @@ void main() {
       await settle(t);
     }
 
-    // Add: + → 5 → 0 → 0 → Food & Drink → Save.
+    // Add: + → type 500 → Food & Drink → Save.
     await t.tap(find.bySemanticsLabel('Add'));
     await settle(t);
-    for (final d in [5, 0, 0]) {
-      await t.tap(find.byKey(Key('key-d$d')));
-      await t.pump();
-    }
+    await t.enterText(find.byKey(const Key('amountField')), '500');
+    await t.pump();
+    await t.tap(find.byKey(const Key('account-Cash')));
+    await t.pump();
     await t.tap(find.byKey(const Key('category-Food & Drink')));
     await settle(t);
     await t.tap(find.byKey(const Key('saveEntry')));
     await settle(t, 60);
 
-    // Edit it from Transactions → detail → Edit → 0 → Save.
+    // Edit it from Transactions → detail → Edit → 5000 → Save.
     await tab(t, 'Transactions');
     expect(find.byType(EntryTile), findsOneWidget);
     await t.tap(find.byType(EntryTile));
     await settle(t);
     await t.tap(find.byKey(const Key('editEntry')));
     await settle(t);
-    await t.tap(find.byKey(const Key('key-d0')));
+    await t.enterText(find.byKey(const Key('amountField')), '5000');
     await t.pump();
     await t.tap(find.byKey(const Key('saveEntry')));
     await settle(t, 60);

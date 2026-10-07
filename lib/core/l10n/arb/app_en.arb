@@ -191,6 +191,7 @@
   "noLedger": "No entries yet",
   "noLedgerBody": "Record money you gave or received.",
   "problemPerson": "Choose a person",
+  "problemCategory": "Choose a category",
   "repeat": "Repeat",
   "repeatNever": "Never",
   "repeatDaily": "Daily",

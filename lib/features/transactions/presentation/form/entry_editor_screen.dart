@@ -10,19 +10,18 @@ import '../../../../core/error/app_failure.dart';
 import '../../../../core/l10n/date_labels.dart';
 import '../../../../core/money/fixed_point.dart';
 import '../../../../core/money/money.dart';
-import '../../../../core/money/money_format.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/app_tokens.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/context_x.dart';
 import '../../../../core/widgets/ambient_background.dart';
 import '../../../../core/widgets/app_icons.dart';
 import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/feedback.dart';
-import '../../../../core/widgets/keypad.dart';
+import '../../../../core/widgets/hero_amount_field.dart';
 import '../../../../core/widgets/pill_button.dart';
 import '../../../../core/widgets/segmented_picker.dart';
 import '../../../../core/widgets/tinted_badge.dart';
+import '../../../accounts/domain/account.dart';
 import '../../../accounts/presentation/account_badge.dart';
 import '../../../categories/presentation/category_grid.dart';
 import '../../../people/domain/person.dart';
@@ -68,9 +67,10 @@ class EntryEditorArgs {
 
 /// Add / edit a transaction on its own screen (spec 3.2 #3).
 ///
-/// One job per area, top to bottom: what kind → how much (with account
-/// and date) → for what → optional extras → keypad and Save. The fastest
-/// path stays 4 taps: + → amount → category → Save.
+/// One job per area, top to bottom: what kind → how much → from which
+/// account → for what → note → extras, with Save always above the
+/// keyboard. Amounts and the note use the phone's own keyboard. The
+/// fastest path stays: + → type amount → category → Save.
 class EntryEditorScreen extends StatelessWidget {
   const EntryEditorScreen({super.key, this.editId, this.args});
 
@@ -115,19 +115,21 @@ class _EditorState extends State<_Editor> {
   @override
   Widget build(BuildContext context) {
     final dark = Theme.of(context).brightness == Brightness.dark;
+    // Read above the Scaffold, which hides the keyboard from its body.
+    final typing = MediaQuery.viewInsetsOf(context).bottom > 0;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        // The editor has no text fields of its own (amounts use the
-        // in-app keypad); sheets over it lift themselves above the
-        // keyboard, so it must not squash itself behind them.
-        resizeToAvoidBottomInset: false,
         body: AmbientBackground(
           child: SafeArea(
             child: BlocConsumer<TransactionFormBloc, TransactionFormState>(
-              listenWhen: (a, b) => a.status != b.status,
+              listenWhen: (a, b) =>
+                  a.status != b.status ||
+                  (b.problem != null && a.problem != b.problem),
               listener: (context, s) {
-                if (s.status == FormStatus.saved) {
+                if (s.problem != null && s.status == FormStatus.ready) {
+                  Haptics.warning();
+                } else if (s.status == FormStatus.saved) {
                   unawaited(Haptics.success());
                   final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(context);
@@ -141,41 +143,45 @@ class _EditorState extends State<_Editor> {
                 if (s.status == FormStatus.loading) {
                   return const Center(child: CircularProgressIndicator());
                 }
-                return LayoutBuilder(
-                  builder: (context, box) {
-                    final compact = box.maxHeight < 660;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _Header(state: s),
-                        Expanded(child: _AmountHero(state: s)),
-                        if (s.isUdhaar)
-                          _UdhaarSection(state: s)
-                        else if (s.isTransfer)
-                          _TransferAccounts(state: s)
-                        else
-                          _QuickCategories(state: s),
-                        const SizedBox(height: AppSpacing.m),
-                        _Extras(state: s),
-                        SizedBox(
-                          height: compact ? AppSpacing.xs : AppSpacing.m,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _Header(state: s),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        padding: const EdgeInsets.only(bottom: AppSpacing.l),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            _AmountHero(state: s, typing: typing),
+                            if (s.isTransfer)
+                              _TransferAccounts(state: s)
+                            else
+                              _AccountStrip(
+                                key: const Key('accountStrip'),
+                                accounts: s.accountsByUse,
+                                selectedId: s.accountId,
+                                onSelected: (id) => context
+                                    .read<TransactionFormBloc>()
+                                    .add(AccountChanged(id)),
+                              ),
+                            const SizedBox(height: AppSpacing.l),
+                            if (s.isUdhaar)
+                              _UdhaarSection(state: s)
+                            else if (!s.isTransfer)
+                              _QuickCategories(state: s),
+                            const SizedBox(height: AppSpacing.l),
+                            _NoteField(state: s),
+                            const SizedBox(height: AppSpacing.m),
+                            _Extras(state: s),
+                          ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.s,
-                          ),
-                          child: Keypad(
-                            keyHeight: compact ? 46 : 56,
-                            allowDecimal: s.currency.decimals > 0,
-                            onKey: (k) => context
-                                .read<TransactionFormBloc>()
-                                .add(KeyPressed(k)),
-                          ),
-                        ),
-                        _SaveButton(state: s),
-                      ],
-                    );
-                  },
+                      ),
+                    ),
+                    _SaveButton(state: s),
+                  ],
                 );
               },
             ),
@@ -250,180 +256,67 @@ class _Header extends StatelessWidget {
   }
 }
 
-/// The amount, front and centre, with where and when beneath it.
+/// The amount, front and centre, typed with the phone's number pad. A new
+/// entry opens with the pad up; editing waits for a tap.
 class _AmountHero extends StatelessWidget {
-  const _AmountHero({required this.state});
+  const _AmountHero({required this.state, required this.typing});
 
   final TransactionFormState state;
 
-  @override
-  Widget build(BuildContext context) {
-    // Centred when there's room; scrolls on a short phone with large text
-    // rather than overflowing.
-    return LayoutBuilder(
-      builder: (context, box) => SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: box.maxHeight),
-          child: _heroColumn(context),
-        ),
-      ),
-    );
-  }
-
-  Widget _heroColumn(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _AmountDisplay(state: state),
-        if (state.crossCurrency) _ReceivesRow(state: state),
-        _ProblemText(state.problem),
-        const SizedBox(height: AppSpacing.l),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: AppSpacing.s,
-          runSpacing: AppSpacing.s,
-          children: [
-            if (!state.isTransfer)
-              PillButton(
-                key: const Key('accountChip'),
-                label: state.account?.name ?? context.l10n.chooseAccount,
-                leading: state.account == null
-                    ? null
-                    : AccountBadge.of(state.account!, size: 20),
-                showChevron: true,
-                onTap: () async {
-                  final bloc = context.read<TransactionFormBloc>();
-                  final id = await _chooseAccount(
-                    context,
-                    state,
-                    state.accountId,
-                  );
-                  if (id != null) bloc.add(AccountChanged(id));
-                },
-              ),
-            PillButton(
-              key: const Key('dateChip'),
-              icon: AppIcons.calendar,
-              label: context.dateTimeLabel(state.occurredAt),
-              showChevron: true,
-              onTap: () => _chooseDate(context, state),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _AmountDisplay extends StatelessWidget {
-  const _AmountDisplay({required this.state});
-
-  final TransactionFormState state;
+  /// The keyboard is up: tighter, so accounts and categories still show.
+  final bool typing;
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
-    final focused = state.focus == AmountTarget.amount || !state.crossCurrency;
-    final empty = state.amount.isEmpty;
-    return GestureDetector(
-      onTap: () => context.read<TransactionFormBloc>().add(
-        const AmountFocused(AmountTarget.amount),
+    final bloc = context.read<TransactionFormBloc>();
+    return AnimatedPadding(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.l,
+        typing ? AppSpacing.s : AppSpacing.xl,
+        AppSpacing.l,
+        typing ? AppSpacing.l : AppSpacing.xl,
       ),
-      child: AnimatedOpacity(
-        opacity: focused ? 1 : 0.4,
-        duration: const Duration(milliseconds: 150),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          textDirection: TextDirection.ltr,
-          children: [
-            Text(
-              '${state.currency.symbol} ',
-              style: context.text.headlineMedium!.copyWith(color: c.inkMuted),
-            ),
-            Flexible(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  empty ? '0' : _grouped(state.amount.text),
-                  key: const Key('amountDisplay'),
-                  style: context.text.displayLarge!.copyWith(
-                    fontSize: 56,
-                    fontFeatures: AppTypography.tabular,
-                    color: empty ? c.inkMuted.withValues(alpha: 0.35) : c.ink,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Groups the integer part of a typed amount while keeping what's typed
-/// after the point exactly as entered ("12500." → "12,500.").
-String _grouped(String typed) {
-  final dot = typed.indexOf('.');
-  return dot < 0
-      ? MoneyFormat.groupDigits(typed)
-      : '${MoneyFormat.groupDigits(typed.substring(0, dot))}${typed.substring(dot)}';
-}
-
-class _ReceivesRow extends StatelessWidget {
-  const _ReceivesRow({required this.state});
-
-  final TransactionFormState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final focused = state.focus == AmountTarget.toAmount;
-    final rate = state.rateMicros;
-    return Padding(
-      padding: const EdgeInsets.only(top: AppSpacing.s),
       child: Column(
         children: [
-          GestureDetector(
-            onTap: () => context.read<TransactionFormBloc>().add(
-              const AmountFocused(AmountTarget.toAmount),
-            ),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.l,
-                vertical: AppSpacing.s,
-              ),
-              decoration: BoxDecoration(
-                color: focused
-                    ? c.brand.withValues(alpha: 0.10)
-                    : c.surfaceMuted,
-                borderRadius: BorderRadius.circular(AppRadii.l),
-                border: Border.all(
-                  color: focused ? c.brand : Colors.transparent,
-                ),
-              ),
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: '${context.l10n.receives}  ',
-                      style: context.text.bodySmall,
-                    ),
-                    TextSpan(
-                      text:
-                          '${state.toCurrency.symbol} ${state.toAmount.isEmpty ? '0' : _grouped(state.toAmount.text)}',
-                      style: context.text.titleMedium!.copyWith(
-                        fontFeatures: AppTypography.tabular,
-                      ),
-                    ),
-                  ],
-                ),
-                textDirection: TextDirection.ltr,
-              ),
+          HeroAmountField(
+            fieldKey: const Key('amountField'),
+            value: state.amount.text,
+            currency: state.currency,
+            fontSize: typing ? 46 : 56,
+            autofocus: !state.isEditing && state.amount.isEmpty,
+            onChanged: (text) => bloc.add(AmountTyped(text)),
+          ),
+          if (state.crossCurrency) _ReceivesField(state: state),
+          _ProblemText(state.problem),
+        ],
+      ),
+    );
+  }
+}
+
+/// Cross-currency transfers: what the other account receives.
+class _ReceivesField extends StatelessWidget {
+  const _ReceivesField({required this.state});
+
+  final TransactionFormState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final rate = state.rateMicros;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.m),
+      child: Column(
+        children: [
+          Text(context.l10n.receives, style: context.text.bodySmall),
+          HeroAmountField(
+            fieldKey: const Key('toAmountField'),
+            value: state.toAmount.text,
+            currency: state.toCurrency,
+            fontSize: 30,
+            onChanged: (text) => context.read<TransactionFormBloc>().add(
+              AmountTyped(text, target: AmountTarget.toAmount),
             ),
           ),
           if (rate != null)
@@ -463,6 +356,7 @@ class _ProblemText extends StatelessWidget {
       EntryProblem.sameAccount => l.problemSameAccount,
       EntryProblem.conversionRequired => l.problemConversion,
       EntryProblem.personRequired => l.problemPerson,
+      EntryProblem.categoryRequired => l.problemCategory,
     };
     if (text == null) return const SizedBox.shrink();
     return Padding(
@@ -507,7 +401,7 @@ class _QuickCategories extends StatelessWidget {
               onTap: () async {
                 final picked = await pickCategory(
                   context,
-                  categories: state.visibleCategories,
+                  categories: state.categoriesByUse,
                   selectedId: state.categoryId,
                 );
                 if (picked != null && picked.id != state.categoryId) {
@@ -541,6 +435,108 @@ class _QuickCategories extends StatelessWidget {
   }
 }
 
+/// Every account as a one-tap chip in a sideways-scrolling row, the chosen
+/// one scrolled into view. An optional [label] / [trailing] sit above.
+class _AccountStrip extends StatefulWidget {
+  const _AccountStrip({
+    super.key,
+    required this.accounts,
+    required this.selectedId,
+    required this.onSelected,
+    this.label,
+    this.trailing,
+  });
+
+  final List<Account> accounts;
+  final String? selectedId;
+  final ValueChanged<String> onSelected;
+  final String? label;
+  final Widget? trailing;
+
+  @override
+  State<_AccountStrip> createState() => _AccountStripState();
+}
+
+class _AccountStripState extends State<_AccountStrip> {
+  final _selected = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _reveal());
+  }
+
+  @override
+  void didUpdateWidget(_AccountStrip old) {
+    super.didUpdateWidget(old);
+    if (old.selectedId != widget.selectedId) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _reveal());
+    }
+  }
+
+  void _reveal() {
+    final chip = _selected.currentContext;
+    if (chip == null || !mounted) return;
+    Scrollable.ensureVisible(
+      chip,
+      alignment: 0.5,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (widget.label != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.page,
+              0,
+              AppSpacing.s,
+              AppSpacing.xs,
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(widget.label!, style: context.text.labelMedium),
+                ),
+                ?widget.trailing,
+              ],
+            ),
+          ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+          child: Row(
+            children: [
+              for (final a in widget.accounts)
+                Padding(
+                  key: a.id == widget.selectedId ? _selected : null,
+                  padding: const EdgeInsetsDirectional.only(end: AppSpacing.s),
+                  child: PillButton(
+                    key: Key('account-${a.name}'),
+                    label: a.name,
+                    leading: AccountBadge.of(a, size: 20),
+                    selected: a.id == widget.selectedId,
+                    onTap: () {
+                      if (a.id == widget.selectedId) return;
+                      Haptics.selection();
+                      widget.onSelected(a.id);
+                    },
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Transfers: a From row and a To row of account chips, with swap.
 class _TransferAccounts extends StatelessWidget {
   const _TransferAccounts({required this.state});
 
@@ -550,54 +546,93 @@ class _TransferAccounts extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<TransactionFormBloc>();
     final l = context.l10n;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
-      child: Row(
-        children: [
-          Expanded(
-            child: _PickCard(
-              key: const Key('fromAccount'),
-              label: l.fromAccount,
-              title: state.account?.name ?? l.chooseAccount,
-              leading: state.account == null
-                  ? null
-                  : AccountBadge.of(state.account!, size: 26),
-              onTap: () async {
-                final id = await _chooseAccount(
-                  context,
-                  state,
-                  state.accountId,
-                );
-                if (id != null) bloc.add(AccountChanged(id));
-              },
-            ),
-          ),
-          IconButton(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _AccountStrip(
+          key: const Key('fromAccount'),
+          label: l.fromAccount,
+          accounts: state.accountsByUse,
+          selectedId: state.accountId,
+          onSelected: (id) => bloc.add(AccountChanged(id)),
+        ),
+        const SizedBox(height: AppSpacing.m),
+        _AccountStrip(
+          key: const Key('toAccount'),
+          label: l.toAccount,
+          accounts: [
+            for (final a in state.accountsByUse)
+              if (a.id != state.accountId) a,
+          ],
+          selectedId: state.toAccountId,
+          onSelected: (id) => bloc.add(ToAccountChanged(id)),
+          trailing: TextButton.icon(
             key: const Key('swapAccounts'),
-            tooltip: l.swapAccounts,
-            onPressed: () => bloc.add(const AccountsSwapped()),
-            icon: Icon(AppIcons.transfer, color: context.colors.brand),
-          ),
-          Expanded(
-            child: _PickCard(
-              key: const Key('toAccount'),
-              label: l.toAccount,
-              title: state.toAccount?.name ?? l.chooseAccount,
-              leading: state.toAccount == null
-                  ? null
-                  : AccountBadge.of(state.toAccount!, size: 26),
-              onTap: () async {
-                final id = await _chooseAccount(
-                  context,
-                  state,
-                  state.toAccountId,
-                  excluding: state.accountId,
-                );
-                if (id != null) bloc.add(ToAccountChanged(id));
-              },
+            style: TextButton.styleFrom(
+              visualDensity: VisualDensity.compact,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
+            onPressed: () {
+              Haptics.selection();
+              bloc.add(const AccountsSwapped());
+            },
+            icon: const Icon(AppIcons.transfer, size: 16),
+            label: Text(l.swapAccounts),
           ),
-        ],
+        ),
+      ],
+    );
+  }
+}
+
+/// The note, typed right here (no sheet).
+class _NoteField extends StatefulWidget {
+  const _NoteField({required this.state});
+
+  final TransactionFormState state;
+
+  @override
+  State<_NoteField> createState() => _NoteFieldState();
+}
+
+class _NoteFieldState extends State<_NoteField> {
+  late final _controller = TextEditingController(text: widget.state.note);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+      child: TextField(
+        key: const Key('noteField'),
+        controller: _controller,
+        minLines: 1,
+        maxLines: 4,
+        maxLength: 500,
+        textCapitalization: TextCapitalization.sentences,
+        style: context.text.bodyLarge,
+        decoration: InputDecoration(
+          hintText: context.l10n.notePlaceholder,
+          counterText: '',
+          prefixIcon: Icon(AppIcons.note, size: 18, color: c.inkMuted),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppRadii.l),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(AppRadii.l),
+            borderSide: BorderSide(color: c.brand.withValues(alpha: 0.5)),
+          ),
+        ),
+        onChanged: (v) =>
+            context.read<TransactionFormBloc>().add(NoteChanged(v)),
+        onTapOutside: (_) => FocusScope.of(context).unfocus(),
       ),
     );
   }
@@ -663,7 +698,7 @@ class _PickCard extends StatelessWidget {
   }
 }
 
-/// Note, tags and receipt: quiet until used, each in its own small sheet.
+/// When, tags, receipt and repeat: quiet until used.
 class _Extras extends StatelessWidget {
   const _Extras({required this.state});
 
@@ -676,31 +711,17 @@ class _Extras extends StatelessWidget {
     final receipts = state.receiptCount;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
       child: Wrap(
-        alignment: WrapAlignment.center,
         spacing: AppSpacing.s,
         runSpacing: AppSpacing.s,
         children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 180),
-            child: PillButton(
-              key: const Key('noteChip'),
-              icon: AppIcons.note,
-              label: state.note.isEmpty ? l.note : state.note,
-              selected: state.note.isNotEmpty,
-              onTap: () async {
-                final text = await editTextSheet(
-                  context,
-                  title: l.note,
-                  initial: state.note,
-                  hint: l.notePlaceholder,
-                  doneLabel: l.done,
-                  maxLines: 3,
-                );
-                if (text != null) bloc.add(NoteChanged(text));
-              },
-            ),
+          PillButton(
+            key: const Key('dateChip'),
+            icon: AppIcons.calendar,
+            label: context.dateTimeLabel(state.occurredAt),
+            showChevron: true,
+            onTap: () => _chooseDate(context, state),
           ),
           PillButton(
             key: const Key('tagsChip'),
@@ -812,29 +833,6 @@ class _SaveButton extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<String?> _chooseAccount(
-  BuildContext context,
-  TransactionFormState state,
-  String? selected, {
-  String? excluding,
-}) {
-  return pickOne<String>(
-    context,
-    title: context.l10n.chooseAccount,
-    selected: selected,
-    items: [
-      for (final a in state.accounts)
-        if (a.id != excluding)
-          PickItem(
-            value: a.id,
-            title: a.name,
-            subtitle: '${context.accountTypeName(a.type)} · ${a.currency.code}',
-            leading: AccountBadge.of(a, size: 36),
-          ),
-    ],
-  );
 }
 
 Future<void> _chooseDate(

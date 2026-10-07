@@ -42,10 +42,10 @@ void main() {
   Finder tab(String label) =>
       find.descendant(of: find.byType(GlassNavBar), matching: find.text(label));
 
+  /// Types the amount and picks Cash (nothing is pre-chosen).
   Future<void> keys(WidgetTester t, String digits) async {
-    for (final d in digits.split('')) {
-      await t.tap(find.byKey(Key('key-d$d')));
-    }
+    await t.enterText(find.byKey(const Key('amountField')), digits);
+    await t.tap(find.byKey(const Key('account-Cash')));
     await t.pumpAndSettle();
   }
 
@@ -139,6 +139,8 @@ void main() {
       await t.tap(find.byKey(const Key('settleUp')));
       await t.pumpAndSettle();
       expect(find.text('3,000'), findsOneWidget);
+      await t.tap(find.byKey(const Key('account-Cash')));
+      await t.pumpAndSettle();
       await t.tap(find.byKey(const Key('saveEntry')));
       await t.pumpAndSettle();
       expect(find.text('Settled'), findsOneWidget);
@@ -179,10 +181,8 @@ void main() {
     await t.tap(find.bySemanticsLabel('Add'));
     await t.pumpAndSettle();
     await keys(t, '45000');
-    await t.tap(find.byKey(const Key('noteChip')));
-    await t.pumpAndSettle();
-    await t.enterText(find.byKey(const Key('sheetTextField')), 'Rent');
-    await t.tap(find.byKey(const Key('sheetDone')));
+    await t.tap(find.byKey(const Key('category-Food & Drink')));
+    await t.enterText(find.byKey(const Key('noteField')), 'Rent');
     await t.pumpAndSettle();
     await t.tap(find.byKey(const Key('repeatChip')));
     await t.pumpAndSettle();

@@ -1,11 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:khaata_digital/core/error/app_failure.dart';
-import 'package:khaata_digital/core/money/amount_buffer.dart';
 import 'package:khaata_digital/core/money/currency.dart';
 import 'package:khaata_digital/core/money/money.dart';
 import 'package:khaata_digital/features/people/domain/person.dart';
 import 'package:khaata_digital/features/recurring/domain/recurrence.dart';
-import 'package:khaata_digital/features/settings/domain/setting_key.dart';
 import 'package:khaata_digital/features/transactions/domain/entry_query.dart';
 import 'package:khaata_digital/features/transactions/domain/transaction_type.dart';
 import 'package:khaata_digital/features/transactions/presentation/form/transaction_form_bloc.dart';
@@ -33,32 +31,24 @@ void main() {
     return bloc.state;
   }
 
-  Future<void> keys(String digits) async {
-    for (final d in digits.split('')) {
-      await send(
-        KeyPressed(
-          d == '.' ? KeypadKey.decimal : KeypadKey.digit(int.parse(d)),
-        ),
-      );
-    }
-  }
+  Future<void> keys(String text, {AmountTarget target = AmountTarget.amount}) =>
+      send(AmountTyped(text, target: target));
 
-  test(
-    'a new expense defaults to the first account, now, and no category',
-    () async {
-      final s = await send(const FormStarted());
-      expect(s.status, FormStatus.ready);
-      expect(s.type, TransactionType.expense);
-      expect(s.account!.name, 'Cash');
-      expect(s.categoryId, isNull);
-      expect(DateTime.now().difference(s.occurredAt).inSeconds, lessThan(5));
-      expect(s.canSave, isFalse, reason: 'no amount yet');
-    },
-  );
+  test('a new expense starts with no account, no category, and now', () async {
+    final s = await send(const FormStarted());
+    expect(s.status, FormStatus.ready);
+    expect(s.type, TransactionType.expense);
+    expect(s.accountId, isNull);
+    expect(s.currency, Currency.pkr, reason: 'home currency until chosen');
+    expect(s.categoryId, isNull);
+    expect(DateTime.now().difference(s.occurredAt).inSeconds, lessThan(5));
+    expect(s.canSave, isFalse, reason: 'no amount yet');
+  });
 
-  test('the 3-second path: amount → category → save', () async {
+  test('the 3-second path: amount → account → category → save', () async {
     final food = await r.categoryId('Food & Drink');
     await send(const FormStarted());
+    await send(AccountChanged(await r.cashId()));
     await keys('2520');
     await send(CategoryTapped(food));
     final s = await send(const FormSubmitted());
@@ -70,19 +60,47 @@ void main() {
     expect(saved.category!.name, 'Food & Drink');
   });
 
-  test('remembers the last-used account for the next entry', () async {
-    final bank = await r.ledger.account('Meezan Bank');
+  test('saving needs an account, then a category', () async {
+    final food = await r.categoryId('Food & Drink');
     await send(const FormStarted());
-    await send(AccountChanged(bank));
-    await keys('5');
-    await send(const FormSubmitted());
-    expect(await r.settings.read(SettingKey.lastAccountId), bank);
+    await keys('500');
+    var s = await send(const FormSubmitted());
+    expect(s.problem, EntryProblem.accountRequired);
 
-    final next = r.formBloc();
-    next.add(const FormStarted());
-    await pumpEventQueue();
-    expect(next.state.accountId, bank);
-    await next.close();
+    s = await send(AccountChanged(await r.cashId()));
+    expect(s.problem, isNull, reason: 'choosing clears it');
+    s = await send(const FormSubmitted());
+    expect(s.problem, EntryProblem.categoryRequired);
+    expect(s.status, FormStatus.ready);
+    expect(
+      (await r.transactions.watch(const EntryQuery()).first).items,
+      isEmpty,
+    );
+
+    s = await send(CategoryTapped(food));
+    expect(s.problem, isNull);
+    expect((await send(const FormSubmitted())).status, FormStatus.saved);
+  });
+
+  test('accounts and the full category list are ordered by use', () async {
+    final cash = await r.cashId();
+    final bank = await r.ledger.account('Bank');
+    final wallet = await r.ledger.account('Wallet');
+    final mobile = await r.categoryId('Mobile');
+    for (var i = 0; i < 3; i++) {
+      await r.ledger.expense(wallet, 100, categoryId: mobile);
+    }
+    await r.ledger.transfer(bank, cash, 100);
+    await r.ledger.expense(bank, 100);
+
+    final s = await send(const FormStarted());
+    expect(s.accountsByUse.map((a) => a.id), [wallet, bank, cash]);
+    expect(s.categoriesByUse.first.name, 'Mobile');
+    expect(
+      s.categoriesByUse.length,
+      s.visibleCategories.length,
+      reason: 'unused ones still listed',
+    );
   });
 
   test(
@@ -91,6 +109,7 @@ void main() {
       final at = DateTime(2025, 8, 25, 13, 45);
       final food = await r.categoryId('Food & Drink');
       await send(const FormStarted());
+      await send(AccountChanged(await r.cashId()));
       await keys('2520.5');
       await send(CategoryTapped(food));
       await send(DateChanged(at));
@@ -132,18 +151,19 @@ void main() {
   );
 
   test(
-    'switching to income drops an expense category; transfer picks a destination',
+    'switching to income drops an expense category; transfer picks no destination',
     () async {
       final food = await r.categoryId('Food & Drink');
       await r.ledger.account('Bank');
       await send(const FormStarted());
+      await send(AccountChanged(await r.cashId()));
       await send(CategoryTapped(food));
       var s = await send(const TypeChanged(TransactionType.income));
       expect(s.categoryId, isNull);
       expect(s.visibleCategories.every((c) => c.kind.name == 'income'), isTrue);
 
       s = await send(const TypeChanged(TransactionType.transfer));
-      expect(s.toAccount!.name, 'Bank');
+      expect(s.toAccountId, isNull);
     },
   );
 
@@ -155,7 +175,7 @@ void main() {
   });
 
   test(
-    'cross-currency transfer: keypad fills "receives" and derives the rate',
+    'cross-currency transfer: typing fills "receives" and derives the rate',
     () async {
       final usd = await r.ledger.account('Payoneer', currency: 'USD');
       final cash = await r.cashId();
@@ -164,8 +184,7 @@ void main() {
       await send(const TypeChanged(TransactionType.transfer));
       await send(ToAccountChanged(cash));
       await keys('100');
-      await send(const AmountFocused(AmountTarget.toAmount));
-      await keys('28250');
+      await keys('28250', target: AmountTarget.toAmount);
 
       final s = bloc.state;
       expect(s.crossCurrency, isTrue);
@@ -183,6 +202,7 @@ void main() {
     await send(const FormStarted());
     await send(AccountChanged(usd));
     await send(const TypeChanged(TransactionType.transfer));
+    await send(ToAccountChanged(await r.cashId()));
     await keys('10');
     final s = await send(const FormSubmitted());
     expect(s.problem, EntryProblem.conversionRequired);
@@ -226,9 +246,11 @@ void main() {
   test(
     'swap exchanges transfer accounts and keeps a same-currency amount',
     () async {
-      await r.ledger.account('Bank');
+      final bank = await r.ledger.account('Bank');
       await send(const FormStarted());
       await send(const TypeChanged(TransactionType.transfer));
+      await send(AccountChanged(await r.cashId()));
+      await send(ToAccountChanged(bank));
       await keys('300');
       final before = bloc.state;
       final s = await send(const AccountsSwapped());
@@ -246,6 +268,7 @@ void main() {
       await send(CategoryTapped(food));
       await send(const UdhaarChosen());
       await send(PersonChanged(ali));
+      await send(AccountChanged(await r.cashId()));
       await keys('5000');
       expect((await send(const FormSubmitted())).status, FormStatus.saved);
 
@@ -263,6 +286,7 @@ void main() {
     test('"I received" is stored as income', () async {
       final ali = await r.people.create('Ali');
       await send(FormStarted(personId: ali, udhaar: UdhaarDirection.received));
+      await send(AccountChanged(await r.cashId()));
       await keys('300');
       await send(const FormSubmitted());
       final e = (await r.transactions.watch(const EntryQuery()).first)
@@ -275,6 +299,7 @@ void main() {
     test('needs a person', () async {
       await send(const FormStarted());
       await send(const UdhaarChosen());
+      await send(AccountChanged(await r.cashId()));
       await keys('10');
       final s = await send(const FormSubmitted());
       expect(s.problem, EntryProblem.personRequired);
@@ -330,8 +355,14 @@ void main() {
   });
 
   group('repeat', () {
-    test('saving with Repeat creates a rule and syncs reminders', () async {
+    Future<void> ready() async {
       await send(const FormStarted());
+      await send(AccountChanged(await r.cashId()));
+      await send(CategoryTapped(await r.categoryId('Grocery')));
+    }
+
+    test('saving with Repeat creates a rule and syncs reminders', () async {
+      await ready();
       await send(
         const RepeatChanged(RecurrenceFrequency.monthly, remind: true),
       );
@@ -346,9 +377,9 @@ void main() {
     });
 
     test('no rule without Repeat', () async {
-      await send(const FormStarted());
+      await ready();
       await keys('5');
-      await send(const FormSubmitted());
+      expect((await send(const FormSubmitted())).status, FormStatus.saved);
       expect(await r.recurring.active(), isEmpty);
     });
   });

@@ -327,10 +327,9 @@ void main() {
 
     await t.tap(find.bySemanticsLabel('Add'));
     await t.pumpAndSettle();
-    for (final d in [1, 2, 5, 0]) {
-      await t.tap(find.byKey(Key('key-d$d')));
-      await t.pump();
-    }
+    await t.enterText(find.byKey(const Key('amountField')), '1250');
+    await t.tap(find.byKey(const Key('account-Cash')));
+    FocusManager.instance.primaryFocus?.unfocus();
     await t.pumpAndSettle();
     await compose(t, '2_add', 'Add an expense in 3 seconds', await capture(t));
     await t.tap(find.byKey(const Key('closeEditor')));
