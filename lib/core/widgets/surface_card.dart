@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../feedback/haptics.dart';
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
 import 'app_icons.dart';
@@ -147,18 +148,67 @@ class InfoTile extends StatelessWidget {
 
 /// A labelled figure for summary rows (Income / Spent / Left).
 class StatTile extends StatelessWidget {
-  const StatTile({super.key, required this.label, required this.value});
+  const StatTile({
+    super.key,
+    required this.label,
+    required this.value,
+    this.onTap,
+    this.onInfo,
+    this.infoLabel,
+  });
 
   final String label;
   final Widget value;
 
+  /// Shows an ⓘ after the label that explains the figure.
+  final VoidCallback? onInfo;
+
+  /// Screen-reader label for the ⓘ.
+  final String? infoLabel;
+
+  /// Opens what makes up the figure; a small chevron shows it's tappable.
+  final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context) {
-    return Column(
+    final tile = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(label, style: context.text.bodySmall),
+        Row(
+          children: [
+            Flexible(child: Text(label, style: context.text.bodySmall)),
+            if (onInfo != null)
+              Semantics(
+                button: true,
+                label: infoLabel,
+                child: InkResponse(
+                  key: Key('info-$label'),
+                  radius: 16,
+                  onTap: () {
+                    Haptics.tap();
+                    onInfo!();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 3),
+                    child: Icon(
+                      AppIcons.info,
+                      size: 13,
+                      color: context.colors.inkMuted,
+                    ),
+                  ),
+                ),
+              ),
+            if (onTap != null) ...[
+              const SizedBox(width: 2),
+              DirectionalIcon(
+                AppIcons.chevronRight,
+                size: 10,
+                color: context.colors.inkMuted,
+              ),
+            ],
+          ],
+        ),
         const SizedBox(height: AppSpacing.xs),
         FittedBox(
           fit: BoxFit.scaleDown,
@@ -166,6 +216,15 @@ class StatTile extends StatelessWidget {
           child: value,
         ),
       ],
+    );
+    if (onTap == null) return tile;
+    return InkWell(
+      onTap: () {
+        Haptics.tap();
+        onTap!();
+      },
+      borderRadius: BorderRadius.circular(AppRadii.s),
+      child: tile,
     );
   }
 }

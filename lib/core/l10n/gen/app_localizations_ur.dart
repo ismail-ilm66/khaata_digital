@@ -318,6 +318,19 @@ class AppLocalizationsUr extends AppLocalizations {
   String get left => 'باقی';
 
   @override
+  String get gotIt => 'ٹھیک ہے';
+
+  @override
+  String get leftInfoTitle => '“باقی” کا مطلب';
+
+  @override
+  String get leftInfoBody =>
+      'باقی اس مہینے کی آمدنی میں سے آپ کا خرچ نکال کر بنتا ہے۔ یہ آپ کے اکاؤنٹس میں موجود رقم نہیں۔\n\nلوگوں کو دیا یا ان سے واپس ملا ادھار، اور اپنے اکاؤنٹس کے درمیان منتقلی، آمدنی یا خرچ نہیں، اس لیے یہاں شامل نہیں۔ البتہ ان سے اکاؤنٹس کا بیلنس بدلتا ہے۔\n\nکل مالیت وہ ہے جو اس وقت آپ کے اکاؤنٹس میں ہے، پچھلے مہینوں سمیت، اس لیے دونوں مختلف ہو سکتے ہیں۔';
+
+  @override
+  String get moneyInAndOut => 'آمدنی اور خرچ';
+
+  @override
   String get recent => 'حالیہ';
 
   @override

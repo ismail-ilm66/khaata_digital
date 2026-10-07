@@ -704,6 +704,30 @@ abstract class AppLocalizations {
   /// **'Left'**
   String get left;
 
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @leftInfoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What “Left” means'**
+  String get leftInfoTitle;
+
+  /// No description provided for @leftInfoBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Left is this month’s income minus what you spent. It isn’t the money in your accounts.\n\nMoney you lend to people or get back, and transfers between your own accounts, aren’t income or spending, so they don’t count here. They do change your account balances.\n\nNet worth is what’s in your accounts right now, including everything from earlier months, so the two can differ.'**
+  String get leftInfoBody;
+
+  /// No description provided for @moneyInAndOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in & out'**
+  String get moneyInAndOut;
+
   /// No description provided for @recent.
   ///
   /// In en, this message translates to:

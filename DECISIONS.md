@@ -180,6 +180,10 @@ or could not be followed literally. Newest milestone at the bottom.
 | 117 | No account pre-chosen | A new entry starts with no account selected (the "last used account" default is gone); Save shows "Choose an account". The quick path is now + → amount → account → category → Save (5 steps, not the spec's 4). | Owner request: a silent default put entries on the wrong account. |
 | 118 | Category required | Expenses and income can't be saved without a category ("Choose a category"), including when editing an old uncategorized entry. Transfers and udhaar have none. | Owner request. |
 | 119 | Ordered by use | Account chips and the full "All categories" list are ordered by how many entries use them (a transfer counts for both accounts), ties by most recent; unused ones follow in their usual order. The quick category row already worked this way. | Owner request. |
+| 120 | Home "This month" folds away | The period row and Income / Spent / Left sit behind a chevron, closed on each launch; opening shows the period arrows and the figures. | Owner request: a quieter Home. |
+| 121 | Home figures open their entries | Income and Spent open that cycle's income / expense list; Left opens both ("Money in & out"). Udhaar is left out (`EntryQuery.excludeUdhaar`) so each list adds up to its figure. | Owner request to see what makes up each number. A cycle-scoped Reports view would need Reports to accept a starting period; the list is enough for now. |
+| 122 | ⓘ on "Left" | A small info icon after "Left" opens a short sheet: Left is income minus spending this month, not money in accounts; udhaar and transfers change balances without counting; net worth includes earlier months. `infoSheet` and `StatTile.onInfo` are reusable. | Owner saw Left above net worth and found it confusing. |
+| 123 | Account balances right-aligned | On the Accounts screen every balance ends on the same right edge (it fills its share of the row). | Owner screenshot: balances drifted mid-row. |
 
 ## Open items carried forward
 

@@ -15,6 +15,7 @@ class PeriodNavigator extends StatelessWidget {
     this.previousTooltip,
     this.nextTooltip,
     this.dense = false,
+    this.trailing,
   });
 
   final String label;
@@ -27,11 +28,18 @@ class PeriodNavigator extends StatelessWidget {
   /// end (Home's "This month").
   final bool dense;
 
+  /// Dense only: after the arrows (e.g. Home's expand chevron).
+  final Widget? trailing;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    // With neither arrow there's nothing to keep aligned.
+    final noArrows = onPrevious == null && onNext == null;
     Widget arrow(IconData icon, VoidCallback? onTap, String? tip, Key key) =>
-        onTap == null
+        onTap == null && noArrows
+        ? const SizedBox.shrink()
+        : onTap == null
         ? SizedBox(width: dense ? 36 : 48)
         : IconButton(
             key: key,
@@ -65,6 +73,7 @@ class PeriodNavigator extends StatelessWidget {
             nextTooltip,
             const Key('nextPeriod'),
           ),
+          ?trailing,
         ],
       );
     }

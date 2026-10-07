@@ -90,6 +90,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
     Set<String> categoryIds = const {},
     Set<String> tagNames = const {},
     Set<String> personIds = const {},
+    bool excludeUdhaar = false,
     String search = '',
     int? fromMillis,
     int? toMillis,
@@ -115,6 +116,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
         fromMillis: fromMillis,
         toMillis: toMillis,
       ),
+      if (excludeUdhaar) t.personId.isNull(),
       if (id != null) t.id.equals(id),
     ];
 

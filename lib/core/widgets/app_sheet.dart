@@ -364,3 +364,35 @@ Future<bool> confirmSheet(
   );
   return yes ?? false;
 }
+
+/// A short explanation with one "Got it" button (behind an ⓘ).
+Future<void> infoSheet(
+  BuildContext context, {
+  required String title,
+  required String message,
+  required String doneLabel,
+}) => showAppSheet<void>(
+  context,
+  title: title,
+  builder: (sheet) => Padding(
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.xl,
+      0,
+      AppSpacing.xl,
+      AppSpacing.xl,
+    ),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(message, style: sheet.text.bodyMedium),
+        const SizedBox(height: AppSpacing.xl),
+        FilledButton(
+          key: const Key('infoDone'),
+          onPressed: () => Navigator.pop(sheet),
+          child: Text(doneLabel),
+        ),
+      ],
+    ),
+  ),
+);

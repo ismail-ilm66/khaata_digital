@@ -207,6 +207,7 @@ class _AccountRow extends StatelessWidget {
               AccountBadge.of(a),
               const SizedBox(width: kBadgeGap),
               Expanded(
+                flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -227,7 +228,11 @@ class _AccountRow extends StatelessWidget {
                   ],
                 ),
               ),
-              Flexible(
+              const SizedBox(width: AppSpacing.s),
+              // Fills its share so every balance sits on the same right
+              // edge, shrinking only when too long.
+              Expanded(
+                flex: 2,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: AlignmentDirectional.centerEnd,

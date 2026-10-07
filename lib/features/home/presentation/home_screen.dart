@@ -8,6 +8,7 @@ import '../../../core/money/money.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
+import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/amount_text.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/empty_state.dart';
@@ -21,6 +22,9 @@ import '../../budgets/domain/budget.dart';
 import '../../budgets/presentation/budget_bar.dart';
 import '../../people/presentation/people_screen.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
+import '../../transactions/domain/entry_query.dart';
+import '../../transactions/domain/transaction_type.dart';
+import '../../transactions/presentation/entries_screen.dart';
 import '../../transactions/presentation/form/entry_editor_screen.dart';
 import '../../transactions/presentation/widgets/entry_tile.dart';
 import 'home_cubit.dart';
@@ -156,15 +160,51 @@ class _HomeView extends StatelessWidget {
   }
 }
 
-/// Net worth (the headline) and this cycle's income / spent / left.
-class _SummaryCard extends StatelessWidget {
+/// Net worth (the headline) and, folded away until opened, this cycle's
+/// income / spent / left — each opening the entries behind it.
+class _SummaryCard extends StatefulWidget {
   const _SummaryCard({required this.state, required this.masked});
 
   final HomeState state;
   final bool masked;
 
   @override
+  State<_SummaryCard> createState() => _SummaryCardState();
+}
+
+class _SummaryCardState extends State<_SummaryCard> {
+  bool _open = false;
+
+  void _toggle() {
+    Haptics.selection();
+    setState(() => _open = !_open);
+  }
+
+  /// The cycle's entries of [types], udhaar left out to match the totals.
+  void _show(String title, Set<TransactionType> types) {
+    final cycle = context.read<BudgetCycleCubit>().state;
+    final id = widget.state.cycle!;
+    context.push(
+      Routes.entries,
+      extra: EntriesArgs(
+        title: title,
+        subtitle: cycle.label(
+          id,
+          locale: Localizations.localeOf(context).toLanguageTag(),
+        ),
+        query: EntryQuery(
+          types: types,
+          range: cycle.rangeOf(id),
+          excludeUdhaar: true,
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final state = widget.state;
+    final masked = widget.masked;
     final l = context.l10n;
     final c = context.colors;
     final currency = context.watch<CurrencyCubit>().state;
@@ -196,52 +236,98 @@ class _SummaryCard extends StatelessWidget {
                 masked: masked,
                 style: context.text.titleMedium!.copyWith(color: c.inkMuted),
               ),
-            const SizedBox(height: AppSpacing.xl),
-            PeriodNavigator(
-              dense: true,
-              label: state.isCurrent
-                  ? l.thisCycle
-                  : context.watch<BudgetCycleCubit>().state.label(
-                      state.cycle!,
-                      locale: Localizations.localeOf(context).toLanguageTag(),
+            const SizedBox(height: AppSpacing.l),
+            InkWell(
+              key: const Key('summaryToggle'),
+              onTap: _toggle,
+              borderRadius: BorderRadius.circular(AppRadii.s),
+              child: PeriodNavigator(
+                dense: true,
+                label: state.isCurrent
+                    ? l.thisCycle
+                    : context.watch<BudgetCycleCubit>().state.label(
+                        state.cycle!,
+                        locale: Localizations.localeOf(context).toLanguageTag(),
+                      ),
+                previousTooltip: l.previousPeriod,
+                nextTooltip: l.nextPeriod,
+                onPrevious: _open
+                    ? () => context.read<HomeCubit>().step(-1)
+                    : null,
+                onNext: !_open || state.isCurrent
+                    ? null
+                    : () => context.read<HomeCubit>().step(1),
+                trailing: AnimatedRotation(
+                  turns: _open ? 0.5 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.s),
+                    child: Icon(
+                      AppIcons.chevronDown,
+                      size: 16,
+                      color: c.inkMuted,
                     ),
-              previousTooltip: l.previousPeriod,
-              nextTooltip: l.nextPeriod,
-              onPrevious: () => context.read<HomeCubit>().step(-1),
-              onNext: state.isCurrent
-                  ? null
-                  : () => context.read<HomeCubit>().step(1),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: AppSpacing.s),
-            StatRow(
-              children: [
-                StatTile(
-                  label: l.income,
-                  value: AmountText(
-                    income,
-                    signed: true,
-                    colored: true,
-                    masked: masked,
-                    style: context.text.titleMedium,
-                  ),
-                ),
-                StatTile(
-                  label: l.spent,
-                  value: AmountText(
-                    spent,
-                    masked: masked,
-                    style: context.text.titleMedium,
-                  ),
-                ),
-                StatTile(
-                  label: l.left,
-                  value: AmountText(
-                    income - spent,
-                    masked: masked,
-                    style: context.text.titleMedium,
-                  ),
-                ),
-              ],
+            AnimatedSize(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              alignment: AlignmentDirectional.topStart,
+              child: !_open
+                  ? const SizedBox(width: double.infinity)
+                  : Padding(
+                      padding: const EdgeInsets.only(top: AppSpacing.s),
+                      child: StatRow(
+                        children: [
+                          StatTile(
+                            key: const Key('statIncome'),
+                            label: l.income,
+                            onTap: () =>
+                                _show(l.income, {TransactionType.income}),
+                            value: AmountText(
+                              income,
+                              signed: true,
+                              colored: true,
+                              masked: masked,
+                              style: context.text.titleMedium,
+                            ),
+                          ),
+                          StatTile(
+                            key: const Key('statSpent'),
+                            label: l.spent,
+                            onTap: () =>
+                                _show(l.spent, {TransactionType.expense}),
+                            value: AmountText(
+                              spent,
+                              masked: masked,
+                              style: context.text.titleMedium,
+                            ),
+                          ),
+                          StatTile(
+                            key: const Key('statLeft'),
+                            label: l.left,
+                            infoLabel: l.leftInfoTitle,
+                            onInfo: () => infoSheet(
+                              context,
+                              title: l.leftInfoTitle,
+                              message: l.leftInfoBody,
+                              doneLabel: l.gotIt,
+                            ),
+                            onTap: () => _show(l.moneyInAndOut, {
+                              TransactionType.income,
+                              TransactionType.expense,
+                            }),
+                            value: AmountText(
+                              income - spent,
+                              masked: masked,
+                              style: context.text.titleMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
             ),
           ],
         ),

@@ -320,6 +320,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get left => 'Left';
 
   @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get leftInfoTitle => 'What “Left” means';
+
+  @override
+  String get leftInfoBody =>
+      'Left is this month’s income minus what you spent. It isn’t the money in your accounts.\n\nMoney you lend to people or get back, and transfers between your own accounts, aren’t income or spending, so they don’t count here. They do change your account balances.\n\nNet worth is what’s in your accounts right now, including everything from earlier months, so the two can differ.';
+
+  @override
+  String get moneyInAndOut => 'Money in & out';
+
+  @override
   String get recent => 'Recent';
 
   @override

@@ -48,6 +48,8 @@ void main() {
       expect(getIt<HideBalanceCubit>().state, isTrue);
       await start(t);
       expect(masked(t, const Key('netWorth')), isTrue);
+      await t.tap(find.byKey(const Key('summaryToggle')));
+      await t.pumpAndSettle();
       final stats = t.widgetList<AmountText>(find.byType(AmountText));
       expect(
         stats.where((a) => !a.masked),
@@ -188,5 +190,111 @@ void main() {
       await t.pumpAndSettle();
       expect(listed(t), ['Zain', 'Ali']);
     });
+  });
+
+  group('Home: this month', () {
+    testWidgets('folded until the chevron is tapped', (t) async {
+      await start(t);
+      expect(find.byKey(const Key('statSpent')), findsNothing);
+      expect(find.byKey(const Key('previousPeriod')), findsNothing);
+      await t.tap(find.byKey(const Key('summaryToggle')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const Key('statSpent')), findsOneWidget);
+      expect(find.byKey(const Key('previousPeriod')), findsOneWidget);
+      await t.tap(find.byKey(const Key('summaryToggle')));
+      await t.pumpAndSettle();
+      expect(find.byKey(const Key('statSpent')), findsNothing);
+    });
+
+    testWidgets('Left has an ⓘ explaining it is not money in accounts', (
+      t,
+    ) async {
+      await start(t);
+      await t.tap(find.byKey(const Key('summaryToggle')));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const Key('info-Left')));
+      await t.pumpAndSettle();
+      expect(find.text('What “Left” means'), findsOneWidget);
+      expect(
+        find.textContaining('isn’t the money in your accounts'),
+        findsOneWidget,
+      );
+      expect(find.byType(EntryTile), findsNothing, reason: 'ⓘ, not the list');
+      await t.tap(find.byKey(const Key('infoDone')));
+      await t.pumpAndSettle();
+      expect(find.text('What “Left” means'), findsNothing);
+    });
+
+    testWidgets('Spent / Income / Left open the entries behind them', (
+      t,
+    ) async {
+      final now = DateTime.now().toUtc();
+      await t.runAsync(() async {
+        final l = TestLedger(db);
+        final ali = await db.peopleDao.create(name: 'Ali');
+        final food = (await db.categoriesDao.active())
+            .firstWhere((c) => c.name == 'Food & Drink')
+            .id;
+        await l.expense(cash, 120000, categoryId: food, at: now);
+        await l.expense(cash, 50000, personId: ali, at: now); // udhaar
+        await l.income(cash, 9000000, at: now);
+        await l.expense(
+          cash,
+          70000,
+          categoryId: food,
+          at: now.subtract(const Duration(days: 400)),
+        );
+      });
+      await start(t);
+      await t.tap(find.byKey(const Key('summaryToggle')));
+      await t.pumpAndSettle();
+
+      Future<int> rowsFor(Key stat) async {
+        await t.tap(find.byKey(stat));
+        await t.pumpAndSettle();
+        final n = find.byType(EntryTile).evaluate().length;
+        t.element(find.byType(EntryTile).first).pop();
+        await t.pumpAndSettle();
+        return n;
+      }
+
+      expect(
+        await rowsFor(const Key('statSpent')),
+        1,
+        reason:
+            'no udhaar, '
+            'nothing from another month',
+      );
+      expect(await rowsFor(const Key('statIncome')), 1);
+      expect(await rowsFor(const Key('statLeft')), 2);
+    });
+  });
+
+  testWidgets('Accounts: every balance sits on the same right edge', (t) async {
+    await t.runAsync(() async {
+      final l = TestLedger(db);
+      await l.account('Meezan Bank', opening: 25755000);
+      await l.account('JazzCash', opening: 1000);
+    });
+    await getIt<HideBalanceCubit>().set(false);
+    await start(t);
+    unawaited(t.element(find.byType(GlassNavBar)).push(Routes.accounts));
+    await t.pumpAndSettle();
+    final rights = {
+      for (final name in ['Cash', 'Meezan Bank', 'JazzCash'])
+        t
+            .getRect(
+              find.descendant(
+                of: find.ancestor(
+                  of: find.text(name),
+                  matching: find.byType(InkWell),
+                ),
+                matching: find.byType(AmountText),
+              ),
+            )
+            .right
+            .round(),
+    };
+    expect(rights, hasLength(1), reason: 'right edges: $rights');
   });
 }

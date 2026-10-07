@@ -14,6 +14,7 @@ class EntryQuery extends Equatable {
     this.search = '',
     this.range,
     this.limit = pageSize,
+    this.excludeUdhaar = false,
   });
 
   static const int pageSize = 60;
@@ -34,6 +35,10 @@ class EntryQuery extends Equatable {
   final String search;
   final DateRange? range;
   final int limit;
+
+  /// Leaves out udhaar (person-linked) entries, so a list matches the
+  /// income / spent totals, which don't count them.
+  final bool excludeUdhaar;
 
   bool get hasFilters =>
       types.isNotEmpty ||
@@ -59,10 +64,12 @@ class EntryQuery extends Equatable {
     search: search ?? this.search,
     range: range,
     limit: limit ?? this.limit,
+    excludeUdhaar: excludeUdhaar,
   );
 
   /// Same filters, first page.
-  EntryQuery cleared() => EntryQuery(search: search, range: range);
+  EntryQuery cleared() =>
+      EntryQuery(search: search, range: range, excludeUdhaar: excludeUdhaar);
 
   @override
   List<Object?> get props => [
@@ -74,5 +81,6 @@ class EntryQuery extends Equatable {
     search,
     range,
     limit,
+    excludeUdhaar,
   ];
 }

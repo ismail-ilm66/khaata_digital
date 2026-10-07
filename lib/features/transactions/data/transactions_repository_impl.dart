@@ -34,6 +34,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
           categoryIds: q.categoryIds,
           tagNames: q.tags,
           personIds: q.personIds,
+          excludeUdhaar: q.excludeUdhaar,
           search: q.search,
           fromMillis: q.range?.startMillis,
           toMillis: q.range?.endMillis,

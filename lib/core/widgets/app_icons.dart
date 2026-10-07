@@ -114,6 +114,7 @@ abstract final class AppIcons {
   static const IconData lock = PhosphorIconsRegular.lockSimple;
   static const IconData shield = PhosphorIconsRegular.shieldCheck;
   static const IconData warning = PhosphorIconsRegular.warningCircle;
+  static const IconData info = PhosphorIconsRegular.info;
   static const IconData history = PhosphorIconsRegular.clockCounterClockwise;
   static const IconData wifi = PhosphorIconsRegular.wifiHigh;
   static const IconData haptics = PhosphorIconsFill.vibrate;
