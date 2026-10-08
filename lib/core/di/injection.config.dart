@@ -200,9 +200,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i420.CategoriesRepository>(
       () => _i787.CategoriesRepositoryImpl(gh<_i577.AppDatabase>()),
     );
-    gh.lazySingleton<_i795.HideBalanceCubit>(
-      () => _i795.HideBalanceCubit(gh<_i109.SettingsRepository>()),
-    );
     gh.lazySingleton<_i795.HapticsCubit>(
       () => _i795.HapticsCubit(gh<_i109.SettingsRepository>()),
     );
@@ -252,6 +249,9 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i720.AccountsRepository>(),
       ),
     );
+    gh.lazySingleton<_i795.HideBalanceCubit>(
+      () => _i795.HideBalanceCubit(gh<_i109.SettingsRepository>()),
+    );
     gh.lazySingleton<_i397.AppStart>(
       () => _i397.AppStart(
         gh<_i109.SettingsRepository>(),
@@ -297,19 +297,17 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i276.CategoriesCubit>(
       () => _i276.CategoriesCubit(gh<_i420.CategoriesRepository>()),
     );
+    gh.lazySingleton<_i795.CountryCubit>(
+      () => _i795.CountryCubit(
+        gh<_i109.SettingsRepository>(),
+        gh<_i795.CurrencyCubit>(),
+      ),
+    );
     gh.factory<_i556.ReportsBloc>(
       () => _i556.ReportsBloc(
         gh<_i318.ReportsRepository>(),
         gh<_i795.BudgetCycleCubit>(),
         gh<_i795.CurrencyCubit>(),
-      ),
-    );
-    gh.factory<_i109.OnboardingCubit>(
-      () => _i109.OnboardingCubit(
-        gh<_i795.CurrencyCubit>(),
-        gh<_i795.BudgetCycleCubit>(),
-        gh<_i720.AccountsRepository>(),
-        gh<_i397.AppStart>(),
       ),
     );
     gh.lazySingleton<_i825.AppRefresh>(
@@ -320,8 +318,17 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i795.BudgetCycleCubit>(),
         gh<_i795.CurrencyCubit>(),
         gh<_i795.HapticsCubit>(),
+        gh<_i795.CountryCubit>(),
         gh<_i295.RecurringRepository>(),
         gh<_i295.ReminderScheduler>(),
+      ),
+    );
+    gh.factory<_i109.OnboardingCubit>(
+      () => _i109.OnboardingCubit(
+        gh<_i795.CurrencyCubit>(),
+        gh<_i795.BudgetCycleCubit>(),
+        gh<_i720.AccountsRepository>(),
+        gh<_i397.AppStart>(),
       ),
     );
     gh.factory<_i262.RestoreBloc>(

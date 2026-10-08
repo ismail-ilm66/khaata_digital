@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/region/country.dart';
+import '../../settings/presentation/country_picker.dart';
+import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/feedback/haptics.dart';
 import '../../../core/money/currency.dart';
@@ -225,6 +228,24 @@ class _Setup extends StatelessWidget {
       children: [
         SurfaceCard(
           children: [
+            BlocBuilder<CountryCubit, Country>(
+              builder: (context, country) => SettingTile(
+                key: const Key('onboardingCountry'),
+                icon: AppIcons.globe,
+                title: l.country,
+                subtitle: l.countryHint,
+                trailing: CountryFlag(country),
+                onTap: () async {
+                  final c = await pickCountry(context, country);
+                  if (c == null || !context.mounted) return;
+                  await context.read<CountryCubit>().set(c);
+                  // Its currency follows; still changeable just below.
+                  if (c != Countries.other) {
+                    await cubit.setCurrency(Currency.of(c.currencyCode));
+                  }
+                },
+              ),
+            ),
             SettingTile(
               key: const Key('onboardingCurrency'),
               icon: AppIcons.accounts.regular,

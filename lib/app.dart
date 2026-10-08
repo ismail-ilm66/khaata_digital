@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -12,6 +14,7 @@ import 'core/widgets/splash_handoff.dart';
 import 'features/settings/presentation/cubit/locale_cubit.dart';
 import 'features/settings/presentation/cubit/preference_cubits.dart';
 import 'features/settings/presentation/cubit/theme_cubit.dart';
+import 'features/security/presentation/lock_cubit.dart';
 import 'features/security/presentation/lock_gate.dart';
 import 'core/router/routes.dart';
 import 'features/onboarding/data/app_start.dart';
@@ -34,9 +37,16 @@ class _KharchaAppState extends State<KharchaApp> {
   /// soon as it comes back (iOS has no background job).
   late final AppLifecycleListener _lifecycle;
 
+  /// "Hide balances" on: a balance shown with the eye hides again when
+  /// the app locks.
+  late final StreamSubscription<AppLockState> _relock;
+
   @override
   void initState() {
     super.initState();
+    _relock = getIt<LockCubit>().stream
+        .where((s) => s.locked)
+        .listen((_) => getIt<HideBalanceCubit>().relocked());
     _lifecycle = AppLifecycleListener(
       onResume: () {
         catchUpRecurring();
@@ -47,6 +57,7 @@ class _KharchaAppState extends State<KharchaApp> {
 
   @override
   void dispose() {
+    _relock.cancel();
     _lifecycle.dispose();
     _router.dispose();
     super.dispose();
@@ -61,6 +72,7 @@ class _KharchaAppState extends State<KharchaApp> {
         BlocProvider.value(value: getIt<HideBalanceCubit>()),
         BlocProvider.value(value: getIt<BudgetCycleCubit>()),
         BlocProvider.value(value: getIt<CurrencyCubit>()),
+        BlocProvider.value(value: getIt<CountryCubit>()),
       ],
       child: Builder(
         builder: (context) {

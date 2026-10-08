@@ -8,6 +8,7 @@ import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/di/injection.dart';
 import 'package:khaata_digital/core/router/routes.dart';
 import 'package:khaata_digital/core/widgets/amount_text.dart';
+import 'package:khaata_digital/core/widgets/app_switch.dart';
 import 'package:khaata_digital/core/widgets/glass_nav_bar.dart';
 import 'package:khaata_digital/features/people/presentation/people_screen.dart';
 import 'package:khaata_digital/features/security/domain/device_auth.dart';
@@ -39,32 +40,69 @@ void main() {
     await t.pumpAndSettle();
   }
 
+  Finder tab(String label) =>
+      find.descendant(of: find.byType(GlassNavBar), matching: find.text(label));
+
   bool masked(WidgetTester t, Key key) =>
       t.widget<AmountText>(find.byKey(key)).masked;
 
   group('balances', () {
-    testWidgets('hidden by default, income / spent / left too', (t) async {
-      expect(SettingKey.hideBalance.defaultValue, 'true');
-      expect(getIt<HideBalanceCubit>().state, isTrue);
+    HideBalanceCubit hide() => getIt<HideBalanceCubit>();
+
+    testWidgets('shown by default; the setting hides them on every start', (
+      t,
+    ) async {
+      expect(SettingKey.hideBalance.defaultValue, 'false');
       await start(t);
+      expect(masked(t, const Key('netWorth')), isFalse);
+
+      // More → Hide balances: on at once, and saved.
+      await t.tap(tab('More'));
+      await t.pumpAndSettle();
+      await reveal(t, find.byKey(const Key('hideBalanceTile')));
+      await t.tap(
+        find.descendant(
+          of: find.byKey(const Key('hideBalanceTile')),
+          matching: find.byType(AppSwitch),
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(hide().state.always, isTrue);
+      expect(hide().state.masked, isTrue);
+
+      // A peek with the eye, then the app is closed while showing…
+      await t.tap(tab('Home'));
+      await t.pumpAndSettle();
+      await t.tap(find.byKey(const Key('hideBalance')));
+      await t.pumpAndSettle();
+      expect(masked(t, const Key('netWorth')), isFalse);
+      expect(hide().state.always, isTrue, reason: 'a peek keeps the setting');
+
+      // …and the next start is hidden again, income / spent / left too.
+      await t.runAsync(hide().load);
+      await t.pumpAndSettle();
       expect(masked(t, const Key('netWorth')), isTrue);
       await t.tap(find.byKey(const Key('summaryToggle')));
       await t.pumpAndSettle();
-      final stats = t.widgetList<AmountText>(find.byType(AmountText));
       expect(
-        stats.where((a) => !a.masked),
+        t
+            .widgetList<AmountText>(find.byType(AmountText))
+            .where((a) => !a.masked),
         isEmpty,
         reason: 'nothing on Home shows',
       );
     });
 
-    testWidgets('with the lock on, showing asks for Face ID first', (t) async {
+    testWidgets('with the lock on, showing asks for Face ID first, and a '
+        're-lock hides them again', (t) async {
       (getIt<DeviceAuth>() as FakeDeviceAuth).kind = BiometricKind.face;
+      final lock = getIt<LockCubit>();
       await t.runAsync(() async {
-        final lock = getIt<LockCubit>();
         await lock.load();
         await lock.setPin('2580');
         await lock.setBiometric(true, reason: 'on');
+        await lock.setLockAfter(Duration.zero);
+        await hide().setAlways(true);
       });
       await start(t);
       await t.tap(find.byKey(const Key('hideBalance')));
@@ -72,15 +110,23 @@ void main() {
         () => Future<void>.delayed(const Duration(milliseconds: 50)),
       );
       await t.pumpAndSettle();
-      expect(getIt<HideBalanceCubit>().state, isFalse);
       expect(masked(t, const Key('netWorth')), isFalse);
 
       // Hiding again never asks.
       final asked = (getIt<DeviceAuth>() as FakeDeviceAuth).asked.length;
       await t.tap(find.byKey(const Key('hideBalance')));
       await t.pumpAndSettle();
-      expect(getIt<HideBalanceCubit>().state, isTrue);
+      expect(hide().state.masked, isTrue);
       expect((getIt<DeviceAuth>() as FakeDeviceAuth).asked, hasLength(asked));
+
+      // Shown, then the app locks on its way back: hidden again.
+      hide().show();
+      lock
+        ..backgrounded()
+        ..foregrounded();
+      await t.pump();
+      expect(lock.state.locked, isTrue);
+      expect(hide().state.masked, isTrue);
     });
 
     testWidgets('without fingerprint / face it asks for the PIN', (t) async {
@@ -89,6 +135,7 @@ void main() {
         final lock = getIt<LockCubit>();
         await lock.load();
         await lock.setPin('2580');
+        await hide().setAlways(true);
       });
       await start(t);
       await t.tap(find.byKey(const Key('hideBalance')));
@@ -106,9 +153,9 @@ void main() {
       }
 
       await type('1111');
-      expect(getIt<HideBalanceCubit>().state, isTrue, reason: 'wrong PIN');
+      expect(hide().state.masked, isTrue, reason: 'wrong PIN');
       await type('2580');
-      expect(getIt<HideBalanceCubit>().state, isFalse);
+      expect(hide().state.masked, isFalse);
     });
   });
 
@@ -276,7 +323,6 @@ void main() {
       await l.account('Meezan Bank', opening: 25755000);
       await l.account('JazzCash', opening: 1000);
     });
-    await getIt<HideBalanceCubit>().set(false);
     await start(t);
     unawaited(t.element(find.byType(GlassNavBar)).push(Routes.accounts));
     await t.pumpAndSettle();
@@ -296,5 +342,33 @@ void main() {
             .round(),
     };
     expect(rights, hasLength(1), reason: 'right edges: $rights');
+  });
+
+  testWidgets('Add account shows the country\'s banks; switching saves it', (
+    t,
+  ) async {
+    await start(t);
+    unawaited(t.element(find.byType(GlassNavBar)).push(Routes.accounts));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const Key('addAccount')));
+    await t.pumpAndSettle();
+    expect(find.byKey(const Key('preset-hbl')), findsOneWidget);
+    expect(find.text('Pakistan'), findsOneWidget);
+
+    await t.tap(find.byKey(const Key('presetCountry')));
+    await t.pumpAndSettle();
+    await t.scrollUntilVisible(
+      find.text('United Arab Emirates'),
+      200,
+      scrollable: find.byType(Scrollable).last,
+    );
+    await t.tap(find.text('United Arab Emirates'));
+    await t.pumpAndSettle();
+    expect(find.byKey(const Key('preset-enbd')), findsOneWidget);
+    expect(find.byKey(const Key('preset-hbl')), findsNothing);
+    expect(
+      await t.runAsync(() => db.settingsDao.read(SettingKey.country)),
+      'AE',
+    );
   });
 }

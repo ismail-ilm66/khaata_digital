@@ -1236,6 +1236,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setupBody => 'You can change these anytime in More.';
 
   @override
+  String get country => 'Country';
+
+  @override
+  String get countryHint =>
+      'Shows your country\'s banks and wallets when you add an account';
+
+  @override
+  String get countryOther => 'Other / international';
+
+  @override
+  String get banksIn => 'Banks and wallets in';
+
+  @override
   String get homeCurrency => 'Currency';
 
   @override
@@ -1258,6 +1271,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get extrasLockHint => 'Or your fingerprint or face';
+
+  @override
+  String get howToUse => 'How to use Kharcha';
+
+  @override
+  String get howToUseHint => 'A quick tour of the main screen';
+
+  @override
+  String tourProgress(int step, int total) {
+    return '$step of $total';
+  }
+
+  @override
+  String get tourAddTitle => 'Add an entry';
+
+  @override
+  String get tourAddBody =>
+      'Tap + to record money you spend or earn, a transfer between your accounts, or udhaar you give or get back.';
+
+  @override
+  String get tourNetWorthTitle => 'Your money at a glance';
+
+  @override
+  String get tourNetWorthBody =>
+      'Net worth is the total in all your accounts right now.';
+
+  @override
+  String get tourEyeTitle => 'Hide or show amounts';
+
+  @override
+  String get tourEyeBody =>
+      'Tap the eye to hide balances from people around you. To always open with them hidden, turn on Hide balances in More.';
+
+  @override
+  String get tourMonthTitle => 'This month';
+
+  @override
+  String get tourMonthBody =>
+      'Open it to see this month\'s income, spending and what\'s left. Tap any figure to see the entries behind it.';
+
+  @override
+  String get tourAccountsTitle => 'Your accounts';
+
+  @override
+  String get tourAccountsBody =>
+      'Cash, banks and wallets with their balances. Tap Manage to add one or change it.';
+
+  @override
+  String get tourTransactionsBody =>
+      'Every entry, newest first. Filter or search them. Swipe an entry right to edit it, left to delete it.';
+
+  @override
+  String get tourReportsBody =>
+      'Charts of where your money goes, for any month, year or dates you choose.';
+
+  @override
+  String get tourMoreBody =>
+      'Budgets, People (udhaar), backups and settings. You can replay this tour from here anytime.';
 
   @override
   String get skip => 'Skip';
@@ -1333,7 +1404,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get supportSubject => 'Kharcha support';
 
   @override
-  String get hideBalancesHint => 'Hide totals and balances behind dots';
+  String get hideBalancesHint => 'Always open with totals and balances hidden';
 
   @override
   String get copyDiagnosticsHint =>

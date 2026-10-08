@@ -28,7 +28,6 @@ import 'package:khaata_digital/features/backup/domain/backup.dart';
 import 'package:khaata_digital/features/backup/domain/cloud_backup_store.dart';
 import 'package:khaata_digital/features/settings/domain/setting_key.dart';
 import 'package:khaata_digital/features/settings/domain/settings_repository.dart';
-import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/theme_cubit.dart';
 import 'package:khaata_digital/features/transactions/domain/ledger_entry.dart';
 import 'package:khaata_digital/features/transactions/domain/transaction_type.dart';
@@ -205,8 +204,6 @@ void main() {
       'you@gmail.com',
     );
     await getIt<SettingsRepository>().write(SettingKey.autoBackup, 'true');
-    // Store screenshots show the numbers (the app starts with them hidden).
-    await getIt<HideBalanceCubit>().set(false);
     final backups = getIt<BackupService>();
     await backups.record(await backups.create(), BackupDestination.drive);
   }

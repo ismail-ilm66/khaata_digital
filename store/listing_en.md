@@ -6,7 +6,7 @@
 
 ## Full description
 
-**Kharcha — the budget & expense tracker made for Pakistan 🇵🇰**
+**Kharcha — the budget & expense tracker**
 
 Track your daily kharcha, manage your monthly budget, and keep your hisab kitab in one simple, fast, offline app. No login required. No ads. Free.
 

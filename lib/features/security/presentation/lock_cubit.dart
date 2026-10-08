@@ -148,6 +148,13 @@ class LockCubit extends Cubit<AppLockState> {
     }
   }
 
+  /// Leaving the app on purpose (back from Home): locked at once, whatever
+  /// "Lock after" says.
+  void lockNow() {
+    _leftAt = null;
+    if (state.enabled && !state.locked) emit(state.copyWith(locked: true));
+  }
+
   // ── Unlocking ─────────────────────────────────────────────────────────
 
   Future<PinResult> enterPin(String pin, [DateTime? now]) async {

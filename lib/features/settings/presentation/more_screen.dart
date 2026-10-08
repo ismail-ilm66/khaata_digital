@@ -1,3 +1,6 @@
+import '../../onboarding/presentation/home_tour.dart';
+import '../../../core/region/country.dart';
+import 'country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -144,15 +147,30 @@ class MoreScreen extends StatelessWidget {
                         },
                       ),
                     ),
-                    BlocBuilder<HideBalanceCubit, bool>(
-                      builder: (context, hidden) => SettingTile(
+                    BlocBuilder<CountryCubit, Country>(
+                      builder: (context, country) => SettingTile(
+                        key: const Key('countryTile'),
+                        icon: AppIcons.globe,
+                        title: l10n.country,
+                        subtitle: l10n.countryHint,
+                        trailing: CountryFlag(country),
+                        onTap: () async {
+                          final c = await pickCountry(context, country);
+                          if (c != null && context.mounted) {
+                            await context.read<CountryCubit>().set(c);
+                          }
+                        },
+                      ),
+                    ),
+                    BlocBuilder<HideBalanceCubit, BalancePrivacy>(
+                      builder: (context, privacy) => SettingTile(
                         key: const Key('hideBalanceTile'),
                         icon: AppIcons.hide,
                         title: l10n.hideBalances,
                         subtitle: l10n.hideBalancesHint,
                         trailing: AppSwitch(
-                          value: hidden,
-                          onChanged: (_) => toggleBalances(context),
+                          value: privacy.always,
+                          onChanged: (on) => setHideBalances(context, on),
                         ),
                       ),
                     ),
@@ -258,6 +276,13 @@ class MoreScreen extends StatelessWidget {
               ),
               SurfaceCard(
                 children: [
+                  SettingTile(
+                    key: const Key('tourTile'),
+                    icon: AppIcons.guide,
+                    title: l10n.howToUse,
+                    subtitle: l10n.howToUseHint,
+                    onTap: () => replayHomeTour(context),
+                  ),
                   SettingTile(
                     key: const Key('aboutTile'),
                     icon: AppIcons.shield,

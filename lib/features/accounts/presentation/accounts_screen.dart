@@ -1,3 +1,5 @@
+import '../../../core/widgets/pill_button.dart';
+import '../../settings/presentation/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -36,7 +38,8 @@ class AccountsScreen extends StatelessWidget {
   }
 }
 
-/// Opens the Pakistani bank/wallet picker, then the form for the choice.
+/// Opens the bank/wallet picker for the user's country, then the form for
+/// the choice.
 Future<void> addAccount(BuildContext context) async {
   final choice = await showAppSheet<AccountPreset?>(
     context,
@@ -58,7 +61,7 @@ class _AccountsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final masked = context.watch<HideBalanceCubit>().state;
+    final masked = context.watch<HideBalanceCubit>().state.masked;
     return BlocConsumer<AccountsBloc, AccountsState>(
       listenWhen: (a, b) => b.duplicateName != null,
       listener: (context, s) =>
@@ -296,8 +299,10 @@ class _PresetGrid extends StatelessWidget {
       ),
     );
 
-    return GridView.count(
+    final country = context.watch<CountryCubit>().state;
+    final grid = GridView.count(
       shrinkWrap: true,
+      primary: false,
       crossAxisCount: 3,
       childAspectRatio: 1.05,
       padding: const EdgeInsets.fromLTRB(
@@ -307,7 +312,7 @@ class _PresetGrid extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: [
-        for (final p in AccountPresets.all)
+        for (final p in AccountPresets.forCountry(country.code))
           cell(
             key: Key('preset-${p.key}'),
             badge: AccountBadge(
@@ -326,6 +331,44 @@ class _PresetGrid extends StatelessWidget {
           onTap: () => Navigator.pop(context, custom),
         ),
       ],
+    );
+    // Which country's banks: tap to switch (saved as the country).
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.xl,
+              0,
+              AppSpacing.xl,
+              AppSpacing.m,
+            ),
+            // The pill drops under the label when space runs out.
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: AppSpacing.s,
+              runSpacing: AppSpacing.xs,
+              children: [
+                Text(context.l10n.banksIn, style: context.text.bodySmall),
+                PillButton(
+                  key: const Key('presetCountry'),
+                  leading: CountryFlag(country, size: 16),
+                  label: countryName(context, country),
+                  showChevron: true,
+                  onTap: () async {
+                    final c = await pickCountry(context, country);
+                    if (c != null && context.mounted) {
+                      await context.read<CountryCubit>().set(c);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          grid,
+        ],
+      ),
     );
   }
 }

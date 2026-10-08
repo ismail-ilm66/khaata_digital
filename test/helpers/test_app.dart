@@ -17,6 +17,7 @@ import 'fake_reminders.dart';
 import 'test_db.dart';
 import 'test_receipts.dart';
 import 'package:khaata_digital/features/settings/domain/setting_key.dart';
+import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
 
 /// Resets DI with an in-memory database and temp receipt storage, then runs
 /// the real [bootstrap]. Pass [reuse] to simulate a cold start against the
@@ -36,7 +37,12 @@ Future<AppDatabase> setUpTestApp({
     ..registerSingleton<DeviceAuth>(FakeDeviceAuth());
   if (!welcome && reuse == null) {
     await db.settingsDao.write(SettingKey.onboardingDone, 'true');
+    // Tests that want the Home tour turn it back on.
+    await db.settingsDao.write(SettingKey.tourDone, 'true');
   }
+  // A phone in Pakistan, whatever machine runs the tests.
+  CountryCubit.deviceCountry = () => 'PK';
+  CountryCubit.utcOffsetMinutes = () => 300;
   configureDependencies(environment: Environment.test);
   // No platform channels in widget tests; fast passphrase derivation.
   getIt<BackupService>()

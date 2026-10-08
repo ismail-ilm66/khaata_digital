@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../onboarding/presentation/home_tour.dart';
 import '../../backup/presentation/backup_nudge.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/money/money.dart';
@@ -41,7 +42,15 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => getIt<HomeCubit>()..start(),
-      child: const _HomeView(),
+      // The how-to tour, the first time Home has something to show.
+      child: BlocListener<HomeCubit, HomeState>(
+        listenWhen: (a, b) => a.loading && !b.loading,
+        listener: (context, _) =>
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) maybeStartHomeTour(context);
+            }),
+        child: const _HomeView(),
+      ),
     );
   }
 }
@@ -53,7 +62,7 @@ class _HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = context.l10n;
     final s = context.watch<HomeCubit>().state;
-    final masked = context.watch<HideBalanceCubit>().state;
+    final masked = context.watch<HideBalanceCubit>().state.masked;
     final cycle = context.watch<BudgetCycleCubit>().state;
     final locale = Localizations.localeOf(context).toLanguageTag();
 
@@ -64,14 +73,17 @@ class _HomeView extends StatelessWidget {
         await getIt<AppRefresh>().recurring();
       },
       subtitle: s.cycle == null ? null : cycle.label(s.cycle!, locale: locale),
-      trailing: IconButton.filledTonal(
-        key: const Key('hideBalance'),
-        tooltip: masked ? l.showBalances : l.hideBalances,
-        onPressed: () => toggleBalances(context),
-        style: IconButton.styleFrom(backgroundColor: context.colors.surface),
-        icon: Icon(
-          masked ? AppIcons.hide : AppIcons.show,
-          color: context.colors.ink,
+      trailing: KeyedSubtree(
+        key: TourTargets.eye,
+        child: IconButton.filledTonal(
+          key: const Key('hideBalance'),
+          tooltip: masked ? l.showBalances : l.hideBalances,
+          onPressed: () => toggleBalances(context),
+          style: IconButton.styleFrom(backgroundColor: context.colors.surface),
+          icon: Icon(
+            masked ? AppIcons.hide : AppIcons.show,
+            color: context.colors.ink,
+          ),
         ),
       ),
       slivers: [
@@ -80,10 +92,14 @@ class _HomeView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
             sliver: SliverList.list(
               children: [
-                _SummaryCard(state: s, masked: masked),
+                KeyedSubtree(
+                  key: TourTargets.netWorth,
+                  child: _SummaryCard(state: s, masked: masked),
+                ),
                 BackupNudge(hasData: s.recent?.isNotEmpty ?? false),
                 const SizedBox(height: AppSpacing.xl),
                 Section(
+                  key: TourTargets.accounts,
                   title: l.accounts,
                   trailing: TextButton(
                     onPressed: () => context.push(Routes.accounts),
@@ -237,35 +253,40 @@ class _SummaryCardState extends State<_SummaryCard> {
                 style: context.text.titleMedium!.copyWith(color: c.inkMuted),
               ),
             const SizedBox(height: AppSpacing.l),
-            InkWell(
-              key: const Key('summaryToggle'),
-              onTap: _toggle,
-              borderRadius: BorderRadius.circular(AppRadii.s),
-              child: PeriodNavigator(
-                dense: true,
-                label: state.isCurrent
-                    ? l.thisCycle
-                    : context.watch<BudgetCycleCubit>().state.label(
-                        state.cycle!,
-                        locale: Localizations.localeOf(context).toLanguageTag(),
+            KeyedSubtree(
+              key: TourTargets.thisMonth,
+              child: InkWell(
+                key: const Key('summaryToggle'),
+                onTap: _toggle,
+                borderRadius: BorderRadius.circular(AppRadii.s),
+                child: PeriodNavigator(
+                  dense: true,
+                  label: state.isCurrent
+                      ? l.thisCycle
+                      : context.watch<BudgetCycleCubit>().state.label(
+                          state.cycle!,
+                          locale: Localizations.localeOf(
+                            context,
+                          ).toLanguageTag(),
+                        ),
+                  previousTooltip: l.previousPeriod,
+                  nextTooltip: l.nextPeriod,
+                  onPrevious: _open
+                      ? () => context.read<HomeCubit>().step(-1)
+                      : null,
+                  onNext: !_open || state.isCurrent
+                      ? null
+                      : () => context.read<HomeCubit>().step(1),
+                  trailing: AnimatedRotation(
+                    turns: _open ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.s),
+                      child: Icon(
+                        AppIcons.chevronDown,
+                        size: 16,
+                        color: c.inkMuted,
                       ),
-                previousTooltip: l.previousPeriod,
-                nextTooltip: l.nextPeriod,
-                onPrevious: _open
-                    ? () => context.read<HomeCubit>().step(-1)
-                    : null,
-                onNext: !_open || state.isCurrent
-                    ? null
-                    : () => context.read<HomeCubit>().step(1),
-                trailing: AnimatedRotation(
-                  turns: _open ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.s),
-                    child: Icon(
-                      AppIcons.chevronDown,
-                      size: 16,
-                      color: c.inkMuted,
                     ),
                   ),
                 ),
@@ -384,12 +405,15 @@ class _AccountsCarousel extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(AppIcons.plus, color: c.brand),
-                  const SizedBox(height: AppSpacing.xs),
+                  Icon(AppIcons.plus, color: c.brand, size: 20),
+                  const SizedBox(height: 2),
+                  // Two lines at most (Urdu with large text wraps).
                   Text(
                     context.l10n.addAccount,
                     style: context.text.labelMedium,
                     textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -452,7 +476,7 @@ class _BudgetsCard extends StatelessWidget {
     Widget row(String name, BudgetLine line) => BudgetLineView(
       name: name,
       line: line,
-      masked: context.watch<HideBalanceCubit>().state,
+      masked: context.watch<HideBalanceCubit>().state.masked,
     );
     return Material(
       color: context.colors.surface,

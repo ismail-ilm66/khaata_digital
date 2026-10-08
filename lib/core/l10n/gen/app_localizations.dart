@@ -2270,6 +2270,30 @@ abstract class AppLocalizations {
   /// **'You can change these anytime in More.'**
   String get setupBody;
 
+  /// No description provided for @country.
+  ///
+  /// In en, this message translates to:
+  /// **'Country'**
+  String get country;
+
+  /// No description provided for @countryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows your country\'s banks and wallets when you add an account'**
+  String get countryHint;
+
+  /// No description provided for @countryOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other / international'**
+  String get countryOther;
+
+  /// No description provided for @banksIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Banks and wallets in'**
+  String get banksIn;
+
   /// No description provided for @homeCurrency.
   ///
   /// In en, this message translates to:
@@ -2317,6 +2341,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Or your fingerprint or face'**
   String get extrasLockHint;
+
+  /// No description provided for @howToUse.
+  ///
+  /// In en, this message translates to:
+  /// **'How to use Kharcha'**
+  String get howToUse;
+
+  /// No description provided for @howToUseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A quick tour of the main screen'**
+  String get howToUseHint;
+
+  /// No description provided for @tourProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{step} of {total}'**
+  String tourProgress(int step, int total);
+
+  /// No description provided for @tourAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an entry'**
+  String get tourAddTitle;
+
+  /// No description provided for @tourAddBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to record money you spend or earn, a transfer between your accounts, or udhaar you give or get back.'**
+  String get tourAddBody;
+
+  /// No description provided for @tourNetWorthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your money at a glance'**
+  String get tourNetWorthTitle;
+
+  /// No description provided for @tourNetWorthBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Net worth is the total in all your accounts right now.'**
+  String get tourNetWorthBody;
+
+  /// No description provided for @tourEyeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide or show amounts'**
+  String get tourEyeTitle;
+
+  /// No description provided for @tourEyeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the eye to hide balances from people around you. To always open with them hidden, turn on Hide balances in More.'**
+  String get tourEyeBody;
+
+  /// No description provided for @tourMonthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get tourMonthTitle;
+
+  /// No description provided for @tourMonthBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open it to see this month\'s income, spending and what\'s left. Tap any figure to see the entries behind it.'**
+  String get tourMonthBody;
+
+  /// No description provided for @tourAccountsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your accounts'**
+  String get tourAccountsTitle;
+
+  /// No description provided for @tourAccountsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash, banks and wallets with their balances. Tap Manage to add one or change it.'**
+  String get tourAccountsBody;
+
+  /// No description provided for @tourTransactionsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every entry, newest first. Filter or search them. Swipe an entry right to edit it, left to delete it.'**
+  String get tourTransactionsBody;
+
+  /// No description provided for @tourReportsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts of where your money goes, for any month, year or dates you choose.'**
+  String get tourReportsBody;
+
+  /// No description provided for @tourMoreBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Budgets, People (udhaar), backups and settings. You can replay this tour from here anytime.'**
+  String get tourMoreBody;
 
   /// No description provided for @skip.
   ///
@@ -2453,7 +2573,7 @@ abstract class AppLocalizations {
   /// No description provided for @hideBalancesHint.
   ///
   /// In en, this message translates to:
-  /// **'Hide totals and balances behind dots'**
+  /// **'Always open with totals and balances hidden'**
   String get hideBalancesHint;
 
   /// No description provided for @copyDiagnosticsHint.

@@ -5,8 +5,9 @@ enum SettingKey {
   themeMode('system'),
   locale('en'),
 
-  /// Balances start hidden; revealing asks for the app lock when it's on.
-  hideBalance('true'),
+  /// "Hide balances": every start begins hidden; the eye on Home only
+  /// shows them for the session (asking for the app lock when it's on).
+  hideBalance('false'),
   lockEnabled('false'),
 
   /// PBKDF2 of the 4-digit PIN: "iterations:salt:hash" (base64). Device-only.
@@ -31,7 +32,14 @@ enum SettingKey {
   autoBackupWifiOnly('true'),
 
   /// The Google account backups go to; empty when Drive isn't connected.
-  driveAccount('');
+  driveAccount(''),
+
+  /// Country code for the bank / wallet list; empty = detect from the
+  /// phone.
+  country(''),
+
+  /// The how-to tour on Home was shown (finished or skipped).
+  tourDone('false');
 
   const SettingKey(this.defaultValue);
 
@@ -57,6 +65,8 @@ enum SettingKey {
     autoBackup => 'auto_backup',
     autoBackupWifiOnly => 'auto_backup_wifi_only',
     driveAccount => 'drive_account',
+    country => 'country',
+    tourDone => 'tour_done',
   };
 
   /// Settings that describe this phone, not the user's data: a restore

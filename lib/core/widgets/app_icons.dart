@@ -38,6 +38,9 @@ abstract final class AppIcons {
     PhosphorIconsRegular.circleHalf,
     PhosphorIconsFill.circleHalf,
   );
+  static const IconData globe = PhosphorIconsRegular.globeHemisphereEast;
+  static const IconData guide = PhosphorIconsRegular.signpost;
+
   static const language = AppIcon(
     PhosphorIconsRegular.translate,
     PhosphorIconsFill.translate,

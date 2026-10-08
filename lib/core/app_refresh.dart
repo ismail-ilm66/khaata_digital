@@ -17,6 +17,7 @@ class AppRefresh {
     this._cycle,
     this._currency,
     this._haptics,
+    this._country,
     this._recurring,
     this._reminders,
   );
@@ -27,17 +28,22 @@ class AppRefresh {
   final BudgetCycleCubit _cycle;
   final CurrencyCubit _currency;
   final HapticsCubit _haptics;
+  final CountryCubit _country;
   final RecurringRepository _recurring;
   final ReminderScheduler _reminders;
 
-  Future<void> preferences() => Future.wait([
-    _theme.load(),
-    _locale.load(),
-    _hideBalance.load(),
-    _cycle.load(),
-    _currency.load(),
-    _haptics.load(),
-  ]);
+  Future<void> preferences() async {
+    await Future.wait([
+      _theme.load(),
+      _locale.load(),
+      _hideBalance.load(),
+      _cycle.load(),
+      _currency.load(),
+      _haptics.load(),
+    ]);
+    // Detecting the country falls back on the home currency.
+    await _country.load();
+  }
 
   /// Creates recurring entries that fell due and refreshes reminders.
   Future<void> recurring() => runRecurringMaintenance(_recurring, _reminders);

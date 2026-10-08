@@ -26,6 +26,8 @@ class GlassNavBar extends StatelessWidget {
     required this.onSelected,
     required this.actionLabel,
     required this.onAction,
+    this.tabKeys,
+    this.actionKey,
   }) : assert(
          items.length % 2 == 0,
          'tabs must split evenly around the action',
@@ -38,6 +40,11 @@ class GlassNavBar extends StatelessWidget {
   /// Accessible label for the centre action.
   final String actionLabel;
   final VoidCallback onAction;
+
+  /// Optional keys on each tab and on the action (the how-to tour points
+  /// at them).
+  final List<GlobalKey>? tabKeys;
+  final GlobalKey? actionKey;
 
   static const double _barHeight = 68;
   static const double _bottomGap = AppSpacing.s;
@@ -60,6 +67,7 @@ class GlassNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final half = items.length ~/ 2;
     Widget tab(int i) => Expanded(
+      key: tabKeys?[i],
       child: _NavTab(
         item: items[i],
         selected: i == selectedIndex,
@@ -81,7 +89,10 @@ class GlassNavBar extends StatelessWidget {
             child: Row(
               children: [
                 for (var i = 0; i < half; i++) tab(i),
-                _ActionButton(label: actionLabel, onTap: onAction),
+                KeyedSubtree(
+                  key: actionKey,
+                  child: _ActionButton(label: actionLabel, onTap: onAction),
+                ),
                 for (var i = half; i < items.length; i++) tab(i),
               ],
             ),

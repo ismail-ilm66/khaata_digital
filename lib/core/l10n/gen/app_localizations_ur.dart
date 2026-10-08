@@ -1229,6 +1229,19 @@ class AppLocalizationsUr extends AppLocalizations {
   String get setupBody => 'یہ سب بعد میں مزید میں بدل سکتے ہیں۔';
 
   @override
+  String get country => 'ملک';
+
+  @override
+  String get countryHint =>
+      'اکاؤنٹ بناتے وقت آپ کے ملک کے بینک اور والیٹ دکھاتا ہے';
+
+  @override
+  String get countryOther => 'دیگر / بین الاقوامی';
+
+  @override
+  String get banksIn => 'بینک اور والیٹ:';
+
+  @override
   String get homeCurrency => 'کرنسی';
 
   @override
@@ -1251,6 +1264,64 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get extrasLockHint => 'یا فنگر پرنٹ یا چہرے سے';
+
+  @override
+  String get howToUse => 'خرچہ کیسے استعمال کریں';
+
+  @override
+  String get howToUseHint => 'مین اسکرین کا مختصر تعارف';
+
+  @override
+  String tourProgress(int step, int total) {
+    return '$total میں سے $step';
+  }
+
+  @override
+  String get tourAddTitle => 'اندراج شامل کریں';
+
+  @override
+  String get tourAddBody =>
+      '+ دبائیں اور خرچ، آمدنی، اپنے اکاؤنٹس کے درمیان منتقلی، یا دیا اور واپس ملا ادھار لکھیں۔';
+
+  @override
+  String get tourNetWorthTitle => 'آپ کی رقم ایک نظر میں';
+
+  @override
+  String get tourNetWorthBody =>
+      'کل مالیت اس وقت آپ کے تمام اکاؤنٹس کی کل رقم ہے۔';
+
+  @override
+  String get tourEyeTitle => 'رقم چھپائیں یا دکھائیں';
+
+  @override
+  String get tourEyeBody =>
+      'آنکھ والا بٹن دبا کر بیلنس دوسروں سے چھپائیں۔ ہمیشہ چھپا کر کھولنے کے لیے \"مزید\" میں \"بیلنس چھپائیں\" آن کریں۔';
+
+  @override
+  String get tourMonthTitle => 'اس مہینے';
+
+  @override
+  String get tourMonthBody =>
+      'کھولیں اور اس مہینے کی آمدنی، خرچ اور باقی رقم دیکھیں۔ کسی بھی رقم پر ٹیپ کر کے اس کے اندراجات دیکھیں۔';
+
+  @override
+  String get tourAccountsTitle => 'آپ کے اکاؤنٹس';
+
+  @override
+  String get tourAccountsBody =>
+      'کیش، بینک اور والیٹ اپنے بیلنس کے ساتھ۔ نیا شامل کرنے یا بدلنے کے لیے \"انتظام\" دبائیں۔';
+
+  @override
+  String get tourTransactionsBody =>
+      'ہر اندراج، نیا پہلے۔ فلٹر یا تلاش کریں۔ ترمیم کے لیے دائیں، حذف کے لیے بائیں سوائپ کریں۔';
+
+  @override
+  String get tourReportsBody =>
+      'آپ کا پیسہ کہاں جاتا ہے، کسی بھی مہینے، سال یا تاریخوں کے چارٹ۔';
+
+  @override
+  String get tourMoreBody =>
+      'بجٹ، لوگ (ادھار)، بیک اپ اور سیٹنگز۔ یہ تعارف یہاں سے کبھی بھی دوبارہ دیکھیں۔';
 
   @override
   String get skip => 'چھوڑیں';
@@ -1326,7 +1397,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get supportSubject => 'خرچہ سپورٹ';
 
   @override
-  String get hideBalancesHint => 'کل رقم اور بیلنس نقطوں کے پیچھے چھپائیں';
+  String get hideBalancesHint => 'ایپ ہمیشہ کل رقم اور بیلنس چھپا کر کھولیں';
 
   @override
   String get copyDiagnosticsHint =>
