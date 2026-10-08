@@ -49,7 +49,7 @@ Last results: all three pass on the iPhone 17 simulator (iOS 26); 10,000 rows im
 
 ## Owner checklist before the first upload
 
-- [ ] Publish `docs/privacy-policy.md` at a public URL (GitHub Pages from `/docs` is simplest) and enter it in Play Console.
+- [ ] GitHub Pages (Settings → Pages → `main`, `/docs`) serves `docs/` at https://ismail-ilm66.github.io/khaata_digital/ — enter `/privacy-policy` in Play Console and the OAuth consent screen, with `/` as the home page and `/terms` as the terms link.
 - [ ] Set `SUPPORT_EMAIL` in `.env`, and the same address on the store listing.
 - [ ] Back up `android/app/kharcha-upload.jks` and its password somewhere safe.
 - [ ] Create the app in Play Console with id `com.expensetracker.kharcha`; enroll in Play App Signing; upload `build/app/outputs/bundle/release/app-release.aab`.

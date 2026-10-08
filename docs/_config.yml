@@ -1,0 +1,10 @@
+# GitHub Pages site for Kharcha's public pages (Settings → Pages → main, /docs).
+# Pages stay free of front matter: privacy-policy.md is also bundled into the app.
+title: Kharcha
+exclude:
+  - release-readiness.md
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
