@@ -85,6 +85,19 @@ abstract final class CategorySeeds {
     CategorySeed('Insurance', CategoryKind.expense, 'shield'),
     CategorySeed('Committee', CategoryKind.expense, 'groups'),
     CategorySeed('Installment', CategoryKind.expense, 'event_repeat'),
+    investment,
     CategorySeed('Other Expenses', CategoryKind.expense, 'more_horiz'),
   ];
+
+  /// Money put into stocks, gold, a plot, a business (owner request; not in
+  /// Hysab Kytab's set).
+  static const investment = CategorySeed(
+    'Investment',
+    CategoryKind.expense,
+    'trending_up',
+  );
+
+  /// Defaults added after the first release, given to existing installs
+  /// once at start-up (see `addNewDefaultCategories`).
+  static const List<CategorySeed> addedLater = [investment];
 }

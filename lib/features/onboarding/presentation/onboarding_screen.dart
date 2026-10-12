@@ -281,6 +281,7 @@ class _Setup extends StatelessWidget {
               onTap: () async {
                 final c = await pickOne<BudgetCycle>(
                   context,
+                  searchable: false,
                   title: l.monthStart,
                   selected: s.cycle,
                   items: [

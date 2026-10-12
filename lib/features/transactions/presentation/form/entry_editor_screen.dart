@@ -872,12 +872,14 @@ class _UdhaarSection extends StatelessWidget {
       context,
       title: l.choosePerson,
       selected: state.personId,
+      searchable: state.people.isNotEmpty,
       items: [
         PickItem(
           value: addNew,
           title: l.addPerson,
           leading: const TintedBadge(icon: AppIcons.plus, size: 36),
           trailing: const SizedBox.shrink(),
+          pinned: true,
         ),
         for (final p in state.people)
           PickItem(

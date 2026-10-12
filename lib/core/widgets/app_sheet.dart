@@ -64,6 +64,7 @@ class PickItem<T> {
     this.subtitle,
     this.leading,
     this.trailing,
+    this.pinned = false,
   });
 
   final T value;
@@ -71,31 +72,141 @@ class PickItem<T> {
   final String? subtitle;
   final Widget? leading;
   final Widget? trailing;
+
+  /// Stays in the list whatever is searched (e.g. "Add person").
+  final bool pinned;
 }
 
-/// A sheet listing [items]; returns the tapped value.
+/// Lists at least this long get a search field.
+const int kSearchFrom = 8;
+
+/// Whether [query] appears in any of [texts], ignoring case and spacing at
+/// the ends. An empty query matches everything.
+bool matchesSearch(String query, Iterable<String?> texts) {
+  final q = query.trim().toLowerCase();
+  if (q.isEmpty) return true;
+  return texts.any((t) => t != null && t.toLowerCase().contains(q));
+}
+
+/// The search box at the top of a pick sheet; filters as you type.
+class SheetSearchField extends StatelessWidget {
+  const SheetSearchField({super.key, required this.onChanged});
+
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.xl,
+      0,
+      AppSpacing.xl,
+      AppSpacing.s,
+    ),
+    child: TextField(
+      key: const Key('sheetSearch'),
+      onChanged: onChanged,
+      textInputAction: TextInputAction.search,
+      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+      decoration: InputDecoration(
+        hintText: context.l10n.search,
+        prefixIcon: const Icon(AppIcons.search),
+        isDense: true,
+      ),
+    ),
+  );
+}
+
+/// "Nothing matches", under a search with no results.
+class _NoMatches extends StatelessWidget {
+  const _NoMatches();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(AppSpacing.xl),
+    child: Text(
+      context.l10n.noMatches,
+      key: const Key('sheetNoMatches'),
+      textAlign: TextAlign.center,
+      style: context.text.bodyMedium!.copyWith(color: context.colors.inkMuted),
+    ),
+  );
+}
+
+/// A sheet listing [items]; returns the tapped value. Long lists get a
+/// search field; [searchable] forces it on or off.
 Future<T?> pickOne<T>(
   BuildContext context, {
   required String title,
   required List<PickItem<T>> items,
   T? selected,
+  bool? searchable,
 }) {
   return showAppSheet<T>(
     context,
     title: title,
-    builder: (context) => ListView(
-      shrinkWrap: true,
-      padding: const EdgeInsets.only(bottom: AppSpacing.l),
-      children: [
-        for (final item in items)
-          _PickRow(
-            item: item,
-            selected: item.value == selected,
-            onTap: () => Navigator.pop(context, item.value),
-          ),
-      ],
+    builder: (context) => _SearchableList<T>(
+      items: items,
+      searchable: searchable,
+      bottomPadding: AppSpacing.l,
+      row: (item) => _PickRow(
+        item: item,
+        selected: item.value == selected,
+        onTap: () => Navigator.pop(context, item.value),
+      ),
     ),
   );
+}
+
+/// [items] with a search field on top once there are [kSearchFrom].
+class _SearchableList<T> extends StatefulWidget {
+  const _SearchableList({
+    required this.items,
+    required this.row,
+    this.searchable,
+    this.bottomPadding = 0,
+  });
+
+  final List<PickItem<T>> items;
+  final bool? searchable;
+  final Widget Function(PickItem<T>) row;
+  final double bottomPadding;
+
+  @override
+  State<_SearchableList<T>> createState() => _SearchableListState<T>();
+}
+
+class _SearchableListState<T> extends State<_SearchableList<T>> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final searchable =
+        widget.searchable ??
+        widget.items.where((i) => !i.pinned).length >= kSearchFrom;
+    final shown = [
+      for (final i in widget.items)
+        if (i.pinned || matchesSearch(_query, [i.title, i.subtitle])) i,
+    ];
+    final nothing = shown.every((i) => i.pinned) && _query.trim().isNotEmpty;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (searchable)
+          SheetSearchField(onChanged: (q) => setState(() => _query = q)),
+        Flexible(
+          child: ListView(
+            shrinkWrap: true,
+            padding: EdgeInsets.only(bottom: widget.bottomPadding),
+            children: [
+              for (final item in shown) widget.row(item),
+              if (nothing) const _NoMatches(),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 /// A sheet with checkable [items]; returns the chosen set, or null if
@@ -119,20 +230,17 @@ Future<Set<T>?> pickMany<T>(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  for (final item in items)
-                    _PickRow(
-                      item: item,
-                      selected: chosen.contains(item.value),
-                      onTap: () => setState(() {
-                        chosen = chosen.contains(item.value)
-                            ? ({...chosen}..remove(item.value))
-                            : {...chosen, item.value};
-                      }),
-                    ),
-                ],
+              child: _SearchableList<T>(
+                items: items,
+                row: (item) => _PickRow(
+                  item: item,
+                  selected: chosen.contains(item.value),
+                  onTap: () => setState(() {
+                    chosen = chosen.contains(item.value)
+                        ? ({...chosen}..remove(item.value))
+                        : {...chosen, item.value};
+                  }),
+                ),
               ),
             ),
             Padding(

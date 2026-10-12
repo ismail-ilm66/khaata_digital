@@ -214,6 +214,7 @@ class MoreScreen extends StatelessWidget {
                         onTap: () async {
                           final chosen = await pickOne<BudgetCycle>(
                             context,
+                            searchable: false,
                             title: l10n.monthStart,
                             selected: cycle,
                             items: [

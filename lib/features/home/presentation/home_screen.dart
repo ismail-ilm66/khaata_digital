@@ -75,16 +75,7 @@ class _HomeView extends StatelessWidget {
       subtitle: s.cycle == null ? null : cycle.label(s.cycle!, locale: locale),
       trailing: KeyedSubtree(
         key: TourTargets.eye,
-        child: IconButton.filledTonal(
-          key: const Key('hideBalance'),
-          tooltip: masked ? l.showBalances : l.hideBalances,
-          onPressed: () => toggleBalances(context),
-          style: IconButton.styleFrom(backgroundColor: context.colors.surface),
-          icon: Icon(
-            masked ? AppIcons.hide : AppIcons.show,
-            color: context.colors.ink,
-          ),
-        ),
+        child: const BalanceEyeButton(),
       ),
       slivers: [
         if (!s.loading)

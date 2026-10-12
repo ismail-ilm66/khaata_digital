@@ -1,5 +1,7 @@
 import 'package:injectable/injectable.dart';
 
+import 'db/app_database.dart';
+import 'db/seed.dart';
 import '../features/recurring/data/recurring_maintenance.dart';
 import '../features/recurring/domain/recurring_rule.dart';
 import '../features/settings/presentation/cubit/locale_cubit.dart';
@@ -11,6 +13,7 @@ import '../features/settings/presentation/cubit/theme_cubit.dart';
 @lazySingleton
 class AppRefresh {
   AppRefresh(
+    this._db,
     this._theme,
     this._locale,
     this._hideBalance,
@@ -22,6 +25,7 @@ class AppRefresh {
     this._reminders,
   );
 
+  final AppDatabase _db;
   final ThemeCubit _theme;
   final LocaleCubit _locale;
   final HideBalanceCubit _hideBalance;
@@ -49,6 +53,8 @@ class AppRefresh {
   Future<void> recurring() => runRecurringMaintenance(_recurring, _reminders);
 
   Future<void> all() async {
+    // Defaults added in an update, also into a restored older backup.
+    await addNewDefaultCategories(_db);
     await preferences();
     await recurring();
   }

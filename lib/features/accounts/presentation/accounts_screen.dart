@@ -1,3 +1,4 @@
+import '../../security/presentation/reveal_balances.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../settings/presentation/country_picker.dart';
 import 'package:flutter/material.dart';
@@ -70,11 +71,18 @@ class _AccountsView extends StatelessWidget {
         final accounts = s.overview.accounts;
         return PageScaffold(
           title: l.accounts,
-          trailing: IconButton.filled(
-            key: const Key('addAccount'),
-            tooltip: l.addAccount,
-            onPressed: () => addAccount(context),
-            icon: const Icon(AppIcons.plus),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const BalanceEyeButton(buttonKey: Key('accountsEye')),
+              const SizedBox(width: AppSpacing.s),
+              IconButton.filled(
+                key: const Key('addAccount'),
+                tooltip: l.addAccount,
+                onPressed: () => addAccount(context),
+                icon: const Icon(AppIcons.plus),
+              ),
+            ],
           ),
           slivers: [
             if (accounts.isEmpty)

@@ -312,6 +312,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i825.AppRefresh>(
       () => _i825.AppRefresh(
+        gh<_i577.AppDatabase>(),
         gh<_i547.ThemeCubit>(),
         gh<_i310.LocaleCubit>(),
         gh<_i795.HideBalanceCubit>(),

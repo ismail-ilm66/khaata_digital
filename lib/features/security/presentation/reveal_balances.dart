@@ -1,8 +1,10 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/feedback/haptics.dart';
 import '../../../core/theme/context_x.dart';
+import '../../../core/widgets/app_icons.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import 'lock_cubit.dart';
 import 'lock_settings_screen.dart';
@@ -34,4 +36,30 @@ Future<bool> _confirm(BuildContext context) async {
     return true;
   }
   return context.mounted && await confirmCurrentPin(context);
+}
+
+/// The eye in a page header (Home, Accounts, People, a person): shows or
+/// hides every balance for this session.
+class BalanceEyeButton extends StatelessWidget {
+  const BalanceEyeButton({
+    super.key,
+    this.buttonKey = const Key('hideBalance'),
+  });
+
+  /// Key on the button itself (each page has its own, for tests).
+  final Key buttonKey;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = context.colors;
+    final masked = context.watch<HideBalanceCubit>().state.masked;
+    return IconButton.filledTonal(
+      key: buttonKey,
+      tooltip: masked ? l.showBalances : l.hideBalances,
+      onPressed: () => toggleBalances(context),
+      style: IconButton.styleFrom(backgroundColor: c.surface),
+      icon: Icon(masked ? AppIcons.hide : AppIcons.show, color: c.ink),
+    );
+  }
 }

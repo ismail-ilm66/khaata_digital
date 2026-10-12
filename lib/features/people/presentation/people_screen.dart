@@ -1,3 +1,4 @@
+import '../../security/presentation/reveal_balances.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -127,11 +128,18 @@ class _PeopleScreenState extends State<PeopleScreen> {
         };
         return PageScaffold(
           title: l.people,
-          trailing: IconButton.filled(
-            key: const Key('addPerson'),
-            tooltip: l.addPerson,
-            onPressed: () => PeopleScreen.addPerson(context),
-            icon: const Icon(AppIcons.plus),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const BalanceEyeButton(buttonKey: Key('peopleEye')),
+              const SizedBox(width: AppSpacing.s),
+              IconButton.filled(
+                key: const Key('addPerson'),
+                tooltip: l.addPerson,
+                onPressed: () => PeopleScreen.addPerson(context),
+                icon: const Icon(AppIcons.plus),
+              ),
+            ],
           ),
           slivers: [
             if (o != null)
@@ -156,6 +164,7 @@ class _PeopleScreenState extends State<PeopleScreen> {
                       AmountText(
                         total,
                         key: const Key('peopleTabTotal'),
+                        masked: context.watch<HideBalanceCubit>().state.masked,
                         style: context.text.headlineMedium!.copyWith(
                           color: _tab == PeopleTab.receive ? c.income : c.ink,
                         ),
@@ -356,6 +365,7 @@ class PersonTile extends StatelessWidget {
             if (!balance.isZero)
               AmountText(
                 balance.abs(),
+                masked: context.watch<HideBalanceCubit>().state.masked,
                 style: context.text.titleSmall!.copyWith(
                   color: balance.isPositive ? c.income : c.ink,
                 ),

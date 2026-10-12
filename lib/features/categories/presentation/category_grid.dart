@@ -104,7 +104,8 @@ class CategoryGrid extends StatelessWidget {
   }
 }
 
-/// A sheet with the full category grid; returns the tapped category.
+/// A sheet with the full category grid, searchable; returns the tapped
+/// category.
 Future<Category?> pickCategory(
   BuildContext context, {
   required List<Category> categories,
@@ -113,11 +114,45 @@ Future<Category?> pickCategory(
   return showAppSheet<Category>(
     context,
     title: context.l10n.chooseCategory,
-    builder: (sheet) => CategoryGrid(
-      shrinkWrap: true,
-      categories: categories,
-      selectedId: selectedId,
-      onTap: (c) => Navigator.pop(sheet, c),
-    ),
+    builder: (sheet) {
+      var query = '';
+      return StatefulBuilder(
+        builder: (sheet, setState) {
+          final shown = [
+            for (final c in categories)
+              if (matchesSearch(query, [c.name])) c,
+          ];
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (categories.length >= kSearchFrom)
+                SheetSearchField(onChanged: (q) => setState(() => query = q)),
+              if (shown.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Text(
+                    sheet.l10n.noMatches,
+                    key: const Key('sheetNoMatches'),
+                    textAlign: TextAlign.center,
+                    style: sheet.text.bodyMedium!.copyWith(
+                      color: sheet.colors.inkMuted,
+                    ),
+                  ),
+                )
+              else
+                Flexible(
+                  child: CategoryGrid(
+                    shrinkWrap: true,
+                    categories: shown,
+                    selectedId: selectedId,
+                    onTap: (c) => Navigator.pop(sheet, c),
+                  ),
+                ),
+            ],
+          );
+        },
+      );
+    },
   );
 }

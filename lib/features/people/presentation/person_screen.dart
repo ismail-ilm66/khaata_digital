@@ -1,3 +1,4 @@
+import '../../security/presentation/reveal_balances.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -86,13 +87,19 @@ class _PersonView extends StatelessWidget {
 
     return PageScaffold(
       title: person.name,
-      trailing: PopupMenuButton<void>(
-        icon: Icon(AppIcons.overflow, color: c.ink),
-        itemBuilder: (_) => [
-          PopupMenuItem(
-            key: const Key('removePerson'),
-            onTap: () => _remove(context),
-            child: Text(l.removePerson),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const BalanceEyeButton(buttonKey: Key('personEye')),
+          PopupMenuButton<void>(
+            icon: Icon(AppIcons.overflow, color: c.ink),
+            itemBuilder: (_) => [
+              PopupMenuItem(
+                key: const Key('removePerson'),
+                onTap: () => _remove(context),
+                child: Text(l.removePerson),
+              ),
+            ],
           ),
         ],
       ),
@@ -113,6 +120,7 @@ class _PersonView extends StatelessWidget {
                       AmountText(
                         balance.abs(),
                         key: const Key('personBalance'),
+                        masked: context.watch<HideBalanceCubit>().state.masked,
                         style: context.text.displaySmall!.copyWith(
                           color: balance.isPositive ? c.income : c.ink,
                         ),
@@ -239,7 +247,12 @@ class _LedgerRow extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 AmountText(e.amount, style: context.text.titleSmall),
-                AmountText(line.runningBalance, style: context.text.bodySmall),
+                // The running total gives the balance away.
+                AmountText(
+                  line.runningBalance,
+                  masked: context.watch<HideBalanceCubit>().state.masked,
+                  style: context.text.bodySmall,
+                ),
               ],
             ),
           ],

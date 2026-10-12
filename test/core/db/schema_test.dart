@@ -20,11 +20,12 @@ void main() {
   tearDown(() => db.close());
 
   group('seed', () {
-    test('creates the 42 Hysab Kytab categories in export order', () async {
+    test('creates the 42 Hysab Kytab categories in export order, plus '
+        'Investment for expenses', () async {
       final all = await db.categoriesDao.active();
       expect(all.map((c) => c.name), CategorySeeds.all.map((s) => s.name));
       expect(all.where((c) => c.kind == CategoryKind.income), hasLength(16));
-      expect(all.where((c) => c.kind == CategoryKind.expense), hasLength(26));
+      expect(all.where((c) => c.kind == CategoryKind.expense), hasLength(27));
     });
 
     test('does not seed a "No Category" row', () async {
