@@ -1249,6 +1249,103 @@ class AppLocalizationsEn extends AppLocalizations {
   String get banksIn => 'Banks and wallets in';
 
   @override
+  String get mostUsedFirst => 'Most used first';
+
+  @override
+  String get mostUsedFirstOn => 'Accounts you use most come first, on Home too';
+
+  @override
+  String get mostUsedFirstOff => 'Your own order: drag the handles to arrange';
+
+  @override
+  String get toPay => 'To pay';
+
+  @override
+  String get toPaySubtitle =>
+      'Charity, bills and promises you still have to pay';
+
+  @override
+  String get toPayEmptyTitle => 'Nothing to pay';
+
+  @override
+  String get toPayEmptyBody =>
+      'Add what you still have to pay, like charity, a bill or money you promised, so it doesn\'t slip your mind.';
+
+  @override
+  String get toPayAllDone => 'All paid. Nothing left on the list.';
+
+  @override
+  String get addToPay => 'Add something to pay';
+
+  @override
+  String get editToPay => 'To pay';
+
+  @override
+  String get toPayWhat => 'What for';
+
+  @override
+  String get toPayWhatHint => 'Charity, school fee, gift for Ali…';
+
+  @override
+  String get toPayWhatRequired => 'Say what it\'s for';
+
+  @override
+  String get amountLabel => 'Amount';
+
+  @override
+  String get noDueDate => 'No due date';
+
+  @override
+  String get dueToday => 'Due today';
+
+  @override
+  String dueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String overdueSince(String date) {
+    return 'Overdue since $date';
+  }
+
+  @override
+  String get categoryLater => 'Category (optional)';
+
+  @override
+  String get stillToPay => 'Still to pay';
+
+  @override
+  String get pay => 'Pay';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String paidOn(String date) {
+    return 'Paid $date';
+  }
+
+  @override
+  String get markPaidNoEntry => 'Mark as paid, without adding an entry';
+
+  @override
+  String get toPayMarkedPaid => 'Marked as paid';
+
+  @override
+  String get markNotPaid => 'Back on the list';
+
+  @override
+  String get markNotPaidHint =>
+      'Its entry stays; delete that separately if needed';
+
+  @override
+  String get deleteToPayTitle => 'Delete this?';
+
+  @override
+  String get deleteToPayBody =>
+      'It comes off your To-pay list. Any entry already recorded for it stays.';
+
+  @override
   String get homeCurrency => 'Currency';
 
   @override

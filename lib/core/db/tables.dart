@@ -211,3 +211,30 @@ class ImportHashes extends Table {
   @override
   Set<Column<Object>> get primaryKey => {hash};
 }
+
+/// Schema v3. Money still to be paid ("To pay"): a promise, a bill or
+/// charity that isn't an entry yet. Paying it records an entry and links
+/// it here.
+@DataClassName('PlannedPaymentRow')
+class PlannedPayments extends Table with Entity, Timestamped, SoftDelete {
+  TextColumn get title => text().withLength(min: 1, max: 80)();
+  IntColumn get amountMinor => integer()();
+  TextColumn get currencyCode => text().withLength(min: 3, max: 3)();
+  TextColumn get categoryId => text().nullable().references(Categories, #id)();
+
+  /// The calendar day it's due (UTC midnight of that date); null = no date.
+  IntColumn get dueOn => integer().map(const UtcMillisConverter()).nullable()();
+  TextColumn get note => text().withDefault(const Constant(''))();
+  IntColumn get paidAt =>
+      integer().map(const UtcMillisConverter()).nullable()();
+
+  /// The entry that paid it, if it was recorded in Kharcha.
+  TextColumn get transactionId => text().nullable().references(
+    Transactions,
+    #id,
+    onDelete: KeyAction.setNull,
+  )();
+
+  @override
+  List<String> get customConstraints => const ['CHECK (amount_minor > 0)'];
+}

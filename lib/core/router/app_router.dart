@@ -23,6 +23,7 @@ import 'app_shell.dart';
 import 'routes.dart';
 import '../../features/security/presentation/lock_settings_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
+import '../../features/to_pay/presentation/to_pay_screen.dart';
 import '../../features/categories/presentation/categories_screen.dart';
 import '../../features/settings/presentation/about_screen.dart';
 import '../../features/settings/presentation/privacy_screen.dart';
@@ -116,6 +117,10 @@ GoRouter createRouter({String initialLocation = Routes.home}) {
       GoRoute(
         path: Routes.recurring,
         builder: (context, state) => const RecurringScreen(),
+      ),
+      GoRoute(
+        path: Routes.toPay,
+        builder: (context, state) => const ToPayScreen(),
       ),
       GoRoute(
         path: Routes.backup,

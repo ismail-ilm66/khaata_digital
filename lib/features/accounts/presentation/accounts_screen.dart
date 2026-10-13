@@ -1,3 +1,5 @@
+import '../../../core/widgets/app_switch.dart';
+import 'ordered_accounts.dart';
 import '../../security/presentation/reveal_balances.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../settings/presentation/country_picker.dart';
@@ -96,25 +98,45 @@ class _AccountsView extends StatelessWidget {
                   ),
                 ),
               ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-              sliver: SliverReorderableList(
-                itemCount: accounts.length,
-                onReorder: (from, to) => context.read<AccountsBloc>().add(
-                  AccountsReordered(from, to),
+            if (accounts.length > 1)
+              const SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.page,
+                  0,
+                  AppSpacing.page,
+                  AppSpacing.m,
                 ),
-                proxyDecorator: (child, _, _) =>
-                    Material(color: Colors.transparent, child: child),
-                itemBuilder: (context, i) => Padding(
-                  key: ValueKey(accounts[i].account.id),
-                  padding: const EdgeInsets.only(bottom: AppSpacing.s),
-                  child: _AccountRow(
-                    summary: accounts[i],
-                    index: i,
-                    masked: masked,
-                  ),
-                ),
+                sliver: SliverToBoxAdapter(child: _OrderToggle()),
               ),
+            OrderedAccounts(
+              accounts: accounts,
+              builder: (context, ordered) {
+                final byUse = context.watch<AccountsByUseCubit>().state;
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.page,
+                  ),
+                  sliver: SliverReorderableList(
+                    itemCount: ordered.length,
+                    onReorder: (from, to) => context.read<AccountsBloc>().add(
+                      AccountsReordered(from, to),
+                    ),
+                    proxyDecorator: (child, _, _) =>
+                        Material(color: Colors.transparent, child: child),
+                    itemBuilder: (context, i) => Padding(
+                      key: ValueKey(ordered[i].account.id),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.s),
+                      child: _AccountRow(
+                        summary: ordered[i],
+                        index: i,
+                        masked: masked,
+                        // Dragging only means something in your own order.
+                        draggable: !byUse,
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(
@@ -187,11 +209,13 @@ class _AccountRow extends StatelessWidget {
     required this.summary,
     required this.index,
     required this.masked,
+    this.draggable = true,
   });
 
   final AccountSummary summary;
   final int index;
   final bool masked;
+  final bool draggable;
 
   @override
   Widget build(BuildContext context) {
@@ -254,13 +278,20 @@ class _AccountRow extends StatelessWidget {
                   ),
                 ),
               ),
-              ReorderableDragStartListener(
-                index: index,
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.s),
-                  child: Icon(AppIcons.dragHandle, size: 18, color: c.inkMuted),
-                ),
-              ),
+              if (draggable)
+                ReorderableDragStartListener(
+                  index: index,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.s),
+                    child: Icon(
+                      AppIcons.dragHandle,
+                      size: 18,
+                      color: c.inkMuted,
+                    ),
+                  ),
+                )
+              else
+                const SizedBox(width: AppSpacing.m),
             ],
           ),
         ),
@@ -377,6 +408,31 @@ class _PresetGrid extends StatelessWidget {
           grid,
         ],
       ),
+    );
+  }
+}
+
+/// "Most used first" on or off; off, the drag handles come back.
+class _OrderToggle extends StatelessWidget {
+  const _OrderToggle();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final byUse = context.watch<AccountsByUseCubit>().state;
+    return SurfaceCard(
+      children: [
+        SettingTile(
+          key: const Key('accountsByUse'),
+          icon: AppIcons.sortByUse,
+          title: l.mostUsedFirst,
+          subtitle: byUse ? l.mostUsedFirstOn : l.mostUsedFirstOff,
+          trailing: AppSwitch(
+            value: byUse,
+            onChanged: context.read<AccountsByUseCubit>().set,
+          ),
+        ),
+      ],
     );
   }
 }

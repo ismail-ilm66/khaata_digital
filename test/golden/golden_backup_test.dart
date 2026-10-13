@@ -80,6 +80,21 @@ void main() {
         }
       });
 
+      test('keeps what is still to pay (v3+)', () async {
+        final open = expected['to_pay_open'] as Map<String, dynamic>?;
+        if (open == null) return;
+        final rows = await db
+            .customSelect(
+              'SELECT title, amount_minor FROM planned_payments '
+              'WHERE paid_at IS NULL AND deleted_at IS NULL',
+            )
+            .get();
+        expect({
+          for (final r in rows)
+            r.read<String>('title'): r.read<int>('amount_minor'),
+        }, open);
+      });
+
       test('keeps settings', () async {
         final settings = expected['settings'] as Map<String, dynamic>;
         for (final key in SettingKey.values) {

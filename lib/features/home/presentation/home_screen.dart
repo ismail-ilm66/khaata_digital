@@ -1,3 +1,5 @@
+import '../../to_pay/presentation/to_pay_home.dart';
+import '../../accounts/presentation/ordered_accounts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -96,9 +98,10 @@ class _HomeView extends StatelessWidget {
                     onPressed: () => context.push(Routes.accounts),
                     child: Text(l.manage),
                   ),
-                  child: _AccountsCarousel(
+                  child: OrderedAccounts(
                     accounts: s.overview!.accounts,
-                    masked: masked,
+                    builder: (context, accounts) =>
+                        _AccountsCarousel(accounts: accounts, masked: masked),
                   ),
                 ),
                 Section(
@@ -125,6 +128,7 @@ class _HomeView extends StatelessWidget {
                         context.push(Routes.peopleTab(PeopleTab.owe.name)),
                   ),
                 ),
+                const ToPayHomeSection(),
                 Section(
                   title: l.recent,
                   trailing: s.recent!.isEmpty

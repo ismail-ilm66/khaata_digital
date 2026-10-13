@@ -132,3 +132,17 @@ class CountryCubit extends SettingCubit<Country> {
   @override
   String encode(Country value) => value.code;
 }
+
+/// Accounts on Home and the Accounts screen: most-used first, or the
+/// user's own drag order.
+@lazySingleton
+class AccountsByUseCubit extends SettingCubit<bool> {
+  AccountsByUseCubit(SettingsRepository r)
+    : super(r, SettingKey.accountsByUse, true);
+
+  @override
+  bool decode(String stored) => stored != 'false';
+
+  @override
+  String encode(bool value) => '$value';
+}

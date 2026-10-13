@@ -40,6 +40,12 @@ abstract final class AppIcons {
   );
   static const IconData globe = PhosphorIconsRegular.globeHemisphereEast;
   static const IconData guide = PhosphorIconsRegular.signpost;
+  static const IconData sortByUse = PhosphorIconsRegular.sortDescending;
+  static const IconData undo = PhosphorIconsRegular.arrowCounterClockwise;
+  static const toPay = AppIcon(
+    PhosphorIconsRegular.handCoins,
+    PhosphorIconsFill.handCoins,
+  );
 
   static const language = AppIcon(
     PhosphorIconsRegular.translate,

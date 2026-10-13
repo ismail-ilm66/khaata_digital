@@ -2294,6 +2294,180 @@ abstract class AppLocalizations {
   /// **'Banks and wallets in'**
   String get banksIn;
 
+  /// No description provided for @mostUsedFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Most used first'**
+  String get mostUsedFirst;
+
+  /// No description provided for @mostUsedFirstOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Accounts you use most come first, on Home too'**
+  String get mostUsedFirstOn;
+
+  /// No description provided for @mostUsedFirstOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Your own order: drag the handles to arrange'**
+  String get mostUsedFirstOff;
+
+  /// No description provided for @toPay.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay'**
+  String get toPay;
+
+  /// No description provided for @toPaySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Charity, bills and promises you still have to pay'**
+  String get toPaySubtitle;
+
+  /// No description provided for @toPayEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to pay'**
+  String get toPayEmptyTitle;
+
+  /// No description provided for @toPayEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add what you still have to pay, like charity, a bill or money you promised, so it doesn\'t slip your mind.'**
+  String get toPayEmptyBody;
+
+  /// No description provided for @toPayAllDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All paid. Nothing left on the list.'**
+  String get toPayAllDone;
+
+  /// No description provided for @addToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Add something to pay'**
+  String get addToPay;
+
+  /// No description provided for @editToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay'**
+  String get editToPay;
+
+  /// No description provided for @toPayWhat.
+  ///
+  /// In en, this message translates to:
+  /// **'What for'**
+  String get toPayWhat;
+
+  /// No description provided for @toPayWhatHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Charity, school fee, gift for Ali…'**
+  String get toPayWhatHint;
+
+  /// No description provided for @toPayWhatRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Say what it\'s for'**
+  String get toPayWhatRequired;
+
+  /// No description provided for @amountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amountLabel;
+
+  /// No description provided for @noDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No due date'**
+  String get noDueDate;
+
+  /// No description provided for @dueToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get dueToday;
+
+  /// No description provided for @dueOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String dueOn(String date);
+
+  /// No description provided for @overdueSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue since {date}'**
+  String overdueSince(String date);
+
+  /// No description provided for @categoryLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Category (optional)'**
+  String get categoryLater;
+
+  /// No description provided for @stillToPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Still to pay'**
+  String get stillToPay;
+
+  /// No description provided for @pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay'**
+  String get pay;
+
+  /// No description provided for @paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paid;
+
+  /// No description provided for @paidOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {date}'**
+  String paidOn(String date);
+
+  /// No description provided for @markPaidNoEntry.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid, without adding an entry'**
+  String get markPaidNoEntry;
+
+  /// No description provided for @toPayMarkedPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as paid'**
+  String get toPayMarkedPaid;
+
+  /// No description provided for @markNotPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Back on the list'**
+  String get markNotPaid;
+
+  /// No description provided for @markNotPaidHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Its entry stays; delete that separately if needed'**
+  String get markNotPaidHint;
+
+  /// No description provided for @deleteToPayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this?'**
+  String get deleteToPayTitle;
+
+  /// No description provided for @deleteToPayBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It comes off your To-pay list. Any entry already recorded for it stays.'**
+  String get deleteToPayBody;
+
   /// No description provided for @homeCurrency.
   ///
   /// In en, this message translates to:

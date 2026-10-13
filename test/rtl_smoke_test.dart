@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/dates/budget_cycle.dart';
+import 'package:khaata_digital/core/dates/calendar_day.dart';
+import 'package:khaata_digital/features/to_pay/domain/planned_payment.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/di/injection.dart';
 import 'package:khaata_digital/core/money/currency.dart';
@@ -67,6 +69,14 @@ void main() {
       ),
       RecurrenceFrequency.monthly,
     );
+    await getIt<ToPayRepository>().add(
+      PlannedPaymentDraft(
+        title: 'صدقہ',
+        amount: Money.major(2400, Currency.pkr),
+        dueOn: CalendarDay.of(DateTime.now()),
+        note: 'مسجد',
+      ),
+    );
     backupBytes = (await getIt<BackupService>().create()).bytes;
     await getIt<LocaleCubit>().set(LocaleCubit.urdu);
   }
@@ -85,6 +95,7 @@ void main() {
     Routes.people: () => null,
     Routes.person(personId): () => null,
     Routes.recurring: () => null,
+    Routes.toPay: () => null,
     Routes.addEntry: () => null,
     Routes.editEntry(entryId): () => null,
     Routes.backup: () => null,

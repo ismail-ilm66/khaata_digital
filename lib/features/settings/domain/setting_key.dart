@@ -39,7 +39,10 @@ enum SettingKey {
   country(''),
 
   /// The how-to tour on Home was shown (finished or skipped).
-  tourDone('false');
+  tourDone('false'),
+
+  /// Accounts listed most-used first (true) or in the user's drag order.
+  accountsByUse('true');
 
   const SettingKey(this.defaultValue);
 
@@ -67,6 +70,7 @@ enum SettingKey {
     driveAccount => 'drive_account',
     country => 'country',
     tourDone => 'tour_done',
+    accountsByUse => 'accounts_by_use',
   };
 
   /// Settings that describe this phone, not the user's data: a restore

@@ -38,6 +38,30 @@ void main() {
             ),
           );
 
+      // v3: one thing still to pay, and one paid by the salary entry's
+      // row (any live entry will do for the link).
+      await db
+          .into(db.plannedPayments)
+          .insert(
+            PlannedPaymentsCompanion.insert(
+              title: 'Charity',
+              amountMinor: 240000,
+              currencyCode: 'PKR',
+              dueOn: Value(DateTime.utc(2026, 10, 31)),
+            ),
+          );
+      await db
+          .into(db.plannedPayments)
+          .insert(
+            PlannedPaymentsCompanion.insert(
+              title: 'School fee',
+              amountMinor: 1500000,
+              currencyCode: 'PKR',
+              paidAt: Value(DateTime.utc(2026, 10, 5)),
+              transactionId: Value(salary),
+            ),
+          );
+
       final out = File('test/fixtures/golden/v${db.schemaVersion}/kharcha.db');
       expect(out.existsSync(), isFalse, reason: 'fixtures are frozen');
       out.parent.createSync(recursive: true);

@@ -29,6 +29,7 @@ import '../../../people/presentation/person_badge.dart';
 import '../../../recurring/domain/recurrence.dart';
 import '../../../recurring/domain/recurring_rule.dart';
 import '../../../recurring/presentation/recurring_screen.dart';
+import '../../../to_pay/domain/planned_payment.dart';
 import '../../domain/transaction_type.dart';
 import '../widgets/receipts.dart';
 import 'transaction_form_bloc.dart';
@@ -53,16 +54,24 @@ abstract final class EntryEditor {
       amount: amount,
     ),
   );
+
+  /// Pays an item on the To-pay list: an expense pre-filled with its
+  /// amount, category and title; saving marks the item paid.
+  static Future<void> pay(BuildContext context, PlannedPayment item) =>
+      context.push(Routes.addEntry, extra: EntryEditorArgs(toPay: item));
 }
 
 /// Pre-fill for a new entry.
 @immutable
 class EntryEditorArgs {
-  const EntryEditorArgs({this.udhaar, this.personId, this.amount});
+  const EntryEditorArgs({this.udhaar, this.personId, this.amount, this.toPay});
 
   final UdhaarDirection? udhaar;
   final String? personId;
   final Money? amount;
+
+  /// The To-pay item being paid.
+  final PlannedPayment? toPay;
 }
 
 /// Add / edit a transaction on its own screen (spec 3.2 #3).
@@ -86,7 +95,10 @@ class EntryEditorScreen extends StatelessWidget {
             editId: editId,
             udhaar: args?.udhaar,
             personId: args?.personId,
-            amount: args?.amount,
+            amount: args?.amount ?? args?.toPay?.amount,
+            categoryId: args?.toPay?.categoryId,
+            note: args?.toPay?.title,
+            plannedPaymentId: args?.toPay?.id,
           ),
         ),
       child: const _Editor(),

@@ -19,6 +19,7 @@ abstract final class Routes {
   static const people = '/people';
   static const personPattern = '/people/:id';
   static const recurring = '/recurring';
+  static const toPay = '/to-pay';
   static const addEntry = '/add';
   static const editEntryPattern = '/edit/:id';
   static const backup = '/backup';

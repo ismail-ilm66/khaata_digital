@@ -1242,6 +1242,103 @@ class AppLocalizationsUr extends AppLocalizations {
   String get banksIn => 'بینک اور والیٹ:';
 
   @override
+  String get mostUsedFirst => 'زیادہ استعمال والے پہلے';
+
+  @override
+  String get mostUsedFirstOn =>
+      'سب سے زیادہ استعمال ہونے والے اکاؤنٹ پہلے، ہوم پر بھی';
+
+  @override
+  String get mostUsedFirstOff => 'آپ کی اپنی ترتیب: ہینڈل گھسیٹ کر ترتیب دیں';
+
+  @override
+  String get toPay => 'ادا کرنا ہے';
+
+  @override
+  String get toPaySubtitle => 'صدقہ، بل اور وعدے جو ابھی ادا کرنے ہیں';
+
+  @override
+  String get toPayEmptyTitle => 'کچھ ادا کرنا باقی نہیں';
+
+  @override
+  String get toPayEmptyBody =>
+      'جو ابھی ادا کرنا ہے، جیسے صدقہ، کوئی بل یا وعدہ کی ہوئی رقم، یہاں لکھیں تاکہ بھول نہ جائیں۔';
+
+  @override
+  String get toPayAllDone => 'سب ادا ہو گیا۔ فہرست خالی ہے۔';
+
+  @override
+  String get addToPay => 'ادا کرنے کی چیز شامل کریں';
+
+  @override
+  String get editToPay => 'ادا کرنا ہے';
+
+  @override
+  String get toPayWhat => 'کس لیے';
+
+  @override
+  String get toPayWhatHint => 'صدقہ، اسکول فیس، علی کا تحفہ…';
+
+  @override
+  String get toPayWhatRequired => 'بتائیں کس لیے ہے';
+
+  @override
+  String get amountLabel => 'رقم';
+
+  @override
+  String get noDueDate => 'کوئی تاریخ نہیں';
+
+  @override
+  String get dueToday => 'آج ادا کرنا ہے';
+
+  @override
+  String dueOn(String date) {
+    return 'ادائیگی $date';
+  }
+
+  @override
+  String overdueSince(String date) {
+    return '$date سے باقی';
+  }
+
+  @override
+  String get categoryLater => 'زمرہ (اختیاری)';
+
+  @override
+  String get stillToPay => 'ابھی ادا کرنا ہے';
+
+  @override
+  String get pay => 'ادا کریں';
+
+  @override
+  String get paid => 'ادا شدہ';
+
+  @override
+  String paidOn(String date) {
+    return '$date کو ادا کیا';
+  }
+
+  @override
+  String get markPaidNoEntry => 'اندراج کے بغیر ادا شدہ کریں';
+
+  @override
+  String get toPayMarkedPaid => 'ادا شدہ کر دیا';
+
+  @override
+  String get markNotPaid => 'واپس فہرست میں';
+
+  @override
+  String get markNotPaidHint =>
+      'اس کا اندراج رہے گا؛ ضرورت ہو تو الگ سے حذف کریں';
+
+  @override
+  String get deleteToPayTitle => 'اسے حذف کریں؟';
+
+  @override
+  String get deleteToPayBody =>
+      'یہ آپ کی فہرست سے ہٹ جائے گا۔ اس کا پہلے سے بنا اندراج رہے گا۔';
+
+  @override
   String get homeCurrency => 'کرنسی';
 
   @override

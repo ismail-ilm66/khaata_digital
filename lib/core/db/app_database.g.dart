@@ -6069,6 +6069,752 @@ class ImportHashesCompanion extends UpdateCompanion<ImportHashRow> {
   }
 }
 
+class $PlannedPaymentsTable extends PlannedPayments
+    with TableInfo<$PlannedPaymentsTable, PlannedPaymentRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PlannedPaymentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: newId,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> createdAt =
+      GeneratedColumn<int>(
+        'created_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        clientDefault: nowMillis,
+      ).withConverter<DateTime>($PlannedPaymentsTable.$convertercreatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime, int> updatedAt =
+      GeneratedColumn<int>(
+        'updated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        clientDefault: nowMillis,
+      ).withConverter<DateTime>($PlannedPaymentsTable.$converterupdatedAt);
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> deletedAt =
+      GeneratedColumn<int>(
+        'deleted_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($PlannedPaymentsTable.$converterdeletedAtn);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 80,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMinorMeta = const VerificationMeta(
+    'amountMinor',
+  );
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+    'amount_minor',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currencyCodeMeta = const VerificationMeta(
+    'currencyCode',
+  );
+  @override
+  late final GeneratedColumn<String> currencyCode = GeneratedColumn<String>(
+    'currency_code',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 3,
+      maxTextLength: 3,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta(
+    'categoryId',
+  );
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES categories (id)',
+    ),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> dueOn =
+      GeneratedColumn<int>(
+        'due_on',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($PlannedPaymentsTable.$converterdueOnn);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<DateTime?, int> paidAt =
+      GeneratedColumn<int>(
+        'paid_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      ).withConverter<DateTime?>($PlannedPaymentsTable.$converterpaidAtn);
+  static const VerificationMeta _transactionIdMeta = const VerificationMeta(
+    'transactionId',
+  );
+  @override
+  late final GeneratedColumn<String> transactionId = GeneratedColumn<String>(
+    'transaction_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES transactions (id) ON DELETE SET NULL',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    title,
+    amountMinor,
+    currencyCode,
+    categoryId,
+    dueOn,
+    note,
+    paidAt,
+    transactionId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'planned_payments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<PlannedPaymentRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+        _amountMinorMeta,
+        amountMinor.isAcceptableOrUnknown(
+          data['amount_minor']!,
+          _amountMinorMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('currency_code')) {
+      context.handle(
+        _currencyCodeMeta,
+        currencyCode.isAcceptableOrUnknown(
+          data['currency_code']!,
+          _currencyCodeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyCodeMeta);
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(
+        _categoryIdMeta,
+        categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta),
+      );
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('transaction_id')) {
+      context.handle(
+        _transactionIdMeta,
+        transactionId.isAcceptableOrUnknown(
+          data['transaction_id']!,
+          _transactionIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PlannedPaymentRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PlannedPaymentRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: $PlannedPaymentsTable.$convertercreatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}created_at'],
+        )!,
+      ),
+      updatedAt: $PlannedPaymentsTable.$converterupdatedAt.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}updated_at'],
+        )!,
+      ),
+      deletedAt: $PlannedPaymentsTable.$converterdeletedAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}deleted_at'],
+        ),
+      ),
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      amountMinor: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount_minor'],
+      )!,
+      currencyCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency_code'],
+      )!,
+      categoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category_id'],
+      ),
+      dueOn: $PlannedPaymentsTable.$converterdueOnn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}due_on'],
+        ),
+      ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      )!,
+      paidAt: $PlannedPaymentsTable.$converterpaidAtn.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}paid_at'],
+        ),
+      ),
+      transactionId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}transaction_id'],
+      ),
+    );
+  }
+
+  @override
+  $PlannedPaymentsTable createAlias(String alias) {
+    return $PlannedPaymentsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<DateTime, int> $convertercreatedAt =
+      const UtcMillisConverter();
+  static TypeConverter<DateTime, int> $converterupdatedAt =
+      const UtcMillisConverter();
+  static TypeConverter<DateTime, int> $converterdeletedAt =
+      const UtcMillisConverter();
+  static TypeConverter<DateTime?, int?> $converterdeletedAtn =
+      NullAwareTypeConverter.wrap($converterdeletedAt);
+  static TypeConverter<DateTime, int> $converterdueOn =
+      const UtcMillisConverter();
+  static TypeConverter<DateTime?, int?> $converterdueOnn =
+      NullAwareTypeConverter.wrap($converterdueOn);
+  static TypeConverter<DateTime, int> $converterpaidAt =
+      const UtcMillisConverter();
+  static TypeConverter<DateTime?, int?> $converterpaidAtn =
+      NullAwareTypeConverter.wrap($converterpaidAt);
+}
+
+class PlannedPaymentRow extends DataClass
+    implements Insertable<PlannedPaymentRow> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String title;
+  final int amountMinor;
+  final String currencyCode;
+  final String? categoryId;
+
+  /// The calendar day it's due (UTC midnight of that date); null = no date.
+  final DateTime? dueOn;
+  final String note;
+  final DateTime? paidAt;
+
+  /// The entry that paid it, if it was recorded in Kharcha.
+  final String? transactionId;
+  const PlannedPaymentRow({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.title,
+    required this.amountMinor,
+    required this.currencyCode,
+    this.categoryId,
+    this.dueOn,
+    required this.note,
+    this.paidAt,
+    this.transactionId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    {
+      map['created_at'] = Variable<int>(
+        $PlannedPaymentsTable.$convertercreatedAt.toSql(createdAt),
+      );
+    }
+    {
+      map['updated_at'] = Variable<int>(
+        $PlannedPaymentsTable.$converterupdatedAt.toSql(updatedAt),
+      );
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(
+        $PlannedPaymentsTable.$converterdeletedAtn.toSql(deletedAt),
+      );
+    }
+    map['title'] = Variable<String>(title);
+    map['amount_minor'] = Variable<int>(amountMinor);
+    map['currency_code'] = Variable<String>(currencyCode);
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<String>(categoryId);
+    }
+    if (!nullToAbsent || dueOn != null) {
+      map['due_on'] = Variable<int>(
+        $PlannedPaymentsTable.$converterdueOnn.toSql(dueOn),
+      );
+    }
+    map['note'] = Variable<String>(note);
+    if (!nullToAbsent || paidAt != null) {
+      map['paid_at'] = Variable<int>(
+        $PlannedPaymentsTable.$converterpaidAtn.toSql(paidAt),
+      );
+    }
+    if (!nullToAbsent || transactionId != null) {
+      map['transaction_id'] = Variable<String>(transactionId);
+    }
+    return map;
+  }
+
+  PlannedPaymentsCompanion toCompanion(bool nullToAbsent) {
+    return PlannedPaymentsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      title: Value(title),
+      amountMinor: Value(amountMinor),
+      currencyCode: Value(currencyCode),
+      categoryId: categoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(categoryId),
+      dueOn: dueOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(dueOn),
+      note: Value(note),
+      paidAt: paidAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(paidAt),
+      transactionId: transactionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(transactionId),
+    );
+  }
+
+  factory PlannedPaymentRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PlannedPaymentRow(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      title: serializer.fromJson<String>(json['title']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      currencyCode: serializer.fromJson<String>(json['currencyCode']),
+      categoryId: serializer.fromJson<String?>(json['categoryId']),
+      dueOn: serializer.fromJson<DateTime?>(json['dueOn']),
+      note: serializer.fromJson<String>(json['note']),
+      paidAt: serializer.fromJson<DateTime?>(json['paidAt']),
+      transactionId: serializer.fromJson<String?>(json['transactionId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'title': serializer.toJson<String>(title),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'currencyCode': serializer.toJson<String>(currencyCode),
+      'categoryId': serializer.toJson<String?>(categoryId),
+      'dueOn': serializer.toJson<DateTime?>(dueOn),
+      'note': serializer.toJson<String>(note),
+      'paidAt': serializer.toJson<DateTime?>(paidAt),
+      'transactionId': serializer.toJson<String?>(transactionId),
+    };
+  }
+
+  PlannedPaymentRow copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? title,
+    int? amountMinor,
+    String? currencyCode,
+    Value<String?> categoryId = const Value.absent(),
+    Value<DateTime?> dueOn = const Value.absent(),
+    String? note,
+    Value<DateTime?> paidAt = const Value.absent(),
+    Value<String?> transactionId = const Value.absent(),
+  }) => PlannedPaymentRow(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    title: title ?? this.title,
+    amountMinor: amountMinor ?? this.amountMinor,
+    currencyCode: currencyCode ?? this.currencyCode,
+    categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    dueOn: dueOn.present ? dueOn.value : this.dueOn,
+    note: note ?? this.note,
+    paidAt: paidAt.present ? paidAt.value : this.paidAt,
+    transactionId: transactionId.present
+        ? transactionId.value
+        : this.transactionId,
+  );
+  PlannedPaymentRow copyWithCompanion(PlannedPaymentsCompanion data) {
+    return PlannedPaymentRow(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      title: data.title.present ? data.title.value : this.title,
+      amountMinor: data.amountMinor.present
+          ? data.amountMinor.value
+          : this.amountMinor,
+      currencyCode: data.currencyCode.present
+          ? data.currencyCode.value
+          : this.currencyCode,
+      categoryId: data.categoryId.present
+          ? data.categoryId.value
+          : this.categoryId,
+      dueOn: data.dueOn.present ? data.dueOn.value : this.dueOn,
+      note: data.note.present ? data.note.value : this.note,
+      paidAt: data.paidAt.present ? data.paidAt.value : this.paidAt,
+      transactionId: data.transactionId.present
+          ? data.transactionId.value
+          : this.transactionId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlannedPaymentRow(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('title: $title, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('note: $note, ')
+          ..write('paidAt: $paidAt, ')
+          ..write('transactionId: $transactionId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    title,
+    amountMinor,
+    currencyCode,
+    categoryId,
+    dueOn,
+    note,
+    paidAt,
+    transactionId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PlannedPaymentRow &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.title == this.title &&
+          other.amountMinor == this.amountMinor &&
+          other.currencyCode == this.currencyCode &&
+          other.categoryId == this.categoryId &&
+          other.dueOn == this.dueOn &&
+          other.note == this.note &&
+          other.paidAt == this.paidAt &&
+          other.transactionId == this.transactionId);
+}
+
+class PlannedPaymentsCompanion extends UpdateCompanion<PlannedPaymentRow> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> title;
+  final Value<int> amountMinor;
+  final Value<String> currencyCode;
+  final Value<String?> categoryId;
+  final Value<DateTime?> dueOn;
+  final Value<String> note;
+  final Value<DateTime?> paidAt;
+  final Value<String?> transactionId;
+  final Value<int> rowid;
+  const PlannedPaymentsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.title = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.currencyCode = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.dueOn = const Value.absent(),
+    this.note = const Value.absent(),
+    this.paidAt = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PlannedPaymentsCompanion.insert({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    required String title,
+    required int amountMinor,
+    required String currencyCode,
+    this.categoryId = const Value.absent(),
+    this.dueOn = const Value.absent(),
+    this.note = const Value.absent(),
+    this.paidAt = const Value.absent(),
+    this.transactionId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : title = Value(title),
+       amountMinor = Value(amountMinor),
+       currencyCode = Value(currencyCode);
+  static Insertable<PlannedPaymentRow> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? title,
+    Expression<int>? amountMinor,
+    Expression<String>? currencyCode,
+    Expression<String>? categoryId,
+    Expression<int>? dueOn,
+    Expression<String>? note,
+    Expression<int>? paidAt,
+    Expression<String>? transactionId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (title != null) 'title': title,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (currencyCode != null) 'currency_code': currencyCode,
+      if (categoryId != null) 'category_id': categoryId,
+      if (dueOn != null) 'due_on': dueOn,
+      if (note != null) 'note': note,
+      if (paidAt != null) 'paid_at': paidAt,
+      if (transactionId != null) 'transaction_id': transactionId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PlannedPaymentsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? title,
+    Value<int>? amountMinor,
+    Value<String>? currencyCode,
+    Value<String?>? categoryId,
+    Value<DateTime?>? dueOn,
+    Value<String>? note,
+    Value<DateTime?>? paidAt,
+    Value<String?>? transactionId,
+    Value<int>? rowid,
+  }) {
+    return PlannedPaymentsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      title: title ?? this.title,
+      amountMinor: amountMinor ?? this.amountMinor,
+      currencyCode: currencyCode ?? this.currencyCode,
+      categoryId: categoryId ?? this.categoryId,
+      dueOn: dueOn ?? this.dueOn,
+      note: note ?? this.note,
+      paidAt: paidAt ?? this.paidAt,
+      transactionId: transactionId ?? this.transactionId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(
+        $PlannedPaymentsTable.$convertercreatedAt.toSql(createdAt.value),
+      );
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(
+        $PlannedPaymentsTable.$converterupdatedAt.toSql(updatedAt.value),
+      );
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(
+        $PlannedPaymentsTable.$converterdeletedAtn.toSql(deletedAt.value),
+      );
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (currencyCode.present) {
+      map['currency_code'] = Variable<String>(currencyCode.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (dueOn.present) {
+      map['due_on'] = Variable<int>(
+        $PlannedPaymentsTable.$converterdueOnn.toSql(dueOn.value),
+      );
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (paidAt.present) {
+      map['paid_at'] = Variable<int>(
+        $PlannedPaymentsTable.$converterpaidAtn.toSql(paidAt.value),
+      );
+    }
+    if (transactionId.present) {
+      map['transaction_id'] = Variable<String>(transactionId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PlannedPaymentsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('title: $title, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('currencyCode: $currencyCode, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('note: $note, ')
+          ..write('paidAt: $paidAt, ')
+          ..write('transactionId: $transactionId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   late final $AccountsTable accounts = $AccountsTable(this);
@@ -6088,6 +6834,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SettingsTable settings = $SettingsTable(this);
   late final $BackupMetaTable backupMeta = $BackupMetaTable(this);
   late final $ImportHashesTable importHashes = $ImportHashesTable(this);
+  late final $PlannedPaymentsTable plannedPayments = $PlannedPaymentsTable(
+    this,
+  );
   late final Index accountsActiveName = Index(
     'accounts_active_name',
     'CREATE UNIQUE INDEX accounts_active_name ON accounts (name COLLATE NOCASE) WHERE deleted_at IS NULL',
@@ -6144,6 +6893,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   );
   late final BudgetsDao budgetsDao = BudgetsDao(this as AppDatabase);
   late final SettingsDao settingsDao = SettingsDao(this as AppDatabase);
+  late final ToPayDao toPayDao = ToPayDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6163,6 +6913,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     settings,
     backupMeta,
     importHashes,
+    plannedPayments,
     accountsActiveName,
     categoriesActiveName,
     peopleActiveName,
@@ -6218,6 +6969,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         limitUpdateKind: UpdateKind.delete,
       ),
       result: [TableUpdate('import_hashes', kind: UpdateKind.update)],
+    ),
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'transactions',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('planned_payments', kind: UpdateKind.update)],
     ),
   ]);
 }

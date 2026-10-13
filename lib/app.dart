@@ -73,6 +73,7 @@ class _KharchaAppState extends State<KharchaApp> {
         BlocProvider.value(value: getIt<BudgetCycleCubit>()),
         BlocProvider.value(value: getIt<CurrencyCubit>()),
         BlocProvider.value(value: getIt<CountryCubit>()),
+        BlocProvider.value(value: getIt<AccountsByUseCubit>()),
       ],
       child: Builder(
         builder: (context) {

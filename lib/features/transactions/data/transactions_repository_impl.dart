@@ -232,7 +232,11 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
       _dao.frequentCategoryIds(limit);
 
   @override
-  Future<List<String>> frequentAccountIds() => _dao.frequentAccountIds();
+  Future<List<String>> frequentAccountIds() => _dao.frequentAccountIds().get();
+
+  @override
+  Stream<List<String>> watchFrequentAccountIds() =>
+      _dao.frequentAccountIds().watch();
 
   @override
   Future<String> receiptPath(Attachment attachment) =>

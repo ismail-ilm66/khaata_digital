@@ -1,0 +1,43 @@
+{
+  "_comment": "Hand-computed: the v2 rows (same ledger, so the same balances; the seed now also has the expense category Investment) plus two To-pay items, one open and one paid by an entry. Amounts are minor units.",
+  "schema_version": 3,
+  "accounts": {
+    "Cash": 424999,
+    "Meezan Bank": 18059400,
+    "Payoneer": 15000,
+    "Savings": 7500000
+  },
+  "archived_accounts": [
+    "Old Wallet"
+  ],
+  "net_worth": {
+    "PKR": 18484399,
+    "USD": 15000
+  },
+  "people": {
+    "Mudassir Bhai": {
+      "PKR": 70000
+    }
+  },
+  "row_counts": {
+    "accounts": 5,
+    "categories": 43,
+    "people": 1,
+    "transactions": 10,
+    "tags": 2,
+    "transaction_tags": 2,
+    "events": 1,
+    "transaction_events": 1,
+    "budgets": 2,
+    "settings": 2,
+    "import_hashes": 1,
+    "planned_payments": 2
+  },
+  "to_pay_open": {
+    "Charity": 240000
+  },
+  "settings": {
+    "month_start_day": "25",
+    "theme": "dark"
+  }
+}

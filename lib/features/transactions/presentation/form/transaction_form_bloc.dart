@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../../core/error/app_failure.dart';
+import '../../../../core/ordering/by_use.dart';
 import '../../../../core/money/amount_buffer.dart';
 import '../../../../core/money/currency.dart';
 import '../../../../core/money/money.dart';
@@ -14,6 +15,7 @@ import '../../../recurring/domain/recurrence.dart';
 import '../../../recurring/domain/recurring_rule.dart';
 import '../../../settings/domain/setting_key.dart';
 import '../../../settings/domain/settings_repository.dart';
+import '../../../to_pay/domain/planned_payment.dart';
 import '../../domain/ledger_entry.dart';
 import '../../domain/transaction_type.dart';
 import '../../domain/transactions_repository.dart';
@@ -32,9 +34,18 @@ final class FormStarted extends TransactionFormEvent {
     this.udhaar,
     this.personId,
     this.amount,
+    this.categoryId,
+    this.note,
+    this.plannedPaymentId,
   });
   final String? editId;
   final TransactionType type;
+
+  /// Paying something from the To-pay list: its category and title, and
+  /// the item to mark paid once the entry is saved.
+  final String? categoryId;
+  final String? note;
+  final String? plannedPaymentId;
 
   /// Opens in udhaar mode in this direction (People screen actions).
   final UdhaarDirection? udhaar;
@@ -172,6 +183,7 @@ class TransactionFormState extends Equatable {
     this.repeat,
     this.remind = false,
     this.problem,
+    this.plannedPaymentId,
   });
 
   final FormStatus status;
@@ -224,6 +236,9 @@ class TransactionFormState extends Equatable {
   final bool remind;
   final EntryProblem? problem;
 
+  /// The To-pay item this entry pays, marked paid when it's saved.
+  final String? plannedPaymentId;
+
   bool get isEditing => editingId != null;
   bool get isTransfer => type == TransactionType.transfer;
   UdhaarDirection get udhaarDirection => UdhaarDirection.of(type);
@@ -268,25 +283,12 @@ class TransactionFormState extends Equatable {
     ];
   }
 
-  /// Most-used first; never-used ones keep their usual order after.
-  static List<T> _byUse<T>(
-    List<T> items,
-    String Function(T) id,
-    List<String> ids,
-  ) {
-    final rank = {for (final (i, x) in ids.indexed) x: i};
-    final unused = ids.length;
-    return [
-      ...items,
-    ]..sort((a, b) => (rank[id(a)] ?? unused).compareTo(rank[id(b)] ?? unused));
-  }
-
   List<Account> get accountsByUse =>
-      _byUse(accounts, (a) => a.id, frequentAccountIds);
+      sortByUse(accounts, (a) => a.id, frequentAccountIds);
 
   /// The full category list (the "All" grid), most-used first.
   List<Category> get categoriesByUse =>
-      _byUse(visibleCategories, (c) => c.id, frequentCategoryIds);
+      sortByUse(visibleCategories, (c) => c.id, frequentCategoryIds);
 
   /// Fits one row on every phone alongside "All" — no hidden overflow.
   static const int quickCount = 4;
@@ -395,6 +397,7 @@ class TransactionFormState extends Equatable {
     repeat: repeat != null ? repeat() : this.repeat,
     remind: remind ?? this.remind,
     problem: problem != null ? problem() : this.problem,
+    plannedPaymentId: plannedPaymentId,
   );
 
   @override
@@ -425,6 +428,7 @@ class TransactionFormState extends Equatable {
     repeat,
     remind,
     problem,
+    plannedPaymentId,
   ];
 }
 
@@ -442,6 +446,7 @@ class TransactionFormBloc
     this._people,
     this._recurring,
     this._reminders,
+    this._toPay,
   ) : super(TransactionFormState(occurredAt: DateTime.now())) {
     on<FormStarted>(_onStarted);
     on<TypeChanged>(_onType);
@@ -503,6 +508,7 @@ class TransactionFormBloc
   final PeopleRepository _people;
   final RecurringRepository _recurring;
   final ReminderScheduler _reminders;
+  final ToPayRepository _toPay;
 
   /// Splits "office, lunch,  Office" → ["office", "lunch"] (case-insensitive
   /// de-dupe, order kept).
@@ -593,6 +599,30 @@ class TransactionFormBloc
           type: direction.type,
           personId: () => e.personId,
           amount: e.amount == null ? null : AmountBuffer.fromMoney(e.amount!),
+        ),
+      );
+      return;
+    }
+    if (e.plannedPaymentId != null) {
+      final category = categories
+          .where((c) => c.id == e.categoryId && c.kind == CategoryKind.expense)
+          .firstOrNull;
+      emit(
+        TransactionFormState(
+          status: FormStatus.ready,
+          occurredAt: DateTime.now(),
+          accounts: accounts,
+          categories: categories,
+          frequentCategoryIds: frequent,
+          frequentAccountIds: frequentAccounts,
+          homeCurrency: home,
+          people: people,
+          amount: e.amount == null
+              ? const AmountBuffer()
+              : AmountBuffer.fromMoney(e.amount!),
+          categoryId: category?.id,
+          note: e.note ?? '',
+          plannedPaymentId: e.plannedPaymentId,
         ),
       );
       return;
@@ -709,7 +739,14 @@ class TransactionFormBloc
     emit(state.copyWith(status: FormStatus.saving, problem: () => null));
     try {
       final draft = state.toDraft();
-      await _transactions.save(draft, id: state.editingId);
+      final saved = await _transactions.save(draft, id: state.editingId);
+      if (state.plannedPaymentId case final planned?) {
+        await _toPay.markPaid(
+          planned,
+          transactionId: saved,
+          at: draft.occurredAt,
+        );
+      }
       if (state.repeat case final frequency? when !state.isEditing) {
         await _recurring.create(draft, frequency, remind: state.remind);
         try {

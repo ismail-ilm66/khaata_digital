@@ -10,6 +10,7 @@ import 'package:khaata_digital/features/people/data/people_repository_impl.dart'
 import 'package:khaata_digital/features/recurring/data/recurring_repository_impl.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
 import 'package:khaata_digital/features/transactions/presentation/form/transaction_form_bloc.dart';
+import 'package:khaata_digital/features/to_pay/data/to_pay_repository_impl.dart';
 
 import 'fake_reminders.dart';
 import 'test_db.dart';
@@ -26,6 +27,7 @@ class TestRepos {
     budgets = BudgetsRepositoryImpl(db);
     people = PeopleRepositoryImpl(db, transactions);
     recurring = RecurringRepositoryImpl(db, transactions);
+    toPay = ToPayRepositoryImpl(db);
   }
 
   final AppDatabase db;
@@ -36,6 +38,7 @@ class TestRepos {
   late final BudgetsRepositoryImpl budgets;
   late final PeopleRepositoryImpl people;
   late final RecurringRepositoryImpl recurring;
+  late final ToPayRepositoryImpl toPay;
   final reminders = FakeReminderScheduler();
 
   TransactionFormBloc formBloc() => TransactionFormBloc(
@@ -46,6 +49,7 @@ class TestRepos {
     people,
     recurring,
     reminders,
+    toPay,
   );
 
   HomeCubit homeCubit(BudgetCycleCubit cycle) => HomeCubit(

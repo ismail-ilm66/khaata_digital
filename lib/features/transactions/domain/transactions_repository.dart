@@ -60,6 +60,9 @@ abstract interface class TransactionsRepository {
   /// Account ids by how often live entries use them, most used first.
   Future<List<String>> frequentAccountIds();
 
+  /// [frequentAccountIds], kept up to date as entries change.
+  Stream<List<String>> watchFrequentAccountIds();
+
   /// Absolute path of a stored receipt image.
   Future<String> receiptPath(Attachment attachment);
 }

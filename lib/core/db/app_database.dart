@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../../features/to_pay/data/to_pay_dao.dart';
 import '../../features/accounts/data/accounts_dao.dart';
 import '../../features/accounts/domain/account_type.dart';
 import '../../features/budgets/data/budgets_dao.dart';
@@ -41,6 +42,7 @@ part 'app_database.g.dart';
     Settings,
     BackupMeta,
     ImportHashes,
+    PlannedPayments,
   ],
   daos: [
     AccountsDao,
@@ -51,6 +53,7 @@ part 'app_database.g.dart';
     AttachmentsDao,
     BudgetsDao,
     SettingsDao,
+    ToPayDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -67,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
   );
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -79,6 +82,10 @@ class AppDatabase extends _$AppDatabase {
       // v2: import idempotency (spec 3.3).
       from1To2: (m, schema) async {
         await m.createTable(schema.importHashes);
+      },
+      // v3: the "To pay" list.
+      from2To3: (m, schema) async {
+        await m.createTable(schema.plannedPayments);
       },
     ),
     beforeOpen: (details) async {

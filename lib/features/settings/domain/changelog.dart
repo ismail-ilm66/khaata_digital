@@ -3,6 +3,17 @@
 /// language for everything else.
 const List<({String version, String date, List<String> notes})> changelog = [
   (
+    version: '1.0.1',
+    date: '2026-10',
+    notes: [
+      'To pay: keep a list of what you still have to pay, and pay it in one tap.',
+      'Accounts you use most come first, or keep your own order.',
+      'Search when choosing a person or category.',
+      'An Investment category for expenses.',
+      'Hide balances on Accounts and People too.',
+    ],
+  ),
+  (
     version: '1.0.0',
     date: '2026-10',
     notes: [

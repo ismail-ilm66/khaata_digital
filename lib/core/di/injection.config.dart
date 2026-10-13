@@ -94,6 +94,10 @@ import 'package:khaata_digital/features/settings/presentation/cubit/preference_c
     as _i795;
 import 'package:khaata_digital/features/settings/presentation/cubit/theme_cubit.dart'
     as _i547;
+import 'package:khaata_digital/features/to_pay/data/to_pay_repository_impl.dart'
+    as _i338;
+import 'package:khaata_digital/features/to_pay/domain/planned_payment.dart'
+    as _i617;
 import 'package:khaata_digital/features/transactions/data/receipt_store.dart'
     as _i761;
 import 'package:khaata_digital/features/transactions/data/transactions_repository_impl.dart'
@@ -133,6 +137,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i761.ReceiptStore>(
       () => receiptModule.receiptStore,
       registerFor: {_prod},
+    );
+    gh.lazySingleton<_i617.ToPayRepository>(
+      () => _i338.ToPayRepositoryImpl(gh<_i577.AppDatabase>()),
     );
     gh.lazySingleton<_i122.BackupService>(
       () => _i122.BackupService(
@@ -209,6 +216,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i795.CurrencyCubit>(
       () => _i795.CurrencyCubit(gh<_i109.SettingsRepository>()),
     );
+    gh.lazySingleton<_i795.AccountsByUseCubit>(
+      () => _i795.AccountsByUseCubit(gh<_i109.SettingsRepository>()),
+    );
     gh.lazySingleton<_i260.PeopleRepository>(
       () => _i733.PeopleRepositoryImpl(
         gh<_i577.AppDatabase>(),
@@ -273,17 +283,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i635.FileGateway>(),
       ),
     );
-    gh.factory<_i595.TransactionFormBloc>(
-      () => _i595.TransactionFormBloc(
-        gh<_i208.TransactionsRepository>(),
-        gh<_i720.AccountsRepository>(),
-        gh<_i420.CategoriesRepository>(),
-        gh<_i109.SettingsRepository>(),
-        gh<_i260.PeopleRepository>(),
-        gh<_i295.RecurringRepository>(),
-        gh<_i295.ReminderScheduler>(),
-      ),
-    );
     gh.factory<_i24.HomeCubit>(
       () => _i24.HomeCubit(
         gh<_i720.AccountsRepository>(),
@@ -310,6 +309,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i795.CurrencyCubit>(),
       ),
     );
+    gh.factory<_i109.OnboardingCubit>(
+      () => _i109.OnboardingCubit(
+        gh<_i795.CurrencyCubit>(),
+        gh<_i795.BudgetCycleCubit>(),
+        gh<_i720.AccountsRepository>(),
+        gh<_i397.AppStart>(),
+      ),
+    );
     gh.lazySingleton<_i825.AppRefresh>(
       () => _i825.AppRefresh(
         gh<_i577.AppDatabase>(),
@@ -320,16 +327,21 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i795.CurrencyCubit>(),
         gh<_i795.HapticsCubit>(),
         gh<_i795.CountryCubit>(),
+        gh<_i795.AccountsByUseCubit>(),
         gh<_i295.RecurringRepository>(),
         gh<_i295.ReminderScheduler>(),
       ),
     );
-    gh.factory<_i109.OnboardingCubit>(
-      () => _i109.OnboardingCubit(
-        gh<_i795.CurrencyCubit>(),
-        gh<_i795.BudgetCycleCubit>(),
+    gh.factory<_i595.TransactionFormBloc>(
+      () => _i595.TransactionFormBloc(
+        gh<_i208.TransactionsRepository>(),
         gh<_i720.AccountsRepository>(),
-        gh<_i397.AppStart>(),
+        gh<_i420.CategoriesRepository>(),
+        gh<_i109.SettingsRepository>(),
+        gh<_i260.PeopleRepository>(),
+        gh<_i295.RecurringRepository>(),
+        gh<_i295.ReminderScheduler>(),
+        gh<_i617.ToPayRepository>(),
       ),
     );
     gh.factory<_i262.RestoreBloc>(

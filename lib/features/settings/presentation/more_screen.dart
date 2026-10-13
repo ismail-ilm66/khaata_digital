@@ -74,6 +74,13 @@ class MoreScreen extends StatelessWidget {
                       onTap: () => context.push(Routes.categories),
                     ),
                     SettingTile(
+                      key: const Key('toPayTile'),
+                      icon: AppIcons.toPay.filled,
+                      title: l10n.toPay,
+                      subtitle: l10n.toPaySubtitle,
+                      onTap: () => context.push(Routes.toPay),
+                    ),
+                    SettingTile(
                       key: const Key('recurringTile'),
                       icon: AppIcons.recurring.filled,
                       title: l10n.recurring,

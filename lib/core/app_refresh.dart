@@ -21,6 +21,7 @@ class AppRefresh {
     this._currency,
     this._haptics,
     this._country,
+    this._accountsByUse,
     this._recurring,
     this._reminders,
   );
@@ -33,6 +34,7 @@ class AppRefresh {
   final CurrencyCubit _currency;
   final HapticsCubit _haptics;
   final CountryCubit _country;
+  final AccountsByUseCubit _accountsByUse;
   final RecurringRepository _recurring;
   final ReminderScheduler _reminders;
 
@@ -44,6 +46,7 @@ class AppRefresh {
       _cycle.load(),
       _currency.load(),
       _haptics.load(),
+      _accountsByUse.load(),
     ]);
     // Detecting the country falls back on the home currency.
     await _country.load();
