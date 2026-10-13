@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 
 import '../../../core/dates/budget_cycle.dart';
+import '../../../core/money/currency.dart';
 import '../../../core/money/money.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../domain/budget.dart';
@@ -76,6 +79,10 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
     on<BudgetCleared>(
       (e, emit) => _repo.clear(state.cycle!, categoryId: e.categoryId),
     );
+    // Budgets are read in the home currency: follow it when it changes.
+    _currencyChanges = _currency.stream.listen((_) {
+      if (state.cycle case final id?) add(CycleChanged(id));
+    });
     on<CopyLastRequested>((e, emit) async {
       final n = await _repo.copyFromPrevious(state.cycle!);
       emit(
@@ -87,4 +94,11 @@ class BudgetsBloc extends Bloc<BudgetsEvent, BudgetsState> {
   final BudgetsRepository _repo;
   final BudgetCycleCubit _cycle;
   final CurrencyCubit _currency;
+  late final StreamSubscription<Currency> _currencyChanges;
+
+  @override
+  Future<void> close() async {
+    await _currencyChanges.cancel();
+    return super.close();
+  }
 }

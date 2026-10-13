@@ -71,6 +71,26 @@ void main() {
     },
   );
 
+  test('the budget card follows a change of home currency', () async {
+    // Owner bug: set a budget in PKR, switch to USD, Home still said Rs.
+    final currency = CurrencyCubit(r.settings);
+    addTearDown(currency.close);
+    final now = DateTime(2026, 10, 6);
+    final id = cycle.state.idFor(now);
+    await r.budgets.set(id, Money.major(5000, Currency.pkr));
+
+    final home = r.homeCubit(cycle, currency)..start(now: () => now);
+    addTearDown(home.close);
+    await pumpEventQueue();
+    expect(home.state.budgets!.currency, Currency.pkr);
+    expect(home.state.budgets!.overall!.limit.currency, Currency.pkr);
+
+    await currency.set(Currency.usd);
+    await pumpEventQueue();
+    expect(home.state.budgets!.currency, Currency.usd);
+    expect(home.state.budgets!.overall!.limit, Money.major(5000, Currency.usd));
+  });
+
   test('changing the month start re-buckets live', () async {
     await save(TransactionType.expense, 500, DateTime(2026, 10, 2, 12));
     final home = r.homeCubit(cycle)..start(now: () => DateTime(2026, 10, 6));

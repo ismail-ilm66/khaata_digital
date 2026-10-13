@@ -120,7 +120,13 @@ class HomeCubit extends Cubit<HomeState> {
       ..add(
         _people.watchOverview().listen((p) => emit(state.copyWith(people: p))),
       )
-      ..add(_cycle.stream.listen((c) => _showCurrent(c, now())));
+      ..add(_cycle.stream.listen((c) => _showCurrent(c, now())))
+      // Budgets are read in the home currency: follow it when it changes.
+      ..add(
+        _currency.stream.listen((_) {
+          if (state.cycle case final id?) _watchCycle(_cycle.state, id);
+        }),
+      );
     _showCurrent(_cycle.state, now());
   }
 

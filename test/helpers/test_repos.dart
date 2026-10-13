@@ -52,14 +52,15 @@ class TestRepos {
     toPay,
   );
 
-  HomeCubit homeCubit(BudgetCycleCubit cycle) => HomeCubit(
-    accounts,
-    transactions,
-    budgets,
-    people,
-    cycle,
-    CurrencyCubit(settings),
-  );
+  HomeCubit homeCubit(BudgetCycleCubit cycle, [CurrencyCubit? currency]) =>
+      HomeCubit(
+        accounts,
+        transactions,
+        budgets,
+        people,
+        cycle,
+        currency ?? CurrencyCubit(settings),
+      );
 
   late final ledger = TestLedger(db);
 
