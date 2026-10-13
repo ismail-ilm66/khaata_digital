@@ -63,6 +63,21 @@ Future<void> _write(
   File(path).writeAsBytesSync(png!.buffer.asUint8List());
 }
 
+/// The bare app screen, at web size, for the home page (docs/).
+Future<void> _siteScreen(String file, ui.Image screen) async {
+  const w = 720.0;
+  final h = w * screen.height / screen.width;
+  final rec = ui.PictureRecorder();
+  Canvas(rec).drawImageRect(
+    screen,
+    Rect.fromLTWH(0, 0, screen.width.toDouble(), screen.height.toDouble()),
+    Rect.fromLTWH(0, 0, w, h),
+    Paint()..filterQuality = FilterQuality.high,
+  );
+  Directory('docs/assets/screens').createSync(recursive: true);
+  await _write('docs/assets/screens/$file.png', rec, w, h);
+}
+
 void main() {
   setUpAll(() async {
     // Phosphor's icon fonts, wherever this machine keeps packages.
@@ -222,6 +237,7 @@ void main() {
     ui.Image screen,
   ) async {
     await t.runAsync(() async {
+      await _siteScreen(file, screen);
       const w = 1080.0, h = 1920.0;
       final rec = ui.PictureRecorder();
       final c = Canvas(rec);

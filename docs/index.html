@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-site-verification" content="0m2NWYMGQVXAlcHwK1dBvetyjoEluhK9odp80T8txd0" />
+  <title>Kharcha — budget and expense tracker that stays on your phone</title>
+  <meta name="description" content="Track daily spending, budgets and udhaar in a free, offline app with no login and no ads. Back up to your own Google Drive.">
+  <meta property="og:title" content="Kharcha — roz ka hisab, asaan">
+  <meta property="og:description" content="A free, offline budget and expense tracker. No login, no ads. Your records stay on your phone.">
+  <meta property="og:image" content="https://ismail-ilm66.github.io/khaata_digital/assets/icon.png">
+  <meta name="theme-color" content="#0E7C4A">
+  <link rel="icon" href="assets/icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F5F8F5;
+      --surface: #FFFFFF;
+      --ink: #0F241A;
+      --muted: #56685E;
+      --rule: #DCE7E0;
+      --brand: #0E7C4A;
+      --leaf: #17A35A;
+      --coin: #F2C14E;
+      --margin: #C8463D;
+      --deep: #0B2A1C;
+      --frame: #0B2A1C;
+      --shadow: 0 30px 60px -20px rgba(11, 42, 28, .35);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --paper: #0D1612;
+        --surface: #15211B;
+        --ink: #E5EEE8;
+        --muted: #9AB0A3;
+        --rule: #1E2D25;
+        --brand: #3DBE7E;
+        --margin: #B5524A;
+        --deep: #08130E;
+        --frame: #2A3B32;
+        --shadow: 0 30px 60px -20px rgba(0, 0, 0, .6);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 500 17px/1.6 Manrope, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    /* Grid columns may shrink below a screenshot's natural width. */
+    .hero-grid > *, .row > *, .panel > *, .promises > *, .extras > * { min-width: 0; }
+    a { color: var(--brand); }
+    a:focus-visible, .button:focus-visible { outline: 3px solid var(--coin); outline-offset: 3px; border-radius: 8px; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+    .urdu {
+      font-family: "Noto Nastaliq Urdu", serif;
+      direction: rtl;
+      line-height: 2.1;
+    }
+
+    /* ── Top bar ── */
+    .bar { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+    .brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font-weight: 800; font-size: 1.25rem; letter-spacing: -.01em; }
+    .brand img { width: 40px; height: 40px; border-radius: 11px; }
+    .bar nav a { color: var(--muted); text-decoration: none; font-weight: 600; margin-left: 24px; }
+    .bar nav a:hover { color: var(--ink); }
+
+    /* ── Hero: a page from the khata ── */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        repeating-linear-gradient(to bottom, transparent 0 39px, var(--rule) 39px 40px),
+        var(--paper);
+    }
+    .hero::before {
+      /* The red margin line of a ledger book. */
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0;
+      left: max(24px, calc(50% - 560px + 4px));
+      width: 2px;
+      background: var(--margin);
+      opacity: .55;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 48px;
+      align-items: center;
+      padding: 32px 0 88px 28px;
+    }
+    .hero .urdu { font-size: clamp(2rem, 4.5vw, 3.1rem); color: var(--brand); margin: 0 0 4px; text-align: left; }
+    h1 {
+      font-size: clamp(2.4rem, 5.2vw, 4rem);
+      line-height: 1.04;
+      letter-spacing: -.035em;
+      font-weight: 800;
+      margin: 0 0 22px;
+      max-width: 13ch;
+    }
+    .lede { font-size: 1.2rem; color: var(--muted); max-width: 34ch; margin: 0 0 32px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 28px; }
+    .button {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: var(--deep); color: #fff; text-decoration: none;
+      padding: 14px 24px 14px 20px; border-radius: 16px; font-weight: 700;
+    }
+    @media (prefers-color-scheme: dark) { .button { background: var(--brand); color: #04140C; } }
+    .button svg { width: 24px; height: 24px; flex: none; }
+    .button small { display: block; font-size: .72rem; font-weight: 600; opacity: .75; line-height: 1.1; }
+    .button span { line-height: 1.15; }
+    .quiet { color: var(--ink); font-weight: 700; text-decoration-color: var(--coin); text-decoration-thickness: 3px; text-underline-offset: 6px; }
+
+    .phone {
+      position: relative;
+      width: min(100%, 340px);
+      margin-inline: auto;
+      border-radius: 44px;
+      padding: 10px;
+      background: var(--frame);
+      box-shadow: var(--shadow);
+    }
+    .phone img { border-radius: 34px; aspect-ratio: 9 / 16; object-fit: cover; object-position: top; width: 100%; }
+    .stage { position: relative; isolation: isolate; }
+    .stage::before {
+      /* The gold coin from the logo, peeking out behind the phone. */
+      content: "";
+      position: absolute;
+      width: 132px; height: 132px;
+      left: calc(50% + 110px); top: 56px;
+      border-radius: 50%;
+      background: var(--coin);
+      z-index: -1;
+    }
+
+    /* ── Promises ── */
+    .promises {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--rule);
+      border-bottom: 1px solid var(--rule);
+    }
+    .promises div { padding: 28px 24px 28px 0; }
+    .promises div + div { border-left: 1px solid var(--rule); padding-left: 24px; }
+    .promises b { display: block; font-size: 1.05rem; margin-bottom: 4px; }
+    .promises p { margin: 0; color: var(--muted); font-size: .95rem; }
+
+    /* ── Feature rows ── */
+    section { padding: 96px 0 0; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .row + .row { margin-top: 96px; }
+    .row.flip .copy { order: 2; }
+    .row .phone { width: min(100%, 300px); }
+    h2 { font-size: clamp(1.8rem, 3.4vw, 2.6rem); line-height: 1.1; letter-spacing: -.03em; margin: 0 0 16px; font-weight: 800; }
+    .copy p { color: var(--muted); font-size: 1.1rem; margin: 0 0 14px; max-width: 42ch; }
+    .copy .urdu { font-size: 1.35rem; color: var(--brand); text-align: left; margin: 0 0 8px; }
+
+    /* ── Backup panel ── */
+    .panel {
+      background: var(--deep);
+      color: #E7F1EB;
+      border-radius: 32px;
+      padding: 64px;
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 56px;
+      align-items: center;
+    }
+    .panel h2 { color: #fff; }
+    .panel p { color: #B7CEC1; font-size: 1.1rem; max-width: 46ch; }
+    .panel ul { list-style: none; padding: 0; margin: 24px 0 0; }
+    .panel li { padding: 12px 0; border-top: 1px solid rgba(255,255,255,.12); }
+    .panel li::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--coin); margin-right: 12px; }
+    .panel .phone { background: #04100A; width: min(100%, 280px); }
+
+    /* ── Everything else ── */
+    .extras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 48px; margin-top: 8px; }
+    .extras div { padding: 22px 0; border-top: 1px solid var(--rule); }
+    .extras b { display: block; margin-bottom: 4px; }
+    .extras p { margin: 0; color: var(--muted); font-size: .98rem; }
+
+    /* ── Closing ── */
+    .closing { text-align: center; padding: 112px 0 96px; }
+    .closing .urdu { font-size: clamp(1.8rem, 4vw, 2.6rem); color: var(--brand); text-align: center; margin: 0; }
+    .closing h2 { margin-bottom: 28px; }
+    .closing .actions { justify-content: center; }
+
+    footer { border-top: 1px solid var(--rule); padding: 28px 0 40px; color: var(--muted); font-size: .92rem; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+    footer nav a { color: inherit; margin-right: 24px; }
+
+    /* ── Phones ── */
+    @media (max-width: 860px) {
+      .hero-grid, .row, .panel { grid-template-columns: 1fr; }
+      .hero-grid { padding: 8px 0 72px 20px; gap: 40px; }
+      .row.flip .copy { order: 0; }
+      .row { gap: 36px; }
+      .row + .row { margin-top: 80px; }
+      .panel { padding: 40px 28px; border-radius: 24px; }
+      .promises { grid-template-columns: 1fr 1fr; }
+      .promises div:nth-child(3) { border-left: 0; padding-left: 0; }
+      .promises div:nth-child(n+3) { border-top: 1px solid var(--rule); }
+      .extras { grid-template-columns: 1fr; }
+      .bar nav { display: none; }
+      section { padding-top: 80px; }
+    }
+    @media (max-width: 480px) {
+      .promises { grid-template-columns: 1fr; }
+      .promises div, .promises div + div { border-left: 0; padding-left: 0; }
+      .promises div + div { border-top: 1px solid var(--rule); }
+      .stage::before { width: 96px; height: 96px; left: calc(50% + 96px); }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <div class="bar">
+        <a class="brand" href="./"><img src="assets/mark.png" alt="" width="40" height="40">Kharcha</a>
+        <nav aria-label="Pages">
+          <a href="#features">Features</a>
+          <a href="#backup">Backup</a>
+          <a href="privacy-policy">Privacy</a>
+        </nav>
+      </div>
+      <div class="hero-grid">
+        <div>
+          <p class="urdu" lang="ur">روز کا حساب، آسان</p>
+          <h1>Your daily kharcha, kept on your phone.</h1>
+          <p class="lede">Track what you spend, set a budget that starts on payday, and keep udhaar straight. No login, no ads, and it works without internet.</p>
+          <div class="actions">
+            <a class="button" href="https://play.google.com/store/apps/details?id=com.expensetracker.kharcha">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.6 2.3c-.3.3-.4.7-.4 1.2v17c0 .5.1.9.4 1.2l.1.1 9.5-9.5v-.2L3.7 2.2l-.1.1Zm12.8 12.8-3.2-3.2v-.2l3.2-3.2.1.1 3.8 2.2c1.1.6 1.1 1.6 0 2.2l-3.8 2.1h-.1Zm-.1.1L13 11.9 3.6 21.3c.4.4 1 .4 1.6.1l11.1-6.2ZM16.3 8.6 5.2 2.3c-.6-.4-1.3-.3-1.6.1l9.4 9.4 3.3-3.2Z"/></svg>
+              <span><small>Get it on</small>Google Play</span>
+            </a>
+            <a class="quiet" href="#features">See what it does</a>
+          </div>
+        </div>
+        <div class="stage"><div class="phone">
+          <img src="assets/screens/1_home.png" width="720" height="1280" alt="Kharcha's home screen: net worth, this month's income, spending and what's left, and account balances.">
+        </div></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <div class="promises">
+        <div><b>Works offline</b><p>Add entries anywhere. Nothing waits for a signal.</p></div>
+        <div><b>No sign-up</b><p>Open the app and start. There's no account to make.</p></div>
+        <div><b>No ads, free</b><p>No ads, no tracking, no paid tier hiding the basics.</p></div>
+        <div><b>Backup that works</b><p>To a file, or to your own Google Drive in one tap.</p></div>
+      </div>
+    </div>
+
+    <section id="features">
+      <div class="wrap">
+        <div class="row">
+          <div class="copy">
+            <h2>Add an expense in a few taps.</h2>
+            <p>Type the amount, pick the account and a category, save. Your most-used categories come first, so the usual ones are one tap away.</p>
+            <p>Add a note, tags or a photo of the receipt when you want to. Search finds any entry later.</p>
+          </div>
+          <div class="phone"><img src="assets/screens/2_add.png" width="720" height="1280" loading="lazy" alt="Adding an expense: the amount, account chips and quick categories."></div>
+        </div>
+
+        <div class="row flip">
+          <div class="copy">
+            <h2>A month that starts on payday.</h2>
+            <p>Start your month on the 1st, the 25th, any day you choose, or the last working day, when salaries usually land.</p>
+            <p>Set a budget for the whole month or for each category, and see what's left as you spend.</p>
+          </div>
+          <div class="phone"><img src="assets/screens/3_budgets.png" width="720" height="1280" loading="lazy" alt="Budgets: the month's overall budget and each category's progress."></div>
+        </div>
+
+        <div class="row">
+          <div class="copy">
+            <p class="urdu" lang="ur">لینا دینا</p>
+            <h2>Udhaar, both ways.</h2>
+            <p>Lent money to a friend, or borrowed from family? Record what you gave and got back, and always know who owes whom.</p>
+            <p>Settle up with one tap when the account is square.</p>
+          </div>
+          <div class="phone"><img src="assets/screens/5_people.png" width="720" height="1280" loading="lazy" alt="People: what you'll receive, what you owe, and each person's balance."></div>
+        </div>
+
+        <div class="row flip">
+          <div class="copy">
+            <h2>See where it all went.</h2>
+            <p>Reports for any day, week, month, year or dates you pick, with your full history and nothing cut off.</p>
+            <p>Tap a category to see the entries behind it.</p>
+          </div>
+          <div class="phone"><img src="assets/screens/4_reports.png" width="720" height="1280" loading="lazy" alt="Reports: spending by category for the month as a donut chart."></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="backup">
+      <div class="wrap">
+        <div class="panel">
+          <div>
+            <h2>Your records, safe if your phone isn't.</h2>
+            <p>Kharcha keeps everything on your phone. Back it up whenever you like, and restore it on any phone.</p>
+            <ul>
+              <li>Save a backup file anywhere you choose</li>
+              <li>Or one tap to your own Google Drive, weekly if you like</li>
+              <li>Lock a backup with a passphrase only you know</li>
+            </ul>
+          </div>
+          <div class="phone"><img src="assets/screens/6_backup.png" width="720" height="1280" loading="lazy" alt="Backup: the last backup to Google Drive and the automatic weekly backup setting."></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="wrap">
+        <h2>And the things you'd expect.</h2>
+        <div class="extras">
+          <div><b>Coming from Hysab Kytab?</b><p>Import your export file and keep your years of records.</p></div>
+          <div><b>App lock</b><p>A PIN, your fingerprint or Face ID. Hide balances from people nearby.</p></div>
+          <div><b>Every account</b><p>Cash, banks and wallets, with the banks of your country ready to pick.</p></div>
+          <div><b>Bills that repeat</b><p>Rent, school fees, internet: add them once and get a reminder.</p></div>
+          <div><b>اردو and dark mode</b><p>Use the app in Urdu or English, light or dark.</p></div>
+          <div><b>Excel and CSV</b><p>Export everything whenever you want. It's your data.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="closing">
+      <div class="wrap">
+        <p class="urdu" lang="ur">پیسہ کہاں گیا؟ اب پتہ ہوگا۔</p>
+        <h2>Know where your money goes.</h2>
+        <div class="actions">
+          <a class="button" href="https://play.google.com/store/apps/details?id=com.expensetracker.kharcha">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M3.6 2.3c-.3.3-.4.7-.4 1.2v17c0 .5.1.9.4 1.2l.1.1 9.5-9.5v-.2L3.7 2.2l-.1.1Zm12.8 12.8-3.2-3.2v-.2l3.2-3.2.1.1 3.8 2.2c1.1.6 1.1 1.6 0 2.2l-3.8 2.1h-.1Zm-.1.1L13 11.9 3.6 21.3c.4.4 1 .4 1.6.1l11.1-6.2ZM16.3 8.6 5.2 2.3c-.6-.4-1.3-.3-1.6.1l9.4 9.4 3.3-3.2Z"/></svg>
+            <span><small>Get it on</small>Google Play</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <nav aria-label="Legal">
+        <a href="privacy-policy">Privacy policy</a>
+        <a href="terms">Terms of use</a>
+      </nav>
+      <span>© 2026 Kharcha. Free, with no ads.</span>
+    </div>
+  </footer>
+</body>
+</html>
