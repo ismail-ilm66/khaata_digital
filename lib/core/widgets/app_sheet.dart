@@ -106,7 +106,9 @@ class SheetSearchField extends StatelessWidget {
       key: const Key('sheetSearch'),
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
-      onTapOutside: (_) => FocusScope.of(context).unfocus(),
+      // No unfocus on tapping outside: closing the keyboard as a finger
+      // lands on a result resizes the sheet under it and the tap is lost.
+      // Dragging the results closes it instead.
       decoration: InputDecoration(
         hintText: context.l10n.search,
         prefixIcon: const Icon(AppIcons.search),
@@ -197,6 +199,7 @@ class _SearchableListState<T> extends State<_SearchableList<T>> {
         Flexible(
           child: ListView(
             shrinkWrap: true,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: EdgeInsets.only(bottom: widget.bottomPadding),
             children: [
               for (final item in shown) widget.row(item),

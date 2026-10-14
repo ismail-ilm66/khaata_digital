@@ -9,6 +9,7 @@ import 'package:khaata_digital/core/di/injection.dart';
 import 'package:khaata_digital/core/router/routes.dart';
 import 'package:khaata_digital/core/widgets/amount_text.dart';
 import 'package:khaata_digital/core/widgets/glass_nav_bar.dart';
+import 'package:khaata_digital/features/categories/presentation/category_grid.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
 
 import '../helpers/test_app.dart';
@@ -63,6 +64,46 @@ void main() {
     await t.enterText(find.byKey(const Key('sheetSearch')), 'zzz');
     await t.pumpAndSettle();
     expect(find.byKey(const Key('sheetNoMatches')), findsOneWidget);
+  });
+
+  testWidgets('tapping a searched category selects it', (t) async {
+    // Owner bug: on a phone, the keyboard closed as the finger landed on a
+    // result, the sheet shrank under it and the tap was lost.
+    await start(t);
+    await openAllCategories(t);
+    await t.tap(find.byKey(const Key('sheetSearch')));
+    await t.enterText(find.byKey(const Key('sheetSearch')), 'inv');
+    await t.pumpAndSettle();
+    final search = t.widget<EditableText>(
+      find.descendant(
+        of: find.byKey(const Key('sheetSearch')),
+        matching: find.byType(EditableText),
+      ),
+    );
+    expect(search.focusNode.hasFocus, isTrue);
+
+    final tile = find.descendant(
+      of: find.byType(BottomSheet),
+      matching: find.byKey(const Key('category-Investment')),
+    );
+    final finger = await t.startGesture(t.getCenter(tile));
+    await t.pump();
+    expect(
+      search.focusNode.hasFocus,
+      isTrue,
+      reason: 'the keyboard must not close while the finger is down',
+    );
+    await finger.up();
+    await t.pumpAndSettle();
+
+    expect(find.byType(BottomSheet), findsNothing);
+    final picked = t.widget<CategoryTile>(
+      find.ancestor(
+        of: find.byKey(const Key('category-Investment')),
+        matching: find.byType(CategoryTile),
+      ),
+    );
+    expect(picked.selected, isTrue);
   });
 
   testWidgets('choosing a person can be searched; Add person stays', (t) async {
