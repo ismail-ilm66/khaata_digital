@@ -136,6 +136,97 @@ checks formatting and analysis, runs every test, re-runs the golden backups
 explicitly, requires ≥ 80 % coverage of core and domain code, and builds and
 verifies the signed release bundle.
 
+## How the data is managed
+
+Everything lives in one SQLite database on the phone (`kharcha.sqlite` in
+the app's documents folder), accessed through
+[Drift](https://drift.simonbinder.eu/). The schema is in
+[`lib/core/db/tables.dart`](lib/core/db/tables.dart); the current version is
+**3**.
+
+### Rules every table follows
+
+- **Ids are UUIDs** (text), so rows from two phones can be merged on restore
+  without clashing.
+- **Times are UTC epoch milliseconds**, shown in local time. Calendar dates,
+  such as a due date, are stored as UTC midnight of that date, so they never
+  shift with time zones.
+- **Money is an integer in minor units** (paisa, cents) with a three-letter
+  currency code beside it. There are no floating-point amounts anywhere.
+- **Nothing is hard-deleted.** Rows get a `deleted_at` time and are hidden,
+  so history survives and restores can merge cleanly. Archiving an account or
+  category frees its name for reuse.
+- **Names are unique among live rows, case-insensitively** (partial unique
+  indexes), for accounts, categories (per income/expense), people and tags.
+- **Balances are never stored.** An account's balance is its opening balance
+  plus the effect of its live entries, worked out in SQL
+  ([`ledger_sql.dart`](lib/core/db/ledger_sql.dart)). The same goes for
+  udhaar balances and budget spending, so they can't drift out of step.
+- SQLite runs with foreign keys on and in WAL mode, and an integrity check
+  runs at every start; on failure, Home offers a restore.
+
+### Tables
+
+```mermaid
+erDiagram
+    accounts ||--o{ transactions : "from (account_id)"
+    accounts ||--o{ transactions : "to, transfers (to_account_id)"
+    categories ||--o{ transactions : "category_id"
+    people ||--o{ transactions : "udhaar (person_id)"
+    transactions ||--o{ transaction_tags : ""
+    tags ||--o{ transaction_tags : ""
+    transactions ||--o{ transaction_events : ""
+    events ||--o{ transaction_events : ""
+    transactions ||--o{ attachments : "receipts"
+    categories ||--o{ budgets : "per category, or overall"
+    categories ||--o{ planned_payments : "category_id"
+    transactions ||--o| planned_payments : "paid by"
+    transactions ||--o| import_hashes : "imported as"
+```
+
+| Table | Holds |
+|---|---|
+| `accounts` | Cash, bank, wallet, card and savings accounts: currency, opening balance, icon and colour, sort order, "leave out of net worth". |
+| `transactions` | Every entry. `type` is expense, income, transfer or adjustment. A transfer is **one** row with `to_account_id` (and, across currencies, the amount received and the rate used). An entry with `person_id` is udhaar: an expense means you gave, an income means you received. Check constraints keep amounts positive and transfers well-formed. |
+| `categories` | Income and expense categories (the Hysab Kytab set, plus Investment for expenses), ordered by the user. |
+| `people` | People for udhaar. Their balances come from linked transactions. |
+| `tags`, `transaction_tags` | Free labels on entries (many-to-many). |
+| `events`, `transaction_events` | Event labels carried over from Hysab Kytab imports. |
+| `attachments` | Receipt metadata (file name, size, SHA-256). The images themselves are JPEG files in the app's `receipts/` folder. |
+| `budgets` | A limit per budget cycle (year + month of its start), either overall (`category_id` null) or for one category. |
+| `recurring_rules` | Repeating entries: a JSON template of the entry, the frequency and the next run time; due entries are created on start and in the background. |
+| `planned_payments` | The To-pay list: what for, amount, optional category and due date, and when it was paid and by which entry. |
+| `settings` | Key-value preferences (currency, month start, theme, language, app lock and so on). Phone-specific keys, such as the PIN and the Google account, are never restored onto another phone. |
+| `import_hashes` | A hash of every imported source row, so importing the same file twice adds nothing. |
+| `backup_meta` | This phone's backup history (when, where, row counts). |
+
+### Backups and restore
+
+A backup is a `.kharcha` file: a ZIP holding `manifest.json` (app and schema
+version, row counts, checksums), `data.db` (a consistent copy of the
+database) and the receipt images. With a passphrase, the database and
+receipts are sealed together with AES-256-GCM, using a key derived with
+PBKDF2.
+
+Restoring opens the backup with the current app, so an older backup is
+migrated first, then either **replaces** everything or **merges**. Merging
+keeps this phone's data and adds the backup's: same-name accounts,
+categories, people and tags are treated as one, and where an entry exists in
+both, the more recent edit wins. An automatic backup is saved before every
+restore and import.
+
+### Schema versions
+
+| Version | Change |
+|---|---|
+| 1 | First release. |
+| 2 | `import_hashes`, so imports can be run again safely. |
+| 3 | `planned_payments`, the To-pay list. |
+
+Each version's schema is snapshotted in [`drift_schemas/`](drift_schemas/),
+and migrations run step by step (v1 → v2 → v3) when the app opens an older
+database.
+
 ## Changing the database
 
 Every schema version ever shipped has a **golden database** in
