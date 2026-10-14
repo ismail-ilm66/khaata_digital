@@ -194,6 +194,27 @@ void main() {
     expect(people.map((p) => p.person.name), ['Mudassir Bhai']);
   });
 
+  testWidgets('a Hysab Kytab backup (.db) gets a clear message, no crash', (
+    t,
+  ) async {
+    // Owner report: picking "HK Backup ….db" showed the column mapper over
+    // a crashed (grey) screen. Any build error fails this test.
+    await start(t);
+    await openMore(t, 'importTile');
+    files.next = (
+      name: 'HK Backup 2026-10-11 14-31-02.db',
+      bytes: File('test/fixtures/golden/v2/kharcha.db').readAsBytesSync(),
+    );
+    await t.tap(find.byKey(const Key('importChoose')));
+    await waitFor(t, find.byKey(const Key('importProblem')));
+    expect(
+      t.widget<Text>(find.byKey(const Key('importProblem'))).data,
+      contains('backup (.db)'),
+    );
+    expect(find.byKey(const Key('mappingContinue')), findsNothing);
+    expect(find.byKey(const Key('importChoose')), findsOneWidget);
+  });
+
   testWidgets('a generic CSV goes through the column mapper', (t) async {
     await start(t);
     await openMore(t, 'importTile');

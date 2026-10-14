@@ -939,6 +939,10 @@ class AppLocalizationsUr extends AppLocalizations {
   String get importEmpty => 'اس فائل میں کوئی اندراج نہیں ملا۔';
 
   @override
+  String get importBackupFile =>
+      'یہ کسی ایپ کا بیک اپ (.db) ہے جو امپورٹ نہیں ہو سکتا۔ حساب کتاب میں More → Export → Export All سے Excel فائل بنائیں، پھر وہ فائل یہاں منتخب کریں۔';
+
+  @override
   String get mapColumns => 'کالم ملائیں';
 
   @override

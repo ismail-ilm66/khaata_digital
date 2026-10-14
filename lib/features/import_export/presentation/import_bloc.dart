@@ -45,7 +45,7 @@ class ImportRestarted extends ImportEvent {
 
 enum ImportStep { pick, reading, mapping, preview, running, report }
 
-enum ImportProblem { unreadable, empty, failed }
+enum ImportProblem { unreadable, empty, failed, backupFile }
 
 class ImportState extends Equatable {
   const ImportState({
@@ -160,9 +160,11 @@ class ImportBloc extends Bloc<ImportEvent, ImportState> {
       emit(
         state.copyWith(
           step: ImportStep.pick,
-          problem: () => f.message == 'empty'
-              ? ImportProblem.empty
-              : ImportProblem.unreadable,
+          problem: () => switch (f.message) {
+            'empty' => ImportProblem.empty,
+            SpreadsheetCodec.databaseFile => ImportProblem.backupFile,
+            _ => ImportProblem.unreadable,
+          },
         ),
       );
     } catch (_) {

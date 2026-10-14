@@ -409,6 +409,7 @@
   "reading": "Reading…",
   "importUnreadable": "Couldn't read this file. Choose an Excel (.xls, .xlsx) or CSV file.",
   "importEmpty": "No entries found in this file.",
+  "importBackupFile": "This is an app backup (.db), which can't be imported. In Hysab Kytab, open More → Export → Export All to save an Excel file, then choose that file here.",
   "mapColumns": "Match the columns",
   "mapColumnsHint": "Tell Kharcha which column holds what. Negative amounts are expenses unless there's a type column.",
   "colAmount": "Amount",

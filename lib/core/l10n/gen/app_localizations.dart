@@ -1814,6 +1814,12 @@ abstract class AppLocalizations {
   /// **'No entries found in this file.'**
   String get importEmpty;
 
+  /// No description provided for @importBackupFile.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an app backup (.db), which can\'t be imported. In Hysab Kytab, open More → Export → Export All to save an Excel file, then choose that file here.'**
+  String get importBackupFile;
+
   /// No description provided for @mapColumns.
   ///
   /// In en, this message translates to:

@@ -65,6 +65,9 @@ abstract final class SpreadsheetCodec {
   /// `.xls` (Hysab Kytab's own export), `.xlsx`, or CSV (one sheet named
   /// [activitiesSheet]). Throws [FormatException] when unreadable.
   static List<Sheet> decode(List<int> bytes) {
+    if (looksLikeDatabase(bytes)) {
+      throw const FormatException(databaseFile);
+    }
     if (XlsReader.looksLikeXls(bytes)) return XlsReader.read(bytes);
     if (bytes.length > 2 && bytes[0] == 0x50 && bytes[1] == 0x4B) {
       try {
@@ -73,7 +76,27 @@ abstract final class SpreadsheetCodec {
         throw FormatException('Unreadable Excel file: $e');
       }
     }
-    return [(name: activitiesSheet, rows: decodeCsv(bytes))];
+    final rows = decodeCsv(bytes);
+    // Binary that isn't a spreadsheet decodes to junk "text"; a real CSV
+    // never has NUL characters.
+    if (rows.any((r) => r.any((c) => c.contains('\u0000')))) {
+      throw const FormatException('Not a spreadsheet or CSV');
+    }
+    return [(name: activitiesSheet, rows: rows)];
+  }
+
+  /// [FormatException.message] for a database file (an app's own backup,
+  /// such as Hysab Kytab's .db), which can't be imported directly.
+  static const databaseFile = 'database';
+
+  /// SQLite files start with "SQLite format 3" and a NUL.
+  static bool looksLikeDatabase(List<int> bytes) {
+    const magic = 'SQLite format 3\u0000';
+    if (bytes.length < magic.length) return false;
+    for (var i = 0; i < magic.length; i++) {
+      if (bytes[i] != magic.codeUnitAt(i)) return false;
+    }
+    return true;
   }
 
   /// The sheet called [name] (any case), or null.

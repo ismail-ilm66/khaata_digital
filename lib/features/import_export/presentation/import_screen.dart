@@ -60,6 +60,7 @@ class _ImportView extends StatelessWidget {
       ImportProblem.unreadable => l.importUnreadable,
       ImportProblem.empty => l.importEmpty,
       ImportProblem.failed => l.importFailed,
+      ImportProblem.backupFile => l.importBackupFile,
       null => null,
     };
 
@@ -178,9 +179,10 @@ class _Mapper extends StatelessWidget {
         subtitle: index == null
             ? l.notInFile
             : [
-                header[index],
+                // A guessed column the file doesn't have shows blank.
+                header.elementAtOrNull(index) ?? '',
                 if (sample?.isNotEmpty ?? false) sample,
-              ].join(' · '),
+              ].where((s) => s != null && s.isNotEmpty).join(' · '),
         onTap: () async {
           final picked = await pickOne<int>(
             context,

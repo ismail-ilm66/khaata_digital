@@ -944,6 +944,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get importEmpty => 'No entries found in this file.';
 
   @override
+  String get importBackupFile =>
+      'This is an app backup (.db), which can\'t be imported. In Hysab Kytab, open More → Export → Export All to save an Excel file, then choose that file here.';
+
+  @override
   String get mapColumns => 'Match the columns';
 
   @override
