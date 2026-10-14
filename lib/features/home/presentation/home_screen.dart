@@ -15,6 +15,8 @@ import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/amount_text.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/empty_state.dart';
+import '../../../core/widgets/hero_card.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../core/widgets/page_scaffold.dart';
 import '../../../core/widgets/section.dart';
 import '../../../core/widgets/surface_card.dart';
@@ -67,14 +69,20 @@ class _HomeView extends StatelessWidget {
     final masked = context.watch<HideBalanceCubit>().state.masked;
     final cycle = context.watch<BudgetCycleCubit>().state;
     final locale = Localizations.localeOf(context).toLanguageTag();
+    final hour = DateTime.now().hour;
 
     return PageScaffold(
-      title: l.appTitle,
+      title: hour < 12
+          ? l.greetingMorning
+          : hour < 17
+          ? l.greetingAfternoon
+          : l.greetingEvening,
+      // The current month's dates (they follow the month-start setting).
+      subtitle: s.cycle == null ? null : cycle.label(s.cycle!, locale: locale),
       onRefresh: () async {
         Haptics.selection();
         await getIt<AppRefresh>().recurring();
       },
-      subtitle: s.cycle == null ? null : cycle.label(s.cycle!, locale: locale),
       trailing: KeyedSubtree(
         key: TourTargets.eye,
         child: const BalanceEyeButton(),
@@ -217,7 +225,6 @@ class _SummaryCardState extends State<_SummaryCard> {
     final state = widget.state;
     final masked = widget.masked;
     final l = context.l10n;
-    final c = context.colors;
     final currency = context.watch<CurrencyCubit>().state;
     final income = state.totals!.incomeIn(currency);
     final spent = state.totals!.expenseIn(currency);
@@ -227,127 +234,137 @@ class _SummaryCardState extends State<_SummaryCard> {
         if (e.key != currency) e.value,
     ];
 
-    return SurfaceCard(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l.netWorth, style: context.text.bodySmall),
-            const SizedBox(height: AppSpacing.xs),
-            AmountText(
-              net[currency] ?? Money.zero(currency),
-              key: const Key('netWorth'),
-              masked: masked,
-              style: context.text.displaySmall,
-            ),
-            for (final m in others)
-              AmountText(
-                m,
-                masked: masked,
-                style: context.text.titleMedium!.copyWith(color: c.inkMuted),
+    return HeroCard(
+      // Read colours and text styles under the card, where they're white.
+      child: Builder(
+        builder: (context) {
+          final c = context.colors;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l.netWorth,
+                style: context.text.bodyMedium!.copyWith(color: c.inkMuted),
               ),
-            const SizedBox(height: AppSpacing.l),
-            KeyedSubtree(
-              key: TourTargets.thisMonth,
-              child: InkWell(
-                key: const Key('summaryToggle'),
-                onTap: _toggle,
-                borderRadius: BorderRadius.circular(AppRadii.s),
-                child: PeriodNavigator(
-                  dense: true,
-                  label: state.isCurrent
-                      ? l.thisCycle
-                      : context.watch<BudgetCycleCubit>().state.label(
-                          state.cycle!,
-                          locale: Localizations.localeOf(
-                            context,
-                          ).toLanguageTag(),
+              const SizedBox(height: AppSpacing.xs),
+              AmountText(
+                net[currency] ?? Money.zero(currency),
+                key: const Key('netWorth'),
+                masked: masked,
+                animated: true,
+                style: context.text.displayMedium,
+              ),
+              for (final m in others)
+                AmountText(
+                  m,
+                  masked: masked,
+                  style: context.text.titleMedium!.copyWith(color: c.inkMuted),
+                ),
+              const SizedBox(height: AppSpacing.l),
+              Divider(color: c.line),
+              const SizedBox(height: AppSpacing.xs),
+              KeyedSubtree(
+                key: TourTargets.thisMonth,
+                child: InkWell(
+                  key: const Key('summaryToggle'),
+                  onTap: _toggle,
+                  borderRadius: BorderRadius.circular(AppRadii.s),
+                  child: PeriodNavigator(
+                    dense: true,
+                    label: state.isCurrent
+                        ? l.thisCycle
+                        : context.watch<BudgetCycleCubit>().state.label(
+                            state.cycle!,
+                            locale: Localizations.localeOf(
+                              context,
+                            ).toLanguageTag(),
+                          ),
+                    previousTooltip: l.previousPeriod,
+                    nextTooltip: l.nextPeriod,
+                    onPrevious: _open
+                        ? () => context.read<HomeCubit>().step(-1)
+                        : null,
+                    onNext: !_open || state.isCurrent
+                        ? null
+                        : () => context.read<HomeCubit>().step(1),
+                    trailing: AnimatedRotation(
+                      turns: _open ? 0.5 : 0,
+                      duration: AppMotion.of(context, AppMotion.base),
+                      curve: AppMotion.out,
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.s),
+                        child: Icon(
+                          AppIcons.chevronDown,
+                          size: 16,
+                          color: c.inkMuted,
                         ),
-                  previousTooltip: l.previousPeriod,
-                  nextTooltip: l.nextPeriod,
-                  onPrevious: _open
-                      ? () => context.read<HomeCubit>().step(-1)
-                      : null,
-                  onNext: !_open || state.isCurrent
-                      ? null
-                      : () => context.read<HomeCubit>().step(1),
-                  trailing: AnimatedRotation(
-                    turns: _open ? 0.5 : 0,
-                    duration: const Duration(milliseconds: 200),
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.s),
-                      child: Icon(
-                        AppIcons.chevronDown,
-                        size: 16,
-                        color: c.inkMuted,
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOutCubic,
-              alignment: AlignmentDirectional.topStart,
-              child: !_open
-                  ? const SizedBox(width: double.infinity)
-                  : Padding(
-                      padding: const EdgeInsets.only(top: AppSpacing.s),
-                      child: StatRow(
-                        children: [
-                          StatTile(
-                            key: const Key('statIncome'),
-                            label: l.income,
-                            onTap: () =>
-                                _show(l.income, {TransactionType.income}),
-                            value: AmountText(
-                              income,
-                              signed: true,
-                              colored: true,
-                              masked: masked,
-                              style: context.text.titleMedium,
+              AnimatedSize(
+                duration: AppMotion.of(context, AppMotion.base),
+                curve: AppMotion.out,
+                alignment: AlignmentDirectional.topStart,
+                child: !_open
+                    ? const SizedBox(width: double.infinity)
+                    : Padding(
+                        padding: const EdgeInsets.only(top: AppSpacing.s),
+                        child: StatRow(
+                          children: [
+                            StatTile(
+                              key: const Key('statIncome'),
+                              label: l.income,
+                              onTap: () =>
+                                  _show(l.income, {TransactionType.income}),
+                              value: AmountText(
+                                income,
+                                signed: true,
+                                colored: true,
+                                masked: masked,
+                                style: context.text.titleMedium,
+                              ),
                             ),
-                          ),
-                          StatTile(
-                            key: const Key('statSpent'),
-                            label: l.spent,
-                            onTap: () =>
-                                _show(l.spent, {TransactionType.expense}),
-                            value: AmountText(
-                              spent,
-                              masked: masked,
-                              style: context.text.titleMedium,
+                            StatTile(
+                              key: const Key('statSpent'),
+                              label: l.spent,
+                              onTap: () =>
+                                  _show(l.spent, {TransactionType.expense}),
+                              value: AmountText(
+                                spent,
+                                masked: masked,
+                                style: context.text.titleMedium,
+                              ),
                             ),
-                          ),
-                          StatTile(
-                            key: const Key('statLeft'),
-                            label: l.left,
-                            infoLabel: l.leftInfoTitle,
-                            onInfo: () => infoSheet(
-                              context,
-                              title: l.leftInfoTitle,
-                              message: l.leftInfoBody,
-                              doneLabel: l.gotIt,
+                            StatTile(
+                              key: const Key('statLeft'),
+                              label: l.left,
+                              infoLabel: l.leftInfoTitle,
+                              onInfo: () => infoSheet(
+                                context,
+                                title: l.leftInfoTitle,
+                                message: l.leftInfoBody,
+                                doneLabel: l.gotIt,
+                              ),
+                              onTap: () => _show(l.moneyInAndOut, {
+                                TransactionType.income,
+                                TransactionType.expense,
+                              }),
+                              value: AmountText(
+                                income - spent,
+                                masked: masked,
+                                style: context.text.titleMedium,
+                              ),
                             ),
-                            onTap: () => _show(l.moneyInAndOut, {
-                              TransactionType.income,
-                              TransactionType.expense,
-                            }),
-                            value: AmountText(
-                              income - spent,
-                              masked: masked,
-                              style: context.text.titleMedium,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-            ),
-          ],
-        ),
-      ],
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }
@@ -368,18 +385,23 @@ class _AccountsCarousel extends StatelessWidget {
       required Widget child,
       required VoidCallback onTap,
       Key? key,
-    }) => Material(
+    }) => Pressable(
       key: key,
-      color: c.surface,
-      borderRadius: BorderRadius.circular(AppRadii.m),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.m),
-        onTap: onTap,
-        child: SizedBox(
-          width: _width,
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.l),
-            child: child,
+      child: Material(
+        color: c.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.l),
+          side: BorderSide(color: c.line.withValues(alpha: 0.6)),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadii.l),
+          onTap: onTap,
+          child: SizedBox(
+            width: _width,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.l),
+              child: child,
+            ),
           ),
         ),
       ),
@@ -473,24 +495,30 @@ class _BudgetsCard extends StatelessWidget {
       line: line,
       masked: context.watch<HideBalanceCubit>().state.masked,
     );
-    return Material(
-      color: context.colors.surface,
-      borderRadius: BorderRadius.circular(AppRadii.l),
-      child: InkWell(
-        key: const Key('homeBudgets'),
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        onTap: () => context.push(Routes.budgets),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.l),
-          child: Column(
-            children: [
-              if (overview.overall case final overall?)
-                row(l.overallBudget, overall),
-              for (final line in overview.lines.take(3)) ...[
-                const SizedBox(height: AppSpacing.l),
-                row(line.category!.name, line),
+    return Pressable(
+      scale: 0.98,
+      child: Material(
+        color: context.colors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.l),
+          side: BorderSide(color: context.colors.line.withValues(alpha: 0.6)),
+        ),
+        child: InkWell(
+          key: const Key('homeBudgets'),
+          borderRadius: BorderRadius.circular(AppRadii.l),
+          onTap: () => context.push(Routes.budgets),
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.l),
+            child: Column(
+              children: [
+                if (overview.overall case final overall?)
+                  row(l.overallBudget, overall),
+                for (final line in overview.lines.take(3)) ...[
+                  const SizedBox(height: AppSpacing.l),
+                  row(line.category!.name, line),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

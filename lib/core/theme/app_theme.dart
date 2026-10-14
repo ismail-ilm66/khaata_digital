@@ -44,6 +44,16 @@ abstract final class AppTheme {
       textTheme: text,
       scaffoldBackgroundColor: c.paper,
       extensions: [c],
+      // No ink ripple: surfaces answer a touch with a quiet highlight and,
+      // where it matters, a press scale (Pressable).
+      splashFactory: NoSplash.splashFactory,
+      highlightColor: c.ink.withValues(alpha: 0.05),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: c.paper,
         foregroundColor: c.ink,

@@ -6,6 +6,7 @@ import '../theme/context_x.dart';
 import 'ambient_background.dart';
 import 'app_icons.dart';
 import 'glass_nav_bar.dart';
+import 'pressable.dart';
 
 /// The layout every page uses: a large title that scrolls away with the
 /// content over the ambient background, and bottom padding that clears the
@@ -106,50 +107,119 @@ class PageHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final canPop = ModalRoute.of(context)?.impliesAppBarDismissal ?? false;
+    final heading = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (subtitle != null)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: Text(subtitle!, style: context.text.bodySmall),
+          ),
+        Text(title, style: context.text.headlineLarge),
+      ],
+    );
+
+    // Pushed pages: back and the actions share a top bar, the title sits
+    // under it. Tab pages have no back, so the actions join the title row.
+    if (canPop) {
+      return Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          AppSpacing.page,
+          AppSpacing.xs,
+          AppSpacing.page,
+          AppSpacing.l,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [const HeaderBackButton(), const Spacer(), ?trailing],
+            ),
+            const SizedBox(height: AppSpacing.m),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: AppSpacing.xs),
+              child: heading,
+            ),
+          ],
+        ),
+      );
+    }
     return Padding(
-      padding: EdgeInsetsDirectional.fromSTEB(
+      padding: const EdgeInsetsDirectional.fromSTEB(
         AppSpacing.page + AppSpacing.xs,
-        canPop ? AppSpacing.xs : AppSpacing.xl,
+        AppSpacing.xl,
         AppSpacing.page,
         AppSpacing.l,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (canPop)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.s),
-                    child: IconButton.filledTonal(
-                      onPressed: () => Navigator.maybePop(context),
-                      style: IconButton.styleFrom(
-                        backgroundColor: context.colors.surface,
-                      ),
-                      tooltip: MaterialLocalizations.of(
-                        context,
-                      ).backButtonTooltip,
-                      icon: DirectionalIcon(
-                        AppIcons.back,
-                        size: 18,
-                        color: context.colors.ink,
-                      ),
-                    ),
-                  ),
-                if (subtitle != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                    child: Text(subtitle!, style: context.text.bodySmall),
-                  ),
-                Text(title, style: context.text.headlineLarge),
-              ],
-            ),
-          ),
+          Expanded(child: heading),
           ?trailing,
         ],
       ),
+    );
+  }
+}
+
+/// The round back button at the start of a pushed page's top bar.
+class HeaderBackButton extends StatelessWidget {
+  const HeaderBackButton({super.key});
+
+  @override
+  Widget build(BuildContext context) => Pressable(
+    scale: 0.92,
+    child: IconButton.filledTonal(
+      onPressed: () => Navigator.maybePop(context),
+      style: IconButton.styleFrom(backgroundColor: context.colors.surface),
+      tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      icon: DirectionalIcon(AppIcons.back, size: 18, color: context.colors.ink),
+    ),
+  );
+}
+
+/// A round icon button for a page header: a quiet surface disc, or the
+/// brand-filled [primary] one for the page's main action (usually "add").
+class HeaderButton extends StatelessWidget {
+  const HeaderButton({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.primary = false,
+    this.selected = false,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onPressed;
+  final bool primary;
+
+  /// A quiet button that is switched on (e.g. a custom range in use).
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Pressable(
+      scale: 0.92,
+      child: primary
+          ? IconButton.filled(
+              tooltip: tooltip,
+              onPressed: onPressed,
+              icon: Icon(icon),
+            )
+          : IconButton.filledTonal(
+              tooltip: tooltip,
+              isSelected: selected,
+              onPressed: onPressed,
+              style: IconButton.styleFrom(
+                backgroundColor: selected
+                    ? c.brand.withValues(alpha: 0.14)
+                    : c.surface,
+              ),
+              icon: Icon(icon, color: c.ink, size: 20),
+            ),
     );
   }
 }

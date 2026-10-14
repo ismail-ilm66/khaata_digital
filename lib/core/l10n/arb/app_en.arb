@@ -1,6 +1,9 @@
 {
   "@@locale": "en",
   "appTitle": "Kharcha",
+  "greetingMorning": "Good morning",
+  "greetingAfternoon": "Good afternoon",
+  "greetingEvening": "Good evening",
   "navHome": "Home",
   "navTransactions": "Transactions",
   "navAdd": "Add",
@@ -580,6 +583,7 @@
   "mostUsedFirst": "Most used first",
   "mostUsedFirstOn": "Accounts you use most come first, on Home too",
   "mostUsedFirstOff": "Your own order: drag the handles to arrange",
+  "yourOrder": "Your order",
   "toPay": "To pay",
   "toPaySubtitle": "Charity, bills and promises you still have to pay",
   "toPayEmptyTitle": "Nothing to pay",

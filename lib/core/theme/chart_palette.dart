@@ -7,6 +7,10 @@ import 'package:flutter/material.dart';
 /// are under 3:1 contrast, so every chart pairs colour with a labelled
 /// legend — colour is never the only cue.
 ///
+/// No pure green slot: green means income everywhere else in the app, so a
+/// large green slice of spending would read wrong. Umber took its place
+/// (dark worst adjacent ΔE 8.4, normal-vision floor 16.0; still passing).
+///
 /// Category badges keep their own muted tints; charts need the stronger
 /// separation, so they use these slots instead.
 abstract final class ChartPalette {
@@ -16,7 +20,7 @@ abstract final class ChartPalette {
     Color(0xFF1BAF7A), // aqua
     Color(0xFFEDA100), // yellow
     Color(0xFFE87BA4), // magenta
-    Color(0xFF008300), // green
+    Color(0xFFA0622D), // umber
     Color(0xFF4A3AA7), // violet
     Color(0xFFE34948), // red
   ];
@@ -27,7 +31,7 @@ abstract final class ChartPalette {
     Color(0xFF199E70),
     Color(0xFFC98500),
     Color(0xFFD55181),
-    Color(0xFF008300),
+    Color(0xFFA0622D),
     Color(0xFF9085E9),
     Color(0xFFE66767),
   ];

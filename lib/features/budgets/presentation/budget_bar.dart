@@ -41,7 +41,7 @@ class BudgetBar extends StatelessWidget {
               widthFactor: fraction,
               child: TweenAnimationBuilder<Color?>(
                 tween: ColorTween(end: color),
-                duration: const Duration(milliseconds: 300),
+                duration: AppMotion.slow,
                 builder: (_, value, _) => ColoredBox(color: value ?? color),
               ),
             ),

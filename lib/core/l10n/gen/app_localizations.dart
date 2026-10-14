@@ -104,6 +104,24 @@ abstract class AppLocalizations {
   /// **'Kharcha'**
   String get appTitle;
 
+  /// No description provided for @greetingMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Good morning'**
+  String get greetingMorning;
+
+  /// No description provided for @greetingAfternoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Good afternoon'**
+  String get greetingAfternoon;
+
+  /// No description provided for @greetingEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Good evening'**
+  String get greetingEvening;
+
   /// No description provided for @navHome.
   ///
   /// In en, this message translates to:
@@ -2317,6 +2335,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your own order: drag the handles to arrange'**
   String get mostUsedFirstOff;
+
+  /// No description provided for @yourOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order'**
+  String get yourOrder;
 
   /// No description provided for @toPay.
   ///

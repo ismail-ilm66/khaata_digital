@@ -63,8 +63,8 @@ class _OnboardingViewState extends State<_OnboardingView> {
     }
     _pages.animateToPage(
       page + 1,
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeOutCubic,
+      duration: AppMotion.slow,
+      curve: AppMotion.inOut,
     );
   }
 
@@ -85,7 +85,7 @@ class _OnboardingViewState extends State<_OnboardingView> {
                   padding: const EdgeInsets.all(AppSpacing.s),
                   child: AnimatedOpacity(
                     opacity: last ? 0 : 1,
-                    duration: const Duration(milliseconds: 200),
+                    duration: AppMotion.base,
                     child: TextButton(
                       key: const Key('onboardingSkip'),
                       onPressed: last ? null : _finish,
@@ -116,7 +116,7 @@ class _OnboardingViewState extends State<_OnboardingView> {
                       children: [
                         for (var i = 0; i < OnboardingState.pages; i++)
                           AnimatedContainer(
-                            duration: const Duration(milliseconds: 240),
+                            duration: AppMotion.base,
                             margin: const EdgeInsets.symmetric(horizontal: 3),
                             width: i == page ? 20 : 6,
                             height: 6,

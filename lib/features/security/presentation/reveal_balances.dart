@@ -5,6 +5,7 @@ import '../../../core/di/injection.dart';
 import '../../../core/feedback/haptics.dart';
 import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../../core/widgets/page_scaffold.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import 'lock_cubit.dart';
 import 'lock_settings_screen.dart';
@@ -52,14 +53,12 @@ class BalanceEyeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final c = context.colors;
     final masked = context.watch<HideBalanceCubit>().state.masked;
-    return IconButton.filledTonal(
+    return HeaderButton(
       key: buttonKey,
+      icon: masked ? AppIcons.hide : AppIcons.show,
       tooltip: masked ? l.showBalances : l.hideBalances,
       onPressed: () => toggleBalances(context),
-      style: IconButton.styleFrom(backgroundColor: c.surface),
-      icon: Icon(masked ? AppIcons.hide : AppIcons.show, color: c.ink),
     );
   }
 }

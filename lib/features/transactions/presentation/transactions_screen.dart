@@ -42,12 +42,11 @@ class _TransactionsView extends StatelessWidget {
           context.read<TransactionListBloc>().add(const MoreRequested()),
       child: PageScaffold(
         title: l.navTransactions,
-        trailing: IconButton.filledTonal(
+        trailing: HeaderButton(
           key: const Key('searchButton'),
+          icon: AppIcons.search,
           tooltip: l.search,
           onPressed: () => context.push(Routes.search),
-          style: IconButton.styleFrom(backgroundColor: context.colors.surface),
-          icon: Icon(AppIcons.search, color: context.colors.ink),
         ),
         slivers: [
           // Stays put while the list scrolls under it, like the cycle

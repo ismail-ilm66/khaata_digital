@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app_icons.dart';
+import 'pressable.dart';
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
 
@@ -29,47 +30,50 @@ class PillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final fg = selected ? c.brand : c.ink;
-    return Material(
-      color: selected ? c.brand.withValues(alpha: 0.12) : c.surfaceMuted,
-      shape: StadiumBorder(
-        side: BorderSide(
-          color: selected
-              ? c.brand.withValues(alpha: 0.35)
-              : Colors.transparent,
-        ),
-      ),
-      child: InkWell(
-        customBorder: const StadiumBorder(),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.m,
-            vertical: AppSpacing.s,
+    return Pressable(
+      enabled: onTap != null,
+      child: Material(
+        color: selected ? c.brand.withValues(alpha: 0.12) : c.surfaceMuted,
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: selected
+                ? c.brand.withValues(alpha: 0.35)
+                : Colors.transparent,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (leading != null) ...[
-                leading!,
-                const SizedBox(width: AppSpacing.s),
-              ],
-              if (icon != null) ...[
-                Icon(icon, size: 16, color: fg),
-                const SizedBox(width: AppSpacing.xs + 2),
-              ],
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.text.labelLarge!.copyWith(color: fg),
+        ),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.m,
+              vertical: AppSpacing.s,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (leading != null) ...[
+                  leading!,
+                  const SizedBox(width: AppSpacing.s),
+                ],
+                if (icon != null) ...[
+                  Icon(icon, size: 16, color: fg),
+                  const SizedBox(width: AppSpacing.xs + 2),
+                ],
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.labelLarge!.copyWith(color: fg),
+                  ),
                 ),
-              ),
-              if (showChevron) ...[
-                const SizedBox(width: AppSpacing.xs),
-                Icon(AppIcons.chevronDown, size: 14, color: c.inkMuted),
+                if (showChevron) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  Icon(AppIcons.chevronDown, size: 14, color: c.inkMuted),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

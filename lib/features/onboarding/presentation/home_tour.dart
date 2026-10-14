@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_tokens.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/di/injection.dart';
@@ -107,8 +108,8 @@ Future<void> startHomeTour(BuildContext context) async {
     if (top != null && top.mounted) {
       await Scrollable.ensureVisible(
         top,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
+        duration: AppMotion.slow,
+        curve: AppMotion.out,
       );
     }
   } finally {

@@ -73,7 +73,11 @@ void main() {
     expect(lockScreen(), findsOneWidget);
     await typePin(t, '1234');
     expect(lockScreen(), findsNothing);
-    expect(find.text('Kharcha'), findsWidgets, reason: 'back on Home');
+    expect(
+      find.byKey(const Key('netWorth')),
+      findsOneWidget,
+      reason: 'back on Home',
+    );
   });
 
   testWidgets('locks again after time away; fingerprint unlocks', (t) async {

@@ -80,11 +80,12 @@ class ToPayScreen extends StatelessWidget {
             final list = categories.values.toList();
             return PageScaffold(
               title: l.toPay,
-              trailing: IconButton.filled(
+              trailing: HeaderButton(
                 key: const Key('addToPay'),
+                primary: true,
+                icon: AppIcons.plus,
                 tooltip: l.addToPay,
                 onPressed: () => add(context, list),
-                icon: const Icon(AppIcons.plus),
               ),
               slivers: [
                 if (open == null || paid == null)

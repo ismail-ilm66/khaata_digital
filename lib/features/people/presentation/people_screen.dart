@@ -67,6 +67,9 @@ class PeopleScreen extends StatefulWidget {
 }
 
 class _PeopleScreenState extends State<PeopleScreen> {
+  /// Search and sort appear once there are this many people.
+  static const _toolsFrom = 4;
+
   late PeopleTab _tab = widget.initialTab;
   _Sort _sort = _Sort.largest;
   String _query = '';
@@ -133,11 +136,12 @@ class _PeopleScreenState extends State<PeopleScreen> {
             children: [
               const BalanceEyeButton(buttonKey: Key('peopleEye')),
               const SizedBox(width: AppSpacing.s),
-              IconButton.filled(
+              HeaderButton(
                 key: const Key('addPerson'),
+                primary: true,
+                icon: AppIcons.plus,
                 tooltip: l.addPerson,
                 onPressed: () => PeopleScreen.addPerson(context),
-                icon: const Icon(AppIcons.plus),
               ),
             ],
           ),
@@ -174,40 +178,43 @@ class _PeopleScreenState extends State<PeopleScreen> {
                         style: context.text.bodySmall,
                       ),
                     ],
-                    const SizedBox(height: AppSpacing.l),
-                    TextField(
-                      key: const Key('peopleSearch'),
-                      onChanged: (q) => setState(() => _query = q),
-                      textInputAction: TextInputAction.search,
-                      decoration: InputDecoration(
-                        hintText: l.searchPeople,
-                        prefixIcon: const Icon(AppIcons.search),
-                        isDense: true,
+                    // Searching and sorting a handful of people is noise.
+                    if (o.people.length >= _toolsFrom) ...[
+                      const SizedBox(height: AppSpacing.l),
+                      TextField(
+                        key: const Key('peopleSearch'),
+                        onChanged: (q) => setState(() => _query = q),
+                        textInputAction: TextInputAction.search,
+                        decoration: InputDecoration(
+                          hintText: l.searchPeople,
+                          prefixIcon: const Icon(AppIcons.search),
+                          isDense: true,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.s),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: PillButton(
-                        key: const Key('peopleSort'),
-                        label: sortLabels[_sort]!,
-                        icon: AppIcons.filter,
-                        showChevron: true,
-                        onTap: () async {
-                          final picked = await pickOne<_Sort>(
-                            context,
-                            title: l.sortBy,
-                            selected: _sort,
-                            items: [
-                              for (final MapEntry(:key, :value)
-                                  in sortLabels.entries)
-                                PickItem(value: key, title: value),
-                            ],
-                          );
-                          if (picked != null) setState(() => _sort = picked);
-                        },
+                      const SizedBox(height: AppSpacing.s),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: PillButton(
+                          key: const Key('peopleSort'),
+                          label: sortLabels[_sort]!,
+                          icon: AppIcons.filter,
+                          showChevron: true,
+                          onTap: () async {
+                            final picked = await pickOne<_Sort>(
+                              context,
+                              title: l.sortBy,
+                              selected: _sort,
+                              items: [
+                                for (final MapEntry(:key, :value)
+                                    in sortLabels.entries)
+                                  PickItem(value: key, title: value),
+                              ],
+                            );
+                            if (picked != null) setState(() => _sort = picked);
+                          },
+                        ),
                       ),
-                    ),
+                    ],
                     const SizedBox(height: AppSpacing.l),
                     if (o.people.isEmpty)
                       EmptyState(

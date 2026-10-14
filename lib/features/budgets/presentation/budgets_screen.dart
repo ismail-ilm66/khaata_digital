@@ -110,11 +110,12 @@ class _BudgetsView extends StatelessWidget {
           title: l.budgets,
           trailing: o == null
               ? null
-              : IconButton.filled(
+              : HeaderButton(
                   key: const Key('addBudget'),
+                  primary: true,
+                  icon: AppIcons.plus,
                   tooltip: l.addBudget,
                   onPressed: () => _addCategoryBudget(context, o),
-                  icon: const Icon(AppIcons.plus),
                 ),
           slivers: [
             if (s.cycle != null)

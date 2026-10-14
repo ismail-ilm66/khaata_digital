@@ -1,4 +1,3 @@
-import '../../../core/widgets/app_switch.dart';
 import 'ordered_accounts.dart';
 import '../../security/presentation/reveal_balances.dart';
 import '../../../core/widgets/pill_button.dart';
@@ -10,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/amount_text.dart';
 import '../../../core/widgets/app_icons.dart';
@@ -76,13 +76,18 @@ class _AccountsView extends StatelessWidget {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (accounts.length > 1) ...[
+                const _OrderButton(),
+                const SizedBox(width: AppSpacing.s),
+              ],
               const BalanceEyeButton(buttonKey: Key('accountsEye')),
               const SizedBox(width: AppSpacing.s),
-              IconButton.filled(
+              HeaderButton(
                 key: const Key('addAccount'),
+                primary: true,
+                icon: AppIcons.plus,
                 tooltip: l.addAccount,
                 onPressed: () => addAccount(context),
-                icon: const Icon(AppIcons.plus),
               ),
             ],
           ),
@@ -98,16 +103,6 @@ class _AccountsView extends StatelessWidget {
                   ),
                 ),
               ),
-            if (accounts.length > 1)
-              const SliverPadding(
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.page,
-                  0,
-                  AppSpacing.page,
-                  AppSpacing.m,
-                ),
-                sliver: SliverToBoxAdapter(child: _OrderToggle()),
-              ),
             OrderedAccounts(
               accounts: accounts,
               builder: (context, ordered) {
@@ -121,18 +116,19 @@ class _AccountsView extends StatelessWidget {
                     onReorder: (from, to) => context.read<AccountsBloc>().add(
                       AccountsReordered(from, to),
                     ),
-                    proxyDecorator: (child, _, _) =>
-                        Material(color: Colors.transparent, child: child),
-                    itemBuilder: (context, i) => Padding(
+                    // A lifted row is a card of its own.
+                    proxyDecorator: (child, _, _) => Material(
+                      color: Colors.transparent,
+                      child: _AccountRow.lifted(child),
+                    ),
+                    itemBuilder: (context, i) => _AccountRow(
                       key: ValueKey(ordered[i].account.id),
-                      padding: const EdgeInsets.only(bottom: AppSpacing.s),
-                      child: _AccountRow(
-                        summary: ordered[i],
-                        index: i,
-                        masked: masked,
-                        // Dragging only means something in your own order.
-                        draggable: !byUse,
-                      ),
+                      summary: ordered[i],
+                      index: i,
+                      count: ordered.length,
+                      masked: masked,
+                      // Dragging only means something in your own order.
+                      draggable: !byUse,
                     ),
                   ),
                 );
@@ -204,96 +200,133 @@ class _AccountsView extends StatelessWidget {
   }
 }
 
+/// One account in the grouped list: rows share one rounded card, joined
+/// by inset hairlines, like the grouped lists elsewhere.
 class _AccountRow extends StatelessWidget {
   const _AccountRow({
+    super.key,
     required this.summary,
     required this.index,
+    required this.count,
     required this.masked,
     this.draggable = true,
   });
 
   final AccountSummary summary;
   final int index;
+  final int count;
   final bool masked;
   final bool draggable;
+
+  /// The row being dragged: fully rounded and raised.
+  static Widget lifted(Widget row) => Builder(
+    builder: (context) => DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        boxShadow: [
+          BoxShadow(
+            color: context.colors.shadow,
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppRadii.l),
+        child: row,
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
     final a = summary.account;
     final c = context.colors;
+    const r = Radius.circular(AppRadii.l);
+    final radius = BorderRadius.vertical(
+      top: index == 0 ? r : Radius.zero,
+      bottom: index == count - 1 ? r : Radius.zero,
+    );
     return Material(
       color: c.surface,
-      borderRadius: BorderRadius.circular(AppRadii.m),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadii.m),
-        onTap: () => context.push(
-          Routes.accountForm,
-          extra: AccountFormArgs(account: a),
+      shape: RoundedRectangleBorder(borderRadius: radius),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          if (index > 0)
+            Divider(
+              indent: AppSpacing.l + 40 + kBadgeGap,
+              color: c.line.withValues(alpha: 0.7),
+            ),
+          _content(context, a, c),
+        ],
+      ),
+    );
+  }
+
+  Widget _content(BuildContext context, Account a, AppColors c) {
+    return InkWell(
+      onTap: () =>
+          context.push(Routes.accountForm, extra: AccountFormArgs(account: a)),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(
+          AppSpacing.l,
+          AppSpacing.m,
+          AppSpacing.xs,
+          AppSpacing.m,
         ),
-        child: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            AppSpacing.l,
-            AppSpacing.m,
-            AppSpacing.xs,
-            AppSpacing.m,
-          ),
-          child: Row(
-            children: [
-              AccountBadge.of(a),
-              const SizedBox(width: kBadgeGap),
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      a.name,
-                      style: context.text.titleSmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      [
-                        context.accountTypeName(a.type),
-                        a.currency.code,
-                        if (a.excludeFromTotal) context.l10n.notInTotal,
-                      ].join(' · '),
-                      style: context.text.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.s),
-              // Fills its share so every balance sits on the same right
-              // edge, shrinking only when too long.
-              Expanded(
-                flex: 2,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: AmountText(
-                    summary.balance,
-                    masked: masked,
+        child: Row(
+          children: [
+            AccountBadge.of(a),
+            const SizedBox(width: kBadgeGap),
+            Expanded(
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    a.name,
                     style: context.text.titleSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
+                  Text(
+                    [
+                      context.accountTypeName(a.type),
+                      a.currency.code,
+                      if (a.excludeFromTotal) context.l10n.notInTotal,
+                    ].join(' · '),
+                    style: context.text.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s),
+            // Fills its share so every balance sits on the same right
+            // edge, shrinking only when too long.
+            Expanded(
+              flex: 2,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerEnd,
+                child: AmountText(
+                  summary.balance,
+                  masked: masked,
+                  style: context.text.titleSmall,
                 ),
               ),
-              if (draggable)
-                ReorderableDragStartListener(
-                  index: index,
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.s),
-                    child: Icon(
-                      AppIcons.dragHandle,
-                      size: 18,
-                      color: c.inkMuted,
-                    ),
-                  ),
-                )
-              else
-                const SizedBox(width: AppSpacing.m),
-            ],
-          ),
+            ),
+            if (draggable)
+              ReorderableDragStartListener(
+                index: index,
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.s),
+                  child: Icon(AppIcons.dragHandle, size: 18, color: c.inkMuted),
+                ),
+              )
+            else
+              const SizedBox(width: AppSpacing.m),
+          ],
         ),
       ),
     );
@@ -412,27 +445,41 @@ class _PresetGrid extends StatelessWidget {
   }
 }
 
-/// "Most used first" on or off; off, the drag handles come back.
-class _OrderToggle extends StatelessWidget {
-  const _OrderToggle();
+/// Sort: "Most used first" or your own order (which brings back the drag
+/// handles). Rarely changed, so it lives behind a header button.
+class _OrderButton extends StatelessWidget {
+  const _OrderButton();
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final byUse = context.watch<AccountsByUseCubit>().state;
-    return SurfaceCard(
-      children: [
-        SettingTile(
-          key: const Key('accountsByUse'),
-          icon: AppIcons.sortByUse,
-          title: l.mostUsedFirst,
-          subtitle: byUse ? l.mostUsedFirstOn : l.mostUsedFirstOff,
-          trailing: AppSwitch(
-            value: byUse,
-            onChanged: context.read<AccountsByUseCubit>().set,
-          ),
-        ),
-      ],
+    return HeaderButton(
+      key: const Key('accountsByUse'),
+      icon: AppIcons.sortByUse,
+      tooltip: l.sortBy,
+      onPressed: () async {
+        final v = await pickOne<bool>(
+          context,
+          title: l.sortBy,
+          selected: byUse,
+          items: [
+            PickItem(
+              value: true,
+              title: l.mostUsedFirst,
+              subtitle: l.mostUsedFirstOn,
+            ),
+            PickItem(
+              value: false,
+              title: l.yourOrder,
+              subtitle: l.mostUsedFirstOff,
+            ),
+          ],
+        );
+        if (v != null && context.mounted) {
+          await context.read<AccountsByUseCubit>().set(v);
+        }
+      },
     );
   }
 }

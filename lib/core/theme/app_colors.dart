@@ -22,6 +22,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.glassEdge,
     required this.glow,
     required this.shadow,
+    required this.heroStart,
+    required this.heroEnd,
   });
 
   static const brandGreen = Color(0xFF0E7C4A);
@@ -41,6 +43,8 @@ class AppColors extends ThemeExtension<AppColors> {
     glassEdge: Color(0x99FFFFFF),
     glow: Color(0x2E0E7C4A),
     shadow: Color(0x1A0B2A1C),
+    heroStart: Color(0xFF14965C),
+    heroEnd: Color(0xFF0A5A37),
   );
 
   static const dark = AppColors(
@@ -58,6 +62,8 @@ class AppColors extends ThemeExtension<AppColors> {
     glassEdge: Color(0x1FFFFFFF),
     glow: Color(0x333DBE7E),
     shadow: Color(0x66000000),
+    heroStart: Color(0xFF1A7A50),
+    heroEnd: Color(0xFF0D3F29),
   );
 
   /// Page background.
@@ -95,6 +101,11 @@ class AppColors extends ThemeExtension<AppColors> {
   /// Soft shadow under floating surfaces.
   final Color shadow;
 
+  /// The headline card's brand gradient, top-start to bottom-end. Content
+  /// on it is white (see HeroCard).
+  final Color heroStart;
+  final Color heroEnd;
+
   @override
   AppColors copyWith({
     Color? paper,
@@ -111,6 +122,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? glassEdge,
     Color? glow,
     Color? shadow,
+    Color? heroStart,
+    Color? heroEnd,
   }) {
     return AppColors(
       paper: paper ?? this.paper,
@@ -127,6 +140,8 @@ class AppColors extends ThemeExtension<AppColors> {
       glassEdge: glassEdge ?? this.glassEdge,
       glow: glow ?? this.glow,
       shadow: shadow ?? this.shadow,
+      heroStart: heroStart ?? this.heroStart,
+      heroEnd: heroEnd ?? this.heroEnd,
     );
   }
 
@@ -149,6 +164,8 @@ class AppColors extends ThemeExtension<AppColors> {
       glassEdge: mix(glassEdge, other.glassEdge),
       glow: mix(glow, other.glow),
       shadow: mix(shadow, other.shadow),
+      heroStart: mix(heroStart, other.heroStart),
+      heroEnd: mix(heroEnd, other.heroEnd),
     );
   }
 }

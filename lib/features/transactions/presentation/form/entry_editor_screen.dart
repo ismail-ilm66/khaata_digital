@@ -282,8 +282,8 @@ class _AmountHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<TransactionFormBloc>();
     return AnimatedPadding(
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
+      duration: AppMotion.base,
+      curve: AppMotion.out,
       padding: EdgeInsets.fromLTRB(
         AppSpacing.l,
         typing ? AppSpacing.s : AppSpacing.xl,
@@ -492,8 +492,8 @@ class _AccountStripState extends State<_AccountStrip> {
     Scrollable.ensureVisible(
       chip,
       alignment: 0.5,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOutCubic,
+      duration: AppMotion.base,
+      curve: AppMotion.out,
     );
   }
 

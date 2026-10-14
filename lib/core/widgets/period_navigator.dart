@@ -39,8 +39,18 @@ class PeriodNavigator extends StatelessWidget {
     Widget arrow(IconData icon, VoidCallback? onTap, String? tip, Key key) =>
         onTap == null && noArrows
         ? const SizedBox.shrink()
+        // The other arrow can step: show this one dimmed (not a gap, which
+        // left a lone arrow that read as "back").
         : onTap == null
-        ? SizedBox(width: dense ? 36 : 48)
+        ? IconButton(
+            onPressed: null,
+            visualDensity: dense ? VisualDensity.compact : null,
+            icon: DirectionalIcon(
+              icon,
+              size: dense ? 16 : 18,
+              color: c.inkMuted.withValues(alpha: 0.4),
+            ),
+          )
         : IconButton(
             key: key,
             tooltip: tip,

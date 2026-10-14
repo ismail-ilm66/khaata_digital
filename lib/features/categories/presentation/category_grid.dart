@@ -36,7 +36,7 @@ class CategoryTile extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
+              duration: AppMotion.fast,
               padding: const EdgeInsets.all(3),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(badgeSize * 0.42),

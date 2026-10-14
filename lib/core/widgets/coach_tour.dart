@@ -50,8 +50,8 @@ Future<bool> showCoachTour(
     PageRouteBuilder<bool>(
       opaque: false,
       barrierDismissible: false,
-      transitionDuration: const Duration(milliseconds: 220),
-      reverseTransitionDuration: const Duration(milliseconds: 180),
+      transitionDuration: AppMotion.base,
+      reverseTransitionDuration: AppMotion.base,
       pageBuilder: (_, _, _) => _CoachTour(steps: steps, labels: labels),
       transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),
@@ -91,8 +91,8 @@ class _CoachTourState extends State<_CoachTour> {
       await Scrollable.ensureVisible(
         target,
         alignment: 0.3,
-        duration: const Duration(milliseconds: 240),
-        curve: Curves.easeOutCubic,
+        duration: AppMotion.base,
+        curve: AppMotion.out,
       );
       if (!mounted || !target.mounted) return;
       final box = target.findRenderObject() as RenderBox?;
@@ -131,8 +131,8 @@ class _CoachTourState extends State<_CoachTour> {
                 ? const ColoredBox(color: _scrim)
                 : TweenAnimationBuilder<Rect?>(
                     tween: RectTween(end: hole),
-                    duration: const Duration(milliseconds: 280),
-                    curve: Curves.easeOutCubic,
+                    duration: AppMotion.slow,
+                    curve: AppMotion.out,
                     builder: (context, rect, _) => CustomPaint(
                       painter: _ScrimPainter(hole: rect, color: _scrim),
                     ),
@@ -278,8 +278,8 @@ class _Callout extends StatelessWidget {
             ),
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
+        duration: AppMotion.base,
+        curve: AppMotion.out,
         builder: (context, t, child) => Opacity(
           opacity: t,
           child: Transform.translate(

@@ -49,8 +49,8 @@ class SegmentedPicker<T> extends StatelessWidget {
           // a custom range chosen elsewhere).
           if (index >= 0)
             AnimatedAlign(
-              duration: const Duration(milliseconds: 240),
-              curve: Curves.easeOutCubic,
+              duration: AppMotion.base,
+              curve: AppMotion.out,
               alignment: AlignmentDirectional(
                 options.length == 1 ? 0 : -1 + 2 * index / (options.length - 1),
                 0,
@@ -89,7 +89,7 @@ class SegmentedPicker<T> extends StatelessWidget {
                       },
                       child: Center(
                         child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 200),
+                          duration: AppMotion.base,
                           style: context.text.labelLarge!.copyWith(
                             color: o.value == value ? c.ink : c.inkMuted,
                           ),

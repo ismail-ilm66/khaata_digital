@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/app_tokens.dart';
 import '../theme/context_x.dart';
 import 'glass_surface.dart';
+import 'pressable.dart';
 import 'app_icons.dart';
 import '../feedback/haptics.dart';
 
@@ -126,8 +127,6 @@ class _NavTab extends StatelessWidget {
   final bool selected;
   final VoidCallback onTap;
 
-  static const _duration = Duration(milliseconds: 220);
-
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -136,47 +135,50 @@ class _NavTab extends StatelessWidget {
       selected: selected,
       label: item.label,
       excludeSemantics: true,
-      child: InkResponse(
-        onTap: onTap,
-        radius: 36,
-        highlightShape: BoxShape.circle,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: _duration,
-              curve: Curves.easeOutCubic,
-              width: selected ? 52 : 36,
-              height: 30,
-              decoration: BoxDecoration(
-                color: selected
-                    ? c.brand.withValues(alpha: 0.14)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Icon(
-                selected ? item.icon.filled : item.icon.regular,
-                size: 22,
-                color: selected ? c.brand : c.inkMuted,
-              ),
-            ),
-            const SizedBox(height: 3),
-            AnimatedDefaultTextStyle(
-              duration: _duration,
-              style: context.text.labelSmall!.copyWith(
-                color: selected ? c.ink : c.inkMuted,
-                fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-              ),
-              // Shrinks rather than clipping on narrow phones (360 dp).
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(item.label, maxLines: 1, softWrap: false),
+      child: Pressable(
+        scale: 0.92,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AnimatedContainer(
+                duration: AppMotion.of(context, AppMotion.base),
+                curve: AppMotion.out,
+                width: selected ? 52 : 36,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: selected
+                      ? c.brand.withValues(alpha: 0.14)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Icon(
+                  selected ? item.icon.filled : item.icon.regular,
+                  size: 22,
+                  color: selected ? c.brand : c.inkMuted,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 3),
+              AnimatedDefaultTextStyle(
+                duration: AppMotion.of(context, AppMotion.base),
+                curve: AppMotion.out,
+                style: context.text.labelSmall!.copyWith(
+                  color: selected ? c.ink : c.inkMuted,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                ),
+                // Shrinks rather than clipping on narrow phones (360 dp).
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(item.label, maxLines: 1, softWrap: false),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -200,30 +202,33 @@ class _ActionButton extends StatelessWidget {
         button: true,
         label: label,
         excludeSemantics: true,
-        child: GestureDetector(
-          onTap: () {
-            Haptics.tap();
-            onTap();
-          },
-          child: Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Color.lerp(c.brand, Colors.white, 0.18)!, c.brand],
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: c.brand.withValues(alpha: 0.35),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+        child: Pressable(
+          scale: 0.92,
+          child: GestureDetector(
+            onTap: () {
+              Haptics.tap();
+              onTap();
+            },
+            child: Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color.lerp(c.brand, Colors.white, 0.18)!, c.brand],
                 ),
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: c.brand.withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Icon(AppIcons.add, size: 26, color: onBrand),
             ),
-            child: Icon(AppIcons.add, size: 26, color: onBrand),
           ),
         ),
       ),

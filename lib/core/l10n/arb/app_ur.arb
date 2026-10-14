@@ -1,6 +1,9 @@
 {
   "@@locale": "ur",
   "appTitle": "خرچہ",
+  "greetingMorning": "صبح بخیر",
+  "greetingAfternoon": "سہ پہر بخیر",
+  "greetingEvening": "شام بخیر",
   "navHome": "ہوم",
   "navTransactions": "لین دین",
   "navAdd": "شامل کریں",
@@ -370,6 +373,7 @@
   "mostUsedFirst": "زیادہ استعمال والے پہلے",
   "mostUsedFirstOn": "سب سے زیادہ استعمال ہونے والے اکاؤنٹ پہلے، ہوم پر بھی",
   "mostUsedFirstOff": "آپ کی اپنی ترتیب: ہینڈل گھسیٹ کر ترتیب دیں",
+  "yourOrder": "اپنی ترتیب",
   "toPay": "ادا کرنا ہے",
   "toPaySubtitle": "صدقہ، بل اور وعدے جو ابھی ادا کرنے ہیں",
   "toPayEmptyTitle": "کچھ ادا کرنا باقی نہیں",

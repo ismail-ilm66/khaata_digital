@@ -12,6 +12,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Kharcha';
 
   @override
+  String get greetingMorning => 'Good morning';
+
+  @override
+  String get greetingAfternoon => 'Good afternoon';
+
+  @override
+  String get greetingEvening => 'Good evening';
+
+  @override
   String get navHome => 'Home';
 
   @override
@@ -1260,6 +1269,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mostUsedFirstOff => 'Your own order: drag the handles to arrange';
+
+  @override
+  String get yourOrder => 'Your order';
 
   @override
   String get toPay => 'To pay';

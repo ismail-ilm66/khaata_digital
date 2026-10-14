@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/router/routes.dart';
-import 'package:khaata_digital/core/widgets/app_switch.dart';
 import 'package:khaata_digital/core/widgets/glass_nav_bar.dart';
 import 'package:khaata_digital/features/settings/domain/setting_key.dart';
 
@@ -76,12 +75,9 @@ void main() {
     await start(t);
     unawaited(t.element(find.byType(GlassNavBar)).push(Routes.accounts));
     await t.pumpAndSettle();
-    await t.tap(
-      find.descendant(
-        of: find.byKey(const Key('accountsByUse')),
-        matching: find.byType(AppSwitch),
-      ),
-    );
+    await t.tap(find.byKey(const Key('accountsByUse')));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Your order'));
     await t.pumpAndSettle();
     expect(order(t, ['Cash', 'Alfalah', 'Wallet']), [
       'Cash',

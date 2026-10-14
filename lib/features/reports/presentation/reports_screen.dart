@@ -104,16 +104,15 @@ class _ReportsViewState extends State<_ReportsView> {
 
     return PageScaffold(
       title: l.navReports,
-      trailing: IconButton.filledTonal(
+      trailing: HeaderButton(
         key: const Key('exportButton'),
+        icon: AppIcons.share,
         tooltip: l.export,
         onPressed: () => showExportSheet(
           context,
           view: q.entriesQuery(),
           viewLabel: _periodLabel(context, q),
         ),
-        style: IconButton.styleFrom(backgroundColor: context.colors.surface),
-        icon: Icon(AppIcons.share, color: context.colors.ink),
       ),
       slivers: [
         SliverToBoxAdapter(

@@ -296,7 +296,7 @@ class _PickRow<T> extends StatelessWidget {
           item.trailing ??
           AnimatedOpacity(
             opacity: selected ? 1 : 0,
-            duration: const Duration(milliseconds: 150),
+            duration: AppMotion.fast,
             child: Icon(AppIcons.check, color: c.brand, size: 20),
           ),
     );

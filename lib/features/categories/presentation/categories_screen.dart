@@ -77,11 +77,12 @@ class _CategoriesView extends StatelessWidget {
         final cubit = context.read<CategoriesCubit>();
         return PageScaffold(
           title: l.categories,
-          trailing: IconButton.filled(
+          trailing: HeaderButton(
             key: const Key('addCategory'),
+            primary: true,
+            icon: AppIcons.plus,
             tooltip: l.addCategory,
             onPressed: () => _edit(context),
-            icon: const Icon(AppIcons.plus),
           ),
           slivers: [
             SliverPadding(
@@ -271,7 +272,7 @@ class _CategorySheetState extends State<_CategorySheet> {
                       setState(() => _icon = key);
                     },
                     child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
+                      duration: AppMotion.fast,
                       decoration: BoxDecoration(
                         // Same shape as the badge inside it.
                         borderRadius: BorderRadius.circular(AppRadii.m),

@@ -108,7 +108,7 @@ class _PinPadState extends State<PinPad> with SingleTickerProviderStateMixin {
             children: [
               for (var i = 0; i < LockCubit.pinLength; i++)
                 AnimatedContainer(
-                  duration: const Duration(milliseconds: 120),
+                  duration: AppMotion.fast,
                   margin: const EdgeInsets.symmetric(horizontal: AppSpacing.s),
                   width: 14,
                   height: 14,
@@ -137,7 +137,7 @@ class _PinPadState extends State<PinPad> with SingleTickerProviderStateMixin {
           ),
         ),
         AnimatedOpacity(
-          duration: const Duration(milliseconds: 200),
+          duration: AppMotion.base,
           opacity: widget.enabled ? 1 : 0.35,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 320),
