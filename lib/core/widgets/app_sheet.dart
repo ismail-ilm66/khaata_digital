@@ -213,7 +213,9 @@ class _SearchableListState<T> extends State<_SearchableList<T>> {
 }
 
 /// A sheet with checkable [items]; returns the chosen set, or null if
-/// dismissed. An empty result means "no filter".
+/// dismissed. An empty result means "no filter". A pinned item is an
+/// action (e.g. "Add person"), not a choice: tapping it closes the sheet
+/// with the choice so far plus its value, for the caller to act on.
 Future<Set<T>?> pickMany<T>(
   BuildContext context, {
   required String title,
@@ -238,11 +240,13 @@ Future<Set<T>?> pickMany<T>(
                 row: (item) => _PickRow(
                   item: item,
                   selected: chosen.contains(item.value),
-                  onTap: () => setState(() {
-                    chosen = chosen.contains(item.value)
-                        ? ({...chosen}..remove(item.value))
-                        : {...chosen, item.value};
-                  }),
+                  onTap: () => item.pinned
+                      ? Navigator.pop(context, {...chosen, item.value})
+                      : setState(() {
+                          chosen = chosen.contains(item.value)
+                              ? ({...chosen}..remove(item.value))
+                              : {...chosen, item.value};
+                        }),
                 ),
               ),
             ),

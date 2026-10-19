@@ -45,6 +45,10 @@ abstract interface class TransactionsRepository {
   /// or [StorageFailure]. Returns the entry id.
   Future<String> save(EntryDraft draft, {String? id});
 
+  /// Creates every draft, all or none (a split bill). Returns the ids in
+  /// the same order.
+  Future<List<String>> saveAll(List<EntryDraft> drafts);
+
   /// Soft delete; reversible with [restore].
   Future<void> delete(String id);
   Future<void> restore(String id);

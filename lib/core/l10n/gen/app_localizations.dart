@@ -2935,6 +2935,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 person} other{{count} people}}'**
   String peopleCount(int count);
+
+  /// No description provided for @split.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get split;
+
+  /// No description provided for @splitWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Split with'**
+  String get splitWith;
+
+  /// No description provided for @splitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Split {amount}'**
+  String splitTitle(String amount);
+
+  /// No description provided for @splitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share is saved as an expense. Each person\'s share is saved as udhaar you gave.'**
+  String get splitHint;
+
+  /// No description provided for @splitYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get splitYou;
+
+  /// No description provided for @splitEqually.
+  ///
+  /// In en, this message translates to:
+  /// **'Split equally'**
+  String get splitEqually;
+
+  /// No description provided for @splitLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} still to split'**
+  String splitLeft(String amount);
+
+  /// No description provided for @splitOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} more than the bill'**
+  String splitOver(String amount);
+
+  /// No description provided for @splitAddsUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Adds up to {amount}'**
+  String splitAddsUp(String amount);
+
+  /// No description provided for @saveSplit.
+  ///
+  /// In en, this message translates to:
+  /// **'Save split'**
+  String get saveSplit;
 }
 
 class _AppLocalizationsDelegate

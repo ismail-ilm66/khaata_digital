@@ -8,12 +8,15 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/error/app_failure.dart';
 import '../../../../core/l10n/date_labels.dart';
+import '../../../../core/money/amount_buffer.dart';
 import '../../../../core/money/fixed_point.dart';
 import '../../../../core/money/money.dart';
+import '../../../../core/money/money_format.dart';
 import '../../../../core/router/routes.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/context_x.dart';
 import '../../../../core/widgets/ambient_background.dart';
+import '../../../../core/widgets/amount_field.dart';
 import '../../../../core/widgets/app_icons.dart';
 import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/feedback.dart';
@@ -30,6 +33,7 @@ import '../../../recurring/domain/recurrence.dart';
 import '../../../recurring/domain/recurring_rule.dart';
 import '../../../recurring/presentation/recurring_screen.dart';
 import '../../../to_pay/domain/planned_payment.dart';
+import '../../domain/bill_split.dart';
 import '../../domain/transaction_type.dart';
 import '../widgets/receipts.dart';
 import 'transaction_form_bloc.dart';
@@ -735,6 +739,16 @@ class _Extras extends StatelessWidget {
             showChevron: true,
             onTap: () => _chooseDate(context, state),
           ),
+          if (state.canSplit)
+            PillButton(
+              key: const Key('splitChip'),
+              icon: AppIcons.people.regular,
+              label: state.isSplit
+                  ? '${l.split} · ${state.splitWith.length}'
+                  : l.split,
+              selected: state.isSplit,
+              onTap: () => _chooseSplitPeople(context, state),
+            ),
           PillButton(
             key: const Key('tagsChip'),
             icon: AppIcons.tag,
@@ -797,7 +811,7 @@ class _Extras extends StatelessWidget {
               );
             },
           ),
-          if (!state.isEditing)
+          if (!state.isEditing && !state.isSplit)
             PillButton(
               key: const Key('repeatChip'),
               icon: AppIcons.recurring.regular,
@@ -818,11 +832,26 @@ class _SaveButton extends StatelessWidget {
 
   final TransactionFormState state;
 
+  /// A split bill first asks how it's shared; anything missing is
+  /// reported before that.
+  Future<void> _save(BuildContext context) async {
+    final bloc = context.read<TransactionFormBloc>();
+    if (!state.isSplit || state.missing != null) {
+      bloc.add(const FormSubmitted());
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    final shares = await _confirmSplit(context, state);
+    if (shares != null) bloc.add(FormSubmitted(shares: shares));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
     final label = state.isUdhaar
         ? l.saveUdhaar
+        : state.isSplit
+        ? l.saveSplit
         : switch (state.type) {
             TransactionType.income => l.saveIncome,
             TransactionType.transfer => l.saveTransfer,
@@ -837,10 +866,7 @@ class _SaveButton extends StatelessWidget {
       ),
       child: FilledButton(
         key: const Key('saveEntry'),
-        onPressed: state.canSave
-            ? () =>
-                  context.read<TransactionFormBloc>().add(const FormSubmitted())
-            : null,
+        onPressed: state.canSave ? () => _save(context) : null,
         child: Text(label),
       ),
     );
@@ -886,19 +912,8 @@ class _UdhaarSection extends StatelessWidget {
       selected: state.personId,
       searchable: state.people.isNotEmpty,
       items: [
-        PickItem(
-          value: addNew,
-          title: l.addPerson,
-          leading: const TintedBadge(icon: AppIcons.plus, size: 36),
-          trailing: const SizedBox.shrink(),
-          pinned: true,
-        ),
-        for (final p in state.people)
-          PickItem(
-            value: p.id,
-            title: p.name,
-            leading: PersonBadge(p.name, size: 36),
-          ),
+        _addPersonItem(addNew, l.addPerson),
+        for (final p in state.people) _personItem(p),
       ],
     );
     if (picked == null || !context.mounted) return;
@@ -906,20 +921,8 @@ class _UdhaarSection extends StatelessWidget {
       bloc.add(PersonChanged(picked));
       return;
     }
-    final name = await editTextSheet(
-      context,
-      title: l.addPerson,
-      initial: '',
-      hint: l.personName,
-      doneLabel: l.save,
-    );
-    if (name == null || name.isEmpty || !context.mounted) return;
-    try {
-      final id = await getIt<PeopleRepository>().create(name);
-      bloc.add(PersonAdded(Person(id: id, name: name)));
-    } on DuplicateNameFailure {
-      if (context.mounted) showToast(context, l.duplicatePersonName(name));
-    }
+    final person = await _addPerson(context);
+    if (person != null) bloc.add(PersonAdded(person));
   }
 
   @override
@@ -948,6 +951,246 @@ class _UdhaarSection extends StatelessWidget {
             title: person?.name ?? l.choosePerson,
             leading: person == null ? null : PersonBadge(person.name, size: 26),
             onTap: () => _choosePerson(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+PickItem<String> _personItem(Person p) => PickItem(
+  value: p.id,
+  title: p.name,
+  leading: PersonBadge(p.name, size: 36),
+);
+
+/// "Add person", kept in view above the people in a picker.
+PickItem<String> _addPersonItem(String value, String title) => PickItem(
+  value: value,
+  title: title,
+  leading: const TintedBadge(icon: AppIcons.plus, size: 36),
+  trailing: const SizedBox.shrink(),
+  pinned: true,
+);
+
+/// Asks for a new person's name and adds them. Null if cancelled, or if
+/// the name is taken (a toast says so).
+Future<Person?> _addPerson(BuildContext context) async {
+  final l = context.l10n;
+  final name = await editTextSheet(
+    context,
+    title: l.addPerson,
+    initial: '',
+    hint: l.personName,
+    doneLabel: l.save,
+  );
+  if (name == null || name.isEmpty || !context.mounted) return null;
+  try {
+    final id = await getIt<PeopleRepository>().create(name);
+    return Person(id: id, name: name);
+  } on DuplicateNameFailure {
+    if (context.mounted) showToast(context, l.duplicatePersonName(name));
+    return null;
+  }
+}
+
+/// Who a bill is split with. "Add person" creates one, ticks them and
+/// reopens the list, so several can be added in one go.
+Future<void> _chooseSplitPeople(
+  BuildContext context,
+  TransactionFormState state,
+) async {
+  final bloc = context.read<TransactionFormBloc>();
+  final l = context.l10n;
+  const addNew = '_add';
+  final added = <Person>[];
+  var chosen = {...state.splitWith};
+  while (true) {
+    final picked = await pickMany<String>(
+      context,
+      title: l.splitWith,
+      selected: chosen,
+      doneLabel: l.done,
+      clearLabel: l.clear,
+      items: [
+        _addPersonItem(addNew, l.addPerson),
+        for (final p in [...state.people, ...added]) _personItem(p),
+      ],
+    );
+    if (!context.mounted) return;
+    if (picked == null) {
+      if (added.isEmpty) return;
+      break; // Keep the people just added, ticked.
+    }
+    chosen = picked;
+    if (!chosen.remove(addNew)) break;
+    final person = await _addPerson(context);
+    if (!context.mounted) return;
+    if (person != null) {
+      added.add(person);
+      chosen.add(person.id);
+    }
+  }
+  bloc.add(
+    SplitPeopleChanged([
+      for (final p in [...state.people, ...added])
+        if (chosen.contains(p.id)) p.id,
+    ], added: added),
+  );
+}
+
+/// How a split bill is shared: an amount for the user and for each
+/// person, equal to start with. Null if dismissed.
+Future<List<SplitShare>?> _confirmSplit(
+  BuildContext context,
+  TransactionFormState state,
+) => showAppSheet<List<SplitShare>>(
+  context,
+  title: context.l10n.splitTitle(const MoneyFormat().format(state.money)),
+  builder: (_) => _SplitSheet(state: state),
+);
+
+class _SplitSheet extends StatefulWidget {
+  const _SplitSheet({required this.state});
+
+  final TransactionFormState state;
+
+  @override
+  State<_SplitSheet> createState() => _SplitSheetState();
+}
+
+class _SplitSheetState extends State<_SplitSheet> {
+  late final List<SplitShare> _even = widget.state.evenShares;
+  late final List<TextEditingController> _fields = [
+    for (final s in _even) TextEditingController(text: _text(s.amount)),
+  ];
+
+  static String _text(Money m) => AmountBuffer.fromMoney(m).text;
+
+  Money get _total => widget.state.money;
+
+  /// What's typed, or null while any amount is invalid.
+  List<SplitShare>? get _shares {
+    final shares = <SplitShare>[];
+    for (final (i, s) in _even.indexed) {
+      final amount = AmountField.read(_fields[i], _total.currency);
+      if (amount == null) return null;
+      shares.add(SplitShare(s.personId, amount));
+    }
+    return shares;
+  }
+
+  void _splitEqually() {
+    for (final (i, s) in _even.indexed) {
+      _fields[i].text = _text(s.amount);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final f in _fields) {
+      f.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    final c = context.colors;
+    final names = {for (final p in widget.state.splitPeople) p.id: p.name};
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        0,
+        AppSpacing.xl,
+        AppSpacing.l,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.splitHint,
+            style: context.text.bodySmall!.copyWith(color: c.inkMuted),
+          ),
+          const SizedBox(height: AppSpacing.m),
+          Flexible(
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                for (final (i, s) in _even.indexed)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.s),
+                    child: Row(
+                      children: [
+                        PersonBadge(
+                          s.isMine ? l.splitYou : names[s.personId]!,
+                          size: 36,
+                        ),
+                        const SizedBox(width: AppSpacing.m),
+                        Expanded(
+                          child: AmountField(
+                            key: Key('share-$i'),
+                            controller: _fields[i],
+                            currency: _total.currency,
+                            label: s.isMine ? l.splitYou : names[s.personId]!,
+                            invalidMessage: l.invalidAmount,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          ListenableBuilder(
+            listenable: Listenable.merge(_fields),
+            builder: (context, _) {
+              final shares = _shares;
+              final ok = shares != null && sharesAddUp(_total, shares);
+              final left = shares == null
+                  ? null
+                  : _total -
+                        Money.sum(shares.map((s) => s.amount), _total.currency);
+              final format = const MoneyFormat().format;
+              final status = ok
+                  ? l.splitAddsUp(format(_total))
+                  : left == null
+                  ? l.invalidAmount
+                  : left.isNegative
+                  ? l.splitOver(format(-left))
+                  : l.splitLeft(format(left));
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          status,
+                          key: const Key('splitStatus'),
+                          style: context.text.bodySmall!.copyWith(
+                            color: ok ? c.inkMuted : c.danger,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        key: const Key('splitEqually'),
+                        onPressed: _splitEqually,
+                        child: Text(l.splitEqually),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.s),
+                  FilledButton(
+                    key: const Key('confirmSplit'),
+                    onPressed: ok ? () => Navigator.pop(context, shares) : null,
+                    child: Text(l.saveSplit),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),

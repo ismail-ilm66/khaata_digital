@@ -1609,4 +1609,43 @@ class AppLocalizationsUr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get split => 'تقسیم';
+
+  @override
+  String get splitWith => 'کس کے ساتھ تقسیم کریں';
+
+  @override
+  String splitTitle(String amount) {
+    return '$amount تقسیم کریں';
+  }
+
+  @override
+  String get splitHint =>
+      'آپ کا حصہ خرچ کے طور پر محفوظ ہوگا، اور ہر شخص کا حصہ آپ کا دیا ہوا ادھار۔';
+
+  @override
+  String get splitYou => 'آپ';
+
+  @override
+  String get splitEqually => 'برابر تقسیم کریں';
+
+  @override
+  String splitLeft(String amount) {
+    return 'ابھی $amount تقسیم کرنا باقی ہے';
+  }
+
+  @override
+  String splitOver(String amount) {
+    return 'بل سے $amount زیادہ';
+  }
+
+  @override
+  String splitAddsUp(String amount) {
+    return 'کل $amount';
+  }
+
+  @override
+  String get saveSplit => 'تقسیم محفوظ کریں';
 }

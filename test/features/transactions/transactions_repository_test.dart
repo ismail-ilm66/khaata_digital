@@ -229,6 +229,23 @@ void main() {
         expect(await list(), isEmpty);
       });
     });
+
+    test('saveAll saves every entry, or none if one fails', () async {
+      final ids = await repo.saveAll([expense(100), expense(200)]);
+      expect(ids, hasLength(2));
+      expect(await list(), hasLength(2));
+
+      final noAccount = EntryDraft(
+        type: TransactionType.expense,
+        amount: rs(300),
+        occurredAt: localNoon(2026, 9, 26),
+      );
+      await expectLater(
+        repo.saveAll([expense(300), noAccount]),
+        throwsA(isA<ValidationFailure>()),
+      );
+      expect(await list(), hasLength(2), reason: 'the first was rolled back');
+    });
   });
 
   group('receipts', () {

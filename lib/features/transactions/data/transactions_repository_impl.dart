@@ -200,6 +200,10 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
     }
   }
 
+  @override
+  Future<List<String>> saveAll(List<EntryDraft> drafts) =>
+      _db.transaction(() async => [for (final d in drafts) await save(d)]);
+
   Future<Account?> _account(String? id) async =>
       id == null ? null : (await _db.accountsDao.byId(id))?.toDomain();
 

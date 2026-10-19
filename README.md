@@ -22,6 +22,8 @@ Built with Flutter for Android and iOS. Package / bundle id:
 - **Entries in a few taps:** expenses, income, transfers between accounts,
   and udhaar (money lent or borrowed) with people. Notes, tags and receipt
   photos are optional.
+- **Split a bill** with people: your share is recorded as the expense and
+  each person's share as udhaar, with every amount editable.
 - **Accounts:** cash, banks and wallets, with ready-made banks for 16
   countries, net worth and the option to hide balances.
 - **Budgets on your pay cycle:** a month that starts on any day, or on the

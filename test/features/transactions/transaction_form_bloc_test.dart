@@ -4,6 +4,7 @@ import 'package:khaata_digital/core/money/currency.dart';
 import 'package:khaata_digital/core/money/money.dart';
 import 'package:khaata_digital/features/people/domain/person.dart';
 import 'package:khaata_digital/features/recurring/domain/recurrence.dart';
+import 'package:khaata_digital/features/transactions/domain/bill_split.dart';
 import 'package:khaata_digital/features/transactions/domain/entry_query.dart';
 import 'package:khaata_digital/features/transactions/domain/transaction_type.dart';
 import 'package:khaata_digital/features/transactions/presentation/form/transaction_form_bloc.dart';
@@ -381,6 +382,119 @@ void main() {
       await keys('5');
       expect((await send(const FormSubmitted())).status, FormStatus.saved);
       expect(await r.recurring.active(), isEmpty);
+    });
+  });
+
+  group('split a bill', () {
+    late String ali;
+    late String sara;
+    late String cash;
+    late String food;
+
+    setUp(() async {
+      ali = await r.people.create('Ali');
+      sara = await r.people.create('Sara');
+      cash = await r.cashId();
+      food = await r.categoryId('Food & Drink');
+    });
+
+    Future<void> bill() async {
+      await send(const FormStarted());
+      await send(AccountChanged(cash));
+      await keys('3000');
+      await send(CategoryTapped(food));
+      await send(const NoteChanged('Dinner'));
+      await send(SplitPeopleChanged([ali, sara]));
+    }
+
+    test('starts equal, mine first', () async {
+      await bill();
+      expect(bloc.state.isSplit, isTrue);
+      expect(bloc.state.evenShares, [
+        SplitShare(null, Money.major(1000, Currency.pkr)),
+        SplitShare(ali, Money.major(1000, Currency.pkr)),
+        SplitShare(sara, Money.major(1000, Currency.pkr)),
+      ]);
+    });
+
+    test('saves my share as the expense and theirs as udhaar', () async {
+      await bill();
+      final s = await send(
+        FormSubmitted(
+          shares: [
+            SplitShare(null, Money.major(500, Currency.pkr)),
+            SplitShare(ali, Money.major(1500, Currency.pkr)),
+            SplitShare(sara, Money.major(1000, Currency.pkr)),
+          ],
+        ),
+      );
+      expect(s.status, FormStatus.saved);
+
+      final saved = [
+        for (final v
+            in (await r.transactions.watch(const EntryQuery()).first).items)
+          v.entry,
+      ];
+      expect(saved, hasLength(3));
+      expect(saved.every((e) => e.note == 'Dinner'), isTrue);
+      final mine = saved.singleWhere((e) => e.personId == null);
+      expect(mine.categoryId, food);
+      expect(mine.amount, Money.major(500, Currency.pkr));
+      expect(
+        await r.ledger.balanceOf(cash),
+        -300000,
+        reason: 'the whole bill left the account',
+      );
+      final o = await r.people.watchOverview().first;
+      expect(o.receivable[Currency.pkr], Money.major(2500, Currency.pkr));
+    });
+
+    test('nothing is saved until the shares add up to the bill', () async {
+      await bill();
+      var s = await send(const FormSubmitted());
+      expect(s.status, FormStatus.ready);
+      s = await send(
+        FormSubmitted(
+          shares: [
+            SplitShare(null, Money.major(500, Currency.pkr)),
+            SplitShare(ali, Money.major(500, Currency.pkr)),
+          ],
+        ),
+      );
+      expect(s.status, FormStatus.ready);
+      expect(
+        (await r.transactions.watch(const EntryQuery()).first).items,
+        isEmpty,
+      );
+    });
+
+    test('a missing category is still reported first', () async {
+      await send(const FormStarted());
+      await send(AccountChanged(cash));
+      await keys('3000');
+      await send(SplitPeopleChanged([ali]));
+      final s = await send(const FormSubmitted());
+      expect(s.problem, EntryProblem.categoryRequired);
+    });
+
+    test(
+      'splitting turns repeat off; switching to udhaar drops the split',
+      () async {
+        await send(const FormStarted());
+        await send(const RepeatChanged(RecurrenceFrequency.monthly));
+        var s = await send(SplitPeopleChanged([ali]));
+        expect(s.repeat, isNull);
+        s = await send(const UdhaarChosen());
+        expect(s.isSplit, isFalse);
+        expect(s.splitWith, isEmpty);
+      },
+    );
+
+    test('people added from the picker join the list', () async {
+      await send(const FormStarted());
+      const zain = Person(id: 'zain', name: 'Zain');
+      final s = await send(SplitPeopleChanged(['zain'], added: [zain]));
+      expect(s.splitPeople, [zain]);
     });
   });
 }

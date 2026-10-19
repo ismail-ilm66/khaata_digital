@@ -111,6 +111,63 @@ void main() {
     expect((await t.runAsync(entries))!.single.entry.amount.minor, 70000);
   });
 
+  testWidgets('a bill split with people asks for each share, then saves', (
+    t,
+  ) async {
+    await t.runAsync(() async {
+      await db.peopleDao.create(name: 'Ali');
+      await db.peopleDao.create(name: 'Sara');
+    });
+    await openAdd(t);
+    await t.enterText(amount(), '3000');
+    await t.tap(find.byKey(const Key('account-Cash')));
+    await t.tap(find.byKey(const Key('category-Food & Drink')));
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const Key('splitChip')));
+    await t.tap(find.byKey(const Key('splitChip')));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Ali'));
+    await t.tap(find.text('Sara'));
+    await t.pump();
+    await t.tap(find.text('Done'));
+    await t.pumpAndSettle();
+    expect(find.text('Split · 2'), findsOneWidget);
+    expect(find.byKey(const Key('repeatChip')), findsNothing);
+
+    await t.tap(find.byKey(const Key('saveEntry')));
+    await t.pumpAndSettle();
+    String share(int i) => t
+        .widget<EditableText>(
+          find.descendant(
+            of: find.byKey(Key('share-$i')),
+            matching: find.byType(EditableText),
+          ),
+        )
+        .controller
+        .text;
+    expect([share(0), share(1), share(2)], ['1000', '1000', '1000']);
+
+    FilledButton confirm() =>
+        t.widget<FilledButton>(find.byKey(const Key('confirmSplit')));
+    await t.enterText(find.byKey(const Key('share-0')), '500');
+    await t.pump();
+    expect(find.textContaining('still to split'), findsOneWidget);
+    expect(confirm().onPressed, isNull);
+    await t.enterText(find.byKey(const Key('share-1')), '1500');
+    await t.pump();
+    expect(find.textContaining('Adds up to'), findsOneWidget);
+    await t.tap(find.byKey(const Key('confirmSplit')));
+    await t.pumpAndSettle();
+
+    final saved = [for (final v in (await t.runAsync(entries))!) v.entry];
+    expect(saved.map((e) => e.amount.minor).toList()..sort(), [
+      50000,
+      100000,
+      150000,
+    ]);
+    expect(saved.where((e) => e.personId == null).single.categoryId, isNotNull);
+  });
+
   testWidgets('accounts are one tap away, and the note is typed in place', (
     t,
   ) async {

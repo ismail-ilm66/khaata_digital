@@ -16,6 +16,7 @@ import '../../../recurring/domain/recurring_rule.dart';
 import '../../../settings/domain/setting_key.dart';
 import '../../../settings/domain/settings_repository.dart';
 import '../../../to_pay/domain/planned_payment.dart';
+import '../../domain/bill_split.dart';
 import '../../domain/ledger_entry.dart';
 import '../../domain/transaction_type.dart';
 import '../../domain/transactions_repository.dart';
@@ -74,6 +75,14 @@ final class PersonAdded extends TransactionFormEvent {
 final class PersonChanged extends TransactionFormEvent {
   const PersonChanged(this.personId);
   final String personId;
+}
+
+/// New expenses only: split the bill with [personIds] (empty = no split).
+/// [added] are people created from the picker, to add to the list.
+final class SplitPeopleChanged extends TransactionFormEvent {
+  const SplitPeopleChanged(this.personIds, {this.added = const []});
+  final List<String> personIds;
+  final List<Person> added;
 }
 
 /// New entries only: repeat at [frequency] (null = once), optionally with
@@ -145,8 +154,10 @@ final class AccountsSwapped extends TransactionFormEvent {
   const AccountsSwapped();
 }
 
+/// A split bill also needs its [shares], confirmed by the user.
 final class FormSubmitted extends TransactionFormEvent {
-  const FormSubmitted();
+  const FormSubmitted({this.shares});
+  final List<SplitShare>? shares;
 }
 
 // ── State ─────────────────────────────────────────────────────────────────
@@ -180,6 +191,7 @@ class TransactionFormState extends Equatable {
     this.homeCurrency = Currency.pkr,
     this.isUdhaar = false,
     this.people = const [],
+    this.splitWith = const [],
     this.repeat,
     this.remind = false,
     this.problem,
@@ -231,6 +243,9 @@ class TransactionFormState extends Equatable {
   final bool isUdhaar;
   final List<Person> people;
 
+  /// People a new expense is split with; see [isSplit].
+  final List<String> splitWith;
+
   /// New entries: repeat at this frequency (null = once).
   final RecurrenceFrequency? repeat;
   final bool remind;
@@ -243,6 +258,22 @@ class TransactionFormState extends Equatable {
   bool get isTransfer => type == TransactionType.transfer;
   UdhaarDirection get udhaarDirection => UdhaarDirection.of(type);
   Person? get person => people.where((p) => p.id == personId).firstOrNull;
+
+  /// Only a new expense (not udhaar) can be split.
+  bool get canSplit =>
+      !isEditing && !isUdhaar && type == TransactionType.expense;
+  bool get isSplit => canSplit && splitWith.isNotEmpty;
+
+  List<Person> get splitPeople => [
+    for (final id in splitWith) ?people.where((p) => p.id == id).firstOrNull,
+  ];
+
+  /// The bill in equal shares, the user's own first.
+  List<SplitShare> get evenShares {
+    final ids = [null, for (final p in splitPeople) p.id];
+    final parts = evenSplit(money, ids.length);
+    return [for (final (i, id) in ids.indexed) SplitShare(id, parts[i])];
+  }
 
   Account? _find(String? id) {
     for (final a in accounts) {
@@ -367,6 +398,7 @@ class TransactionFormState extends Equatable {
     Currency? homeCurrency,
     bool? isUdhaar,
     List<Person>? people,
+    List<String>? splitWith,
     RecurrenceFrequency? Function()? repeat,
     bool? remind,
     EntryProblem? Function()? problem,
@@ -394,6 +426,7 @@ class TransactionFormState extends Equatable {
     homeCurrency: homeCurrency ?? this.homeCurrency,
     isUdhaar: isUdhaar ?? this.isUdhaar,
     people: people ?? this.people,
+    splitWith: splitWith ?? this.splitWith,
     repeat: repeat != null ? repeat() : this.repeat,
     remind: remind ?? this.remind,
     problem: problem != null ? problem() : this.problem,
@@ -425,6 +458,7 @@ class TransactionFormState extends Equatable {
     homeCurrency,
     isUdhaar,
     people,
+    splitWith,
     repeat,
     remind,
     problem,
@@ -491,6 +525,16 @@ class TransactionFormBloc
           people: [...state.people, e.person],
           personId: () => e.person.id,
           problem: () => null,
+        ),
+      ),
+    );
+    on<SplitPeopleChanged>(
+      (e, emit) => emit(
+        state.copyWith(
+          people: [...state.people, ...e.added],
+          splitWith: e.personIds,
+          // A split saves several entries; a repeat rule holds only one.
+          repeat: e.personIds.isEmpty ? null : () => null,
         ),
       ),
     );
@@ -631,13 +675,17 @@ class TransactionFormBloc
   }
 
   void _onType(TypeChanged e, Emitter<TransactionFormState> emit) => emit(
-    _withType(state.copyWith(isUdhaar: false, personId: () => null), e.type),
+    _withType(
+      state.copyWith(isUdhaar: false, personId: () => null, splitWith: []),
+      e.type,
+    ),
   );
 
   void _onUdhaar(UdhaarChosen e, Emitter<TransactionFormState> emit) => emit(
     state.copyWith(
       isUdhaar: true,
       type: TransactionType.expense,
+      splitWith: [],
       categoryId: () => null,
       toAccountId: () => null,
       toAmount: const AmountBuffer(),
@@ -736,10 +784,17 @@ class TransactionFormBloc
       emit(state.copyWith(problem: () => problem));
       return;
     }
+    final shares = e.shares;
+    if (state.isSplit &&
+        (shares == null || !sharesAddUp(state.money, shares))) {
+      return; // The editor asks for the shares first.
+    }
     emit(state.copyWith(status: FormStatus.saving, problem: () => null));
     try {
       final draft = state.toDraft();
-      final saved = await _transactions.save(draft, id: state.editingId);
+      final saved = state.isSplit
+          ? (await _transactions.saveAll(splitDrafts(draft, shares!))).last
+          : await _transactions.save(draft, id: state.editingId);
       if (state.plannedPaymentId case final planned?) {
         await _toPay.markPaid(
           planned,
@@ -747,7 +802,8 @@ class TransactionFormBloc
           at: draft.occurredAt,
         );
       }
-      if (state.repeat case final frequency? when !state.isEditing) {
+      if (state.repeat case final frequency?
+          when !state.isEditing && !state.isSplit) {
         await _recurring.create(draft, frequency, remind: state.remind);
         try {
           await _reminders.sync(await _recurring.active());

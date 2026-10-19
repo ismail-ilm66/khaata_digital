@@ -472,5 +472,15 @@
   "youOweNobody": "ابھی آپ نے کسی کو کچھ نہیں دینا۔",
   "noneSettled": "ابھی کوئی حساب برابر نہیں ہوا۔",
   "noPeopleMatch": "“{query}” سے کوئی نہیں ملا",
-  "peopleCount": "{count, plural, =1{1 شخص} other{{count} لوگ}}"
+  "peopleCount": "{count, plural, =1{1 شخص} other{{count} لوگ}}",
+  "split": "تقسیم",
+  "splitWith": "کس کے ساتھ تقسیم کریں",
+  "splitTitle": "{amount} تقسیم کریں",
+  "splitHint": "آپ کا حصہ خرچ کے طور پر محفوظ ہوگا، اور ہر شخص کا حصہ آپ کا دیا ہوا ادھار۔",
+  "splitYou": "آپ",
+  "splitEqually": "برابر تقسیم کریں",
+  "splitLeft": "ابھی {amount} تقسیم کرنا باقی ہے",
+  "splitOver": "بل سے {amount} زیادہ",
+  "splitAddsUp": "کل {amount}",
+  "saveSplit": "تقسیم محفوظ کریں"
 }

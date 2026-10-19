@@ -735,5 +735,19 @@
         "type": "int"
       }
     }
-  }
+  },
+  "split": "Split",
+  "splitWith": "Split with",
+  "splitTitle": "Split {amount}",
+  "@splitTitle": {"placeholders": {"amount": {"type": "String"}}},
+  "splitHint": "Your share is saved as an expense. Each person's share is saved as udhaar you gave.",
+  "splitYou": "You",
+  "splitEqually": "Split equally",
+  "splitLeft": "{amount} still to split",
+  "@splitLeft": {"placeholders": {"amount": {"type": "String"}}},
+  "splitOver": "{amount} more than the bill",
+  "@splitOver": {"placeholders": {"amount": {"type": "String"}}},
+  "splitAddsUp": "Adds up to {amount}",
+  "@splitAddsUp": {"placeholders": {"amount": {"type": "String"}}},
+  "saveSplit": "Save split"
 }

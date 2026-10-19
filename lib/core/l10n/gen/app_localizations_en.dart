@@ -1615,4 +1615,43 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get split => 'Split';
+
+  @override
+  String get splitWith => 'Split with';
+
+  @override
+  String splitTitle(String amount) {
+    return 'Split $amount';
+  }
+
+  @override
+  String get splitHint =>
+      'Your share is saved as an expense. Each person\'s share is saved as udhaar you gave.';
+
+  @override
+  String get splitYou => 'You';
+
+  @override
+  String get splitEqually => 'Split equally';
+
+  @override
+  String splitLeft(String amount) {
+    return '$amount still to split';
+  }
+
+  @override
+  String splitOver(String amount) {
+    return '$amount more than the bill';
+  }
+
+  @override
+  String splitAddsUp(String amount) {
+    return 'Adds up to $amount';
+  }
+
+  @override
+  String get saveSplit => 'Save split';
 }
