@@ -10,13 +10,12 @@ import '../../../core/di/injection.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
-import '../../../core/widgets/amount_text.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/page_scaffold.dart';
+import '../../../core/widgets/period_card.dart';
 import '../../../core/widgets/paged_scroll_listener.dart';
-import '../../../core/widgets/period_navigator.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../../core/widgets/watch.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
@@ -206,6 +205,8 @@ class _TransactionsViewState extends State<_TransactionsView> {
     final q = state.query;
     final kind = _Kind.of(q);
     final more = moreFilterCount(q);
+    final currency = context.watch<CurrencyCubit>().state;
+    final masked = context.watch<HideBalanceCubit>().state.masked;
 
     return BlocListener<BudgetCycleCubit, BudgetCycle>(
       // A new month start re-cuts every cycle: back to the current one.
@@ -241,23 +242,36 @@ class _TransactionsViewState extends State<_TransactionsView> {
                             current,
                             cycle.idFor(at.toLocal()),
                           ].reduce((a, b) => a.compareTo(b) >= 0 ? a : b);
-                    return _MonthCard(
-                      label: _allTime
-                          ? l.allTime
-                          : cycle.label(
-                              shown,
-                              locale: Localizations.localeOf(
-                                context,
-                              ).toLanguageTag(),
-                            ),
-                      range: _allTime ? _everything : cycle.rangeOf(shown),
-                      onLabelTap: () => _choosePeriod(cycle, current, span),
-                      onPrevious: _allTime ? null : () => _show(shown.previous),
-                      onNext: _allTime || shown.compareTo(last) >= 0
-                          ? null
-                          : () => _show(
-                              shown.next == current ? null : shown.next,
-                            ),
+                    final range = _allTime ? _everything : cycle.rangeOf(shown);
+                    return Watch<PeriodTotals>(
+                      // A new period starts empty, never with the last
+                      // one's figures.
+                      key: ValueKey(range),
+                      () => getIt<TransactionsRepository>().watchTotals(range),
+                      builder: (context, totals) => PeriodCard(
+                        label: _allTime
+                            ? l.allTime
+                            : cycle.label(
+                                shown,
+                                locale: Localizations.localeOf(
+                                  context,
+                                ).toLanguageTag(),
+                              ),
+                        onLabelTap: () => _choosePeriod(cycle, current, span),
+                        onPrevious: _allTime
+                            ? null
+                            : () => _show(shown.previous),
+                        onNext: _allTime || shown.compareTo(last) >= 0
+                            ? null
+                            : () => _show(
+                                shown.next == current ? null : shown.next,
+                              ),
+                        // Udhaar is left out, as on Home; hidden with the
+                        // balances.
+                        spent: totals?.expenseIn(currency),
+                        income: totals?.incomeIn(currency),
+                        masked: masked,
+                      ),
                     );
                   },
                 ),
@@ -343,128 +357,6 @@ class _TransactionsViewState extends State<_TransactionsView> {
                   child: Center(child: CircularProgressIndicator()),
                 ),
               ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// ‹ November 2026 › over the cycle's Spent and Income, each on one line
-/// (a very long figure shrinks to fit rather than wrapping). Udhaar is
-/// left out, as on Home; amounts hide with the balances.
-class _MonthCard extends StatelessWidget {
-  const _MonthCard({
-    required this.label,
-    required this.range,
-    required this.onLabelTap,
-    required this.onPrevious,
-    required this.onNext,
-  });
-
-  final String label;
-  final DateRange range;
-
-  /// Opens the choice of period (this month, all time, a month).
-  final VoidCallback onLabelTap;
-  final VoidCallback? onPrevious;
-  final VoidCallback? onNext;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final l = context.l10n;
-    final currency = context.watch<CurrencyCubit>().state;
-    final masked = context.watch<HideBalanceCubit>().state.masked;
-    // Centred in its half, under the month name. Until the period's
-    // figures arrive the amount keeps its place but shows nothing, never
-    // the previous period's.
-    Widget total(String name, Widget amount, {required bool ready}) => Column(
-      children: [
-        Text(name, style: context.text.bodySmall),
-        const SizedBox(height: 2),
-        Opacity(
-          opacity: ready ? 1 : 0,
-          child: FittedBox(fit: BoxFit.scaleDown, child: amount),
-        ),
-      ],
-    );
-
-    return DecoratedBox(
-      key: const Key('monthCard'),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(AppRadii.l),
-        border: Border.all(color: c.line.withValues(alpha: 0.6)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.s,
-          AppSpacing.xs,
-          AppSpacing.s,
-          AppSpacing.m,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            PeriodNavigator(
-              label: label,
-              onLabelTap: onLabelTap,
-              previousTooltip: l.previousPeriod,
-              nextTooltip: l.nextPeriod,
-              onPrevious: onPrevious,
-              onNext: onNext,
-            ),
-            Divider(color: c.line.withValues(alpha: 0.7)),
-            const SizedBox(height: AppSpacing.s),
-            Watch<PeriodTotals>(
-              // A new period starts empty rather than with the last one's
-              // figures.
-              key: ValueKey(range),
-              () => getIt<TransactionsRepository>().watchTotals(range),
-              builder: (context, totals) {
-                final t = totals ?? PeriodTotals.empty;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s),
-                  child: IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: total(
-                            l.spent,
-                            AmountText(
-                              t.expenseIn(currency),
-                              key: const Key('monthSpent'),
-                              masked: masked,
-                              style: context.text.titleLarge,
-                            ),
-                            ready: totals != null,
-                          ),
-                        ),
-                        VerticalDivider(
-                          width: AppSpacing.xl,
-                          color: c.line.withValues(alpha: 0.7),
-                        ),
-                        Expanded(
-                          child: total(
-                            l.income,
-                            AmountText(
-                              t.incomeIn(currency),
-                              key: const Key('monthIncome'),
-                              signed: true,
-                              colored: true,
-                              masked: masked,
-                              style: context.text.titleLarge,
-                            ),
-                            ready: totals != null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
           ],
         ),
       ),

@@ -88,6 +88,54 @@ void main() {
       await bloc.close();
     });
 
+    test('a month in progress is compared with the same days of the one '
+        'before', () async {
+      final cycle = getIt<BudgetCycleCubit>().state;
+      final now = DateTime.now();
+      final last = cycle.rangeOf(cycle.idFor(now).previous);
+      final ledger = TestLedger(db);
+      // Early last month (within the same days) and its last day (outside
+      // them, unless today is this month's last day too).
+      await ledger.expense(
+        cash,
+        10000,
+        at: last.start.add(const Duration(hours: 12)).toUtc(),
+      );
+      await ledger.expense(
+        cash,
+        20000,
+        at: last.lastDay.add(const Duration(hours: 12)).toUtc(),
+      );
+      final bloc = getIt<ReportsBloc>()..add(const ReportsStarted());
+      await pumpEventQueue();
+      expect(bloc.state.previous!.range(cycle), last);
+      final days = DateTime(
+        now.year,
+        now.month,
+        now.day,
+      ).difference(cycle.rangeFor(now).start).inDays;
+      final cut = DateTime(
+        last.start.year,
+        last.start.month,
+        last.start.day + days,
+      ).isBefore(last.lastDay);
+      expect(
+        bloc.state.before!.expense,
+        Money(cut ? 10000 : 30000, Currency.pkr),
+        reason: 'the same number of days, not the whole month',
+      );
+      await bloc.close();
+    });
+
+    test('all time has nothing before it to compare with', () async {
+      final bloc = await started();
+      bloc.add(const PeriodKindChanged(PeriodKind.all));
+      await pumpEventQueue();
+      expect(bloc.state.previous, isNull);
+      expect(bloc.state.before, isNull);
+      await bloc.close();
+    });
+
     test('custom range', () async {
       final bloc = await started();
       bloc.add(CustomPeriodChosen(DateTime(2026, 7, 1), DateTime(2026, 7, 15)));
@@ -132,7 +180,7 @@ void main() {
         120000,
         reason: 'last year\'s Rs 300 is outside this month',
       );
-      expect(find.text('Spending by category'), findsOneWidget);
+      expect(find.text('Where it went'), findsOneWidget);
       expect(find.byKey(const Key('slice-Food & Drink')), findsOneWidget);
     });
 
@@ -140,7 +188,9 @@ void main() {
       t,
     ) async {
       await openReports(t);
-      await t.tap(find.text('All'));
+      await t.tap(find.byKey(const Key('periodLabel')));
+      await t.pumpAndSettle();
+      await t.tap(find.text('All time'));
       await t.pumpAndSettle();
       expect(find.text('All time'), findsOneWidget);
       expect(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/dates/report_period.dart';
+import '../../../core/money/currency.dart';
 import '../../../core/money/money.dart';
 import '../../../core/money/money_format.dart';
 import '../../../core/theme/app_tokens.dart';
@@ -19,6 +20,18 @@ import '../domain/report.dart';
 double _units(Money m) => m.minor / 100;
 
 String _money(Money m) => const MoneyFormat().format(m);
+
+/// A short axis amount: "850", "12k", "1.2M".
+String _compact(double units) {
+  final v = units.abs();
+  final sign = units < 0 ? '-' : '';
+  String trim(double x) => x >= 10
+      ? x.round().toString()
+      : x.toStringAsFixed(1).replaceAll('.0', '');
+  if (v >= 1e6) return '$sign${trim(v / 1e6)}M';
+  if (v >= 1e3) return '$sign${trim(v / 1e3)}k';
+  return '$sign${v.round()}';
+}
 
 /// A titled chart card. Charts sit on the card surface the palette was
 /// validated against.
@@ -47,9 +60,20 @@ class ChartCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
                 Expanded(child: Text(title, style: context.text.titleSmall)),
-                ?trailing,
+                // Shrinks rather than pushing past the edge (Urdu, large
+                // text, a narrow phone).
+                if (trailing != null)
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: trailing,
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: AppSpacing.l),
@@ -61,195 +85,169 @@ class ChartCard extends StatelessWidget {
   }
 }
 
-/// One donut slice: a category (or "Other") with its share.
-class _Slice {
-  const _Slice(
-    this.label,
-    this.total,
-    this.color, {
-    this.category,
-    this.isOther = false,
-  });
-
-  final String label;
-  final Money total;
-  final Color color;
-  final Category? category;
-  final bool isOther;
-}
-
-/// Category donut + legend (spec 3.2 #8). The 7 largest categories get
-/// their own slot — colour follows the category, not its rank — and the
-/// rest fold into a grey "Other". Tap a slice or legend row to drill down.
-class CategoryDonut extends StatefulWidget {
-  const CategoryDonut({
+/// Where the money went (or came from): one row per category, largest
+/// first — its badge, name, a bar scaled to the largest, the amount and its
+/// whole-percent share. The first [shown] show; "N more" opens the rest.
+/// Each category keeps its chart colour (a stable slot from its id, so a
+/// filter never repaints the others). Tap a row to see its entries.
+class CategoryBars extends StatefulWidget {
+  const CategoryBars({
     super.key,
     required this.slices,
     required this.total,
-    required this.otherLabel,
     required this.noCategoryLabel,
     required this.onCategoryTap,
   });
 
   final List<CategorySlice> slices;
   final Money total;
-  final String otherLabel;
   final String noCategoryLabel;
   final void Function(Category? category) onCategoryTap;
 
-  static const int shown = 7;
+  static const int shown = 5;
 
   @override
-  State<CategoryDonut> createState() => _CategoryDonutState();
+  State<CategoryBars> createState() => _CategoryBarsState();
 }
 
-class _CategoryDonutState extends State<CategoryDonut> {
-  int? _touched;
+class _CategoryBarsState extends State<CategoryBars> {
+  bool _all = false;
 
-  List<_Slice> _slices(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final l = context.l10n;
+    final slices = widget.slices;
     final palette = ChartPalette.of(context);
-    final top = widget.slices.take(CategoryDonut.shown).toList();
-    // Stable slot from the category id, so a filter that hides one
-    // category never repaints the others.
     final slots = ChartPalette.assign<CategorySlice>(
-      top,
+      slices.take(ChartPalette.length).toList(),
       (s) => (s.category?.id ?? 'none').codeUnits.fold(
         0,
         (h, c) => (h * 31 + c) & 0x7fffffff,
       ),
     );
-    final rest = widget.slices.skip(CategoryDonut.shown);
-    return [
-      for (final s in top)
-        _Slice(
-          s.category?.name ?? widget.noCategoryLabel,
-          s.total,
-          palette[slots[s]!],
-          category: s.category,
-        ),
-      if (rest.isNotEmpty)
-        _Slice(
-          widget.otherLabel,
-          rest.fold(Money.zero(widget.total.currency), (a, b) => a + b.total),
-          ChartPalette.other(context),
-          isOther: true,
-        ),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    final slices = _slices(context);
+    Color colorOf(CategorySlice s) =>
+        slots[s] == null ? ChartPalette.other(context) : palette[slots[s]!];
+    final largest = slices.isEmpty ? 0 : slices.first.total.minor;
     // Whole percent, rounded half up, in integer maths.
     int percent(Money m) => widget.total.isZero
         ? 0
         : (m.minor * 200 + widget.total.minor) ~/ (widget.total.minor * 2);
-    return Column(
-      children: [
-        SizedBox(
-          height: 200,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              PieChart(
-                PieChartData(
-                  startDegreeOffset: -90,
-                  centerSpaceRadius: 68,
-                  sectionsSpace: 2,
-                  pieTouchData: PieTouchData(
-                    touchCallback: (event, response) {
-                      final i = response?.touchedSection?.touchedSectionIndex;
-                      if (event is FlTapUpEvent && i != null && i >= 0) {
-                        final s = slices[i];
-                        if (!s.isOther) widget.onCategoryTap(s.category);
-                      }
-                      // fl_chart reports -1 for the hole in the middle.
-                      setState(
-                        () => _touched =
-                            event.isInterestedForInteractions &&
-                                i != null &&
-                                i >= 0
-                            ? i
-                            : null,
-                      );
-                    },
-                  ),
-                  sections: [
-                    for (var i = 0; i < slices.length; i++)
-                      PieChartSectionData(
-                        value: _units(slices[i].total),
-                        color: slices[i].color,
-                        radius: _touched == i ? 30 : 24,
-                        showTitle: false,
-                      ),
-                  ],
-                ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
+
+    Widget row({
+      required Key key,
+      required Widget badge,
+      required String name,
+      required Money amount,
+      required Color color,
+      required VoidCallback onTap,
+    }) => InkWell(
+      key: key,
+      borderRadius: BorderRadius.circular(AppRadii.s),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
+        child: Row(
+          children: [
+            badge,
+            const SizedBox(width: AppSpacing.m),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AmountText(widget.total, style: context.text.titleLarge),
-                  if (_touched case final t? when t >= 0 && t < slices.length)
-                    Text(slices[t].label, style: context.text.bodySmall),
-                ],
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.l),
-        for (final s in slices)
-          InkWell(
-            key: Key('slice-${s.label}'),
-            borderRadius: BorderRadius.circular(AppRadii.s),
-            onTap: s.isOther ? null : () => widget.onCategoryTap(s.category),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
-              child: Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: s.color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.m),
-                  if (!s.isOther) ...[
-                    CategoryBadge(s.category, size: 28),
-                    const SizedBox(width: AppSpacing.s),
-                  ],
-                  Expanded(
-                    child: Text(
-                      s.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.text.bodyMedium,
-                    ),
-                  ),
                   Text(
-                    '${percent(s.total)}%',
-                    style: context.text.bodySmall!.copyWith(
-                      color: c.inkMuted,
-                      fontFeatures: AppTypography.tabular,
-                    ),
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.bodyMedium,
                   ),
-                  const SizedBox(width: AppSpacing.m),
-                  // Large text on a small phone: shrink rather than spill.
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: AmountText(
-                        s.total,
-                        style: context.text.labelLarge,
+                  const SizedBox(height: AppSpacing.xs),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: SizedBox(
+                      height: 6,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ColoredBox(color: c.surfaceMuted),
+                          FractionallySizedBox(
+                            alignment: AlignmentDirectional.centerStart,
+                            widthFactor: largest == 0
+                                ? 0
+                                : (amount.minor / largest).clamp(0.0, 1.0),
+                            child: ColoredBox(color: color),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(width: AppSpacing.m),
+            // Large text on a small phone: shrink rather than spill.
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 110),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerEnd,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    AmountText(amount, style: context.text.labelLarge),
+                    Text(
+                      '${percent(amount)}%',
+                      style: context.text.bodySmall!.copyWith(
+                        fontFeatures: AppTypography.tabular,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    final visible = _all || slices.length <= CategoryBars.shown + 1
+        ? slices
+        : slices.take(CategoryBars.shown).toList();
+    final rest = slices.skip(visible.length).toList();
+    return Column(
+      children: [
+        for (final s in visible)
+          row(
+            key: Key('slice-${s.category?.name ?? widget.noCategoryLabel}'),
+            badge: CategoryBadge(s.category, size: 32),
+            name: s.category?.name ?? widget.noCategoryLabel,
+            amount: s.total,
+            color: colorOf(s),
+            onTap: () => widget.onCategoryTap(s.category),
+          ),
+        if (rest.isNotEmpty)
+          row(
+            key: const Key('moreCategories'),
+            badge: Container(
+              width: 32,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: c.surfaceMuted,
+                borderRadius: BorderRadius.circular(32 * 0.32),
+              ),
+              child: Text(
+                '+${rest.length}',
+                style: context.text.labelMedium!.copyWith(color: c.inkMuted),
+              ),
+            ),
+            name: l.moreCategories(rest.length),
+            amount: rest.fold(
+              Money.zero(widget.total.currency),
+              (a, s) => a + s.total,
+            ),
+            color: ChartPalette.other(context),
+            onTap: () => setState(() => _all = true),
           ),
       ],
     );
@@ -264,17 +262,30 @@ String bucketLabel(BucketSize size, DateTime start, String locale) =>
       BucketSize.year => DateFormat.y(locale).format(start),
     };
 
-FlTitlesData _xTitles(
+/// Bucket names along the bottom (about six of them) and short amounts
+/// up the side at each grid line.
+FlTitlesData _titles(
   BuildContext context,
   int count,
-  String Function(int) label,
-) {
+  String Function(int) label, {
+  required double interval,
+}) {
   final every = (count / 6).ceil().clamp(1, 1000);
   final style = context.text.labelSmall!;
   return FlTitlesData(
     topTitles: const AxisTitles(),
     rightTitles: const AxisTitles(),
-    leftTitles: const AxisTitles(),
+    leftTitles: AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 44,
+        interval: interval,
+        getTitlesWidget: (v, meta) => SideTitleWidget(
+          meta: meta,
+          child: Text(_compact(v), style: style, maxLines: 1, softWrap: false),
+        ),
+      ),
+    ),
     bottomTitles: AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
@@ -296,137 +307,141 @@ FlTitlesData _xTitles(
   );
 }
 
-/// Income vs spending per bucket: two thin rounded bars, a hairline grid,
-/// a tooltip on touch, and a legend (two series).
-class FlowBars extends StatelessWidget {
-  const FlowBars({
+/// A grid step that lands on round numbers (1, 2 or 5 × a power of ten),
+/// about three lines high.
+double _step(double max) {
+  if (max <= 0) return 1;
+  final raw = max / 3;
+  var p = 1.0;
+  while (p * 10 <= raw) {
+    p *= 10;
+  }
+  for (final m in [1, 2, 5, 10]) {
+    if (p * m >= raw) return p * m;
+  }
+  return p * 10;
+}
+
+/// One side of the money per bucket — spending, or income — as rounded
+/// bars, with a dashed line at the average and amounts up the side. One
+/// series at a time, so a salary never flattens the spending.
+class PeriodBars extends StatelessWidget {
+  const PeriodBars({
     super.key,
     required this.points,
     required this.size,
-    required this.incomeLabel,
-    required this.spendingLabel,
+    required this.income,
   });
 
   final List<FlowPoint> points;
   final BucketSize size;
-  final String incomeLabel;
-  final String spendingLabel;
+
+  /// Income instead of spending.
+  final bool income;
+
+  Money valueOf(FlowPoint p) => income ? p.income : p.expense;
+
+  /// The average bucket (only the buckets charted, so a month in progress
+  /// is averaged over its days so far).
+  static Money average(
+    List<FlowPoint> points, {
+    required bool income,
+    required Currency currency,
+  }) {
+    if (points.isEmpty) return Money.zero(currency);
+    final total = points.fold<int>(
+      0,
+      (s, p) => s + (income ? p.income : p.expense).minor,
+    );
+    // Whole rupees: an average to the paisa is false precision.
+    final unit = [
+      for (var i = 0; i < currency.decimals; i++) 10,
+    ].fold(1, (a, b) => a * b);
+    return Money((total / points.length / unit).round() * unit, currency);
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final locale = Localizations.localeOf(context).toLanguageTag();
-    final incomeColor = c.income;
-    final spendColor = ChartPalette.of(context)[1];
+    final color = income ? c.income : ChartPalette.of(context)[1];
     final width = points.length > 20
-        ? 3.0
-        : points.length > 10
         ? 5.0
-        : 8.0;
-    final maxY = points.fold<double>(
-      0,
-      (m, p) => [
-        m,
-        _units(p.income),
-        _units(p.expense),
-      ].reduce((a, b) => a > b ? a : b),
+        : points.length > 10
+        ? 8.0
+        : 14.0;
+    final values = [for (final p in points) _units(valueOf(p))];
+    final maxY = values.fold<double>(0, (m, v) => v > m ? v : m);
+    final step = _step(maxY);
+    final top = maxY == 0 ? 1.0 : (maxY / step).ceil() * step;
+    final avg = _units(
+      average(points, income: income, currency: valueOf(points.first).currency),
     );
     final radius = BorderRadius.vertical(top: Radius.circular(width / 2));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 180,
-          child: BarChart(
-            BarChartData(
-              maxY: maxY == 0 ? 1 : maxY * 1.1,
-              alignment: BarChartAlignment.spaceAround,
-              borderData: FlBorderData(show: false),
-              gridData: FlGridData(
-                drawVerticalLine: false,
-                horizontalInterval: maxY == 0 ? 1 : maxY / 3,
-                getDrawingHorizontalLine: (_) =>
-                    FlLine(color: c.line, strokeWidth: 1),
-              ),
-              titlesData: _xTitles(
-                context,
-                points.length,
-                (i) => bucketLabel(size, points[i].bucket.start, locale),
-              ),
-              barTouchData: BarTouchData(
-                touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (_) => c.ink,
-                  tooltipBorderRadius: BorderRadius.circular(AppRadii.s),
-                  getTooltipItem: (group, gi, rod, ri) => BarTooltipItem(
-                    '${ri == 0 ? incomeLabel : spendingLabel}\n'
-                    '${_money(ri == 0 ? points[gi].income : points[gi].expense)}',
-                    context.text.labelMedium!.copyWith(color: c.paper),
-                  ),
+    return SizedBox(
+      height: 180,
+      child: BarChart(
+        BarChartData(
+          maxY: top,
+          alignment: BarChartAlignment.spaceAround,
+          borderData: FlBorderData(show: false),
+          gridData: FlGridData(
+            drawVerticalLine: false,
+            horizontalInterval: step,
+            getDrawingHorizontalLine: (_) =>
+                FlLine(color: c.line, strokeWidth: 1),
+          ),
+          extraLinesData: ExtraLinesData(
+            horizontalLines: [
+              if (avg > 0)
+                HorizontalLine(
+                  y: avg,
+                  color: c.inkMuted,
+                  strokeWidth: 1,
+                  dashArray: [4, 4],
                 ),
+            ],
+          ),
+          titlesData: _titles(
+            context,
+            points.length,
+            (i) => bucketLabel(size, points[i].bucket.start, locale),
+            interval: step,
+          ),
+          barTouchData: BarTouchData(
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (_) => c.ink,
+              tooltipBorderRadius: BorderRadius.circular(AppRadii.s),
+              getTooltipItem: (group, gi, rod, ri) => BarTooltipItem(
+                '${bucketLabel(size, points[gi].bucket.start, locale)}\n'
+                '${_money(valueOf(points[gi]))}',
+                context.text.labelMedium!.copyWith(color: c.paper),
               ),
-              barGroups: [
-                for (var i = 0; i < points.length; i++)
-                  BarChartGroupData(
-                    x: i,
-                    barsSpace: 2,
-                    barRods: [
-                      BarChartRodData(
-                        toY: _units(points[i].income),
-                        color: incomeColor,
-                        width: width,
-                        borderRadius: radius,
-                      ),
-                      BarChartRodData(
-                        toY: _units(points[i].expense),
-                        color: spendColor,
-                        width: width,
-                        borderRadius: radius,
-                      ),
-                    ],
-                  ),
-              ],
             ),
           ),
-        ),
-        const SizedBox(height: AppSpacing.m),
-        Wrap(
-          spacing: AppSpacing.l,
-          children: [
-            _LegendDot(color: incomeColor, label: incomeLabel),
-            _LegendDot(color: spendColor, label: spendingLabel),
+          barGroups: [
+            for (var i = 0; i < points.length; i++)
+              BarChartGroupData(
+                x: i,
+                barRods: [
+                  BarChartRodData(
+                    toY: values[i],
+                    color: color,
+                    width: width,
+                    borderRadius: radius,
+                  ),
+                ],
+              ),
           ],
         ),
-      ],
+      ),
     );
   }
 }
 
-class _LegendDot extends StatelessWidget {
-  const _LegendDot({required this.color, required this.label});
-
-  final Color color;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      Container(
-        width: 10,
-        height: 10,
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(3),
-        ),
-      ),
-      const SizedBox(width: AppSpacing.xs + 2),
-      Text(label, style: context.text.bodySmall),
-    ],
-  );
-}
-
 /// Balance at the end of each bucket: one 2px line (a single series needs
-/// no legend — the card title names it), with a crosshair tooltip.
+/// no legend — the card title names it), amounts up the side, with a
+/// crosshair tooltip.
 class BalanceTrend extends StatelessWidget {
   const BalanceTrend({super.key, required this.points, required this.size});
 
@@ -440,23 +455,29 @@ class BalanceTrend extends StatelessWidget {
     final values = [for (final p in points) _units(p.balance)];
     final lo = values.reduce((a, b) => a < b ? a : b);
     final hi = values.reduce((a, b) => a > b ? a : b);
-    final pad = (hi - lo).abs() * 0.1 + 1;
+    final step = _step((hi - lo).abs() == 0 ? hi.abs() : (hi - lo).abs());
+    final minY = (lo / step).floor() * step;
+    final maxY = (hi / step).ceil() * step == minY
+        ? minY + step
+        : (hi / step).ceil() * step;
     return SizedBox(
       height: 160,
       child: LineChart(
         LineChartData(
-          minY: lo - pad,
-          maxY: hi + pad,
+          minY: minY,
+          maxY: maxY,
           borderData: FlBorderData(show: false),
           gridData: FlGridData(
             drawVerticalLine: false,
+            horizontalInterval: step,
             getDrawingHorizontalLine: (_) =>
                 FlLine(color: c.line, strokeWidth: 1),
           ),
-          titlesData: _xTitles(
+          titlesData: _titles(
             context,
             points.length,
             (i) => bucketLabel(size, points[i].bucket.start, locale),
+            interval: step,
           ),
           lineTouchData: LineTouchData(
             touchTooltipData: LineTouchTooltipData(

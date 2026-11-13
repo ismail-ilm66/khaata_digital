@@ -680,6 +680,57 @@ class AppLocalizationsUr extends AppLocalizations {
   String get periodCustom => 'اپنی مرضی';
 
   @override
+  String get customRange => 'اپنی تاریخیں…';
+
+  @override
+  String get kindSpending => 'اخراجات';
+
+  @override
+  String get whereItWent => 'پیسہ کہاں گیا';
+
+  @override
+  String get whereItCameFrom => 'پیسہ کہاں سے آیا';
+
+  @override
+  String moreCategories(int count) {
+    return '$count مزید';
+  }
+
+  @override
+  String get dayByDay => 'دن بہ دن';
+
+  @override
+  String get monthByMonth => 'مہینہ بہ مہینہ';
+
+  @override
+  String get yearByYear => 'سال بہ سال';
+
+  @override
+  String avgPerDay(String amount) {
+    return 'اوسط $amount روزانہ';
+  }
+
+  @override
+  String avgPerMonth(String amount) {
+    return 'اوسط $amount ماہانہ';
+  }
+
+  @override
+  String avgPerYear(String amount) {
+    return 'اوسط $amount سالانہ';
+  }
+
+  @override
+  String changeVs(int pct, String period) {
+    return '$period کے مقابلے $pct%';
+  }
+
+  @override
+  String sameAs(String period) {
+    return '$period جتنا';
+  }
+
+  @override
   String get periodAll => 'سب';
 
   @override
@@ -692,19 +743,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get nextPeriod => 'اگلا';
 
   @override
-  String get spendingByCategory => 'زمرہ وار خرچ';
-
-  @override
-  String get incomeByCategory => 'زمرہ وار آمدنی';
-
-  @override
-  String get incomeVsSpending => 'آمدنی بمقابلہ خرچ';
-
-  @override
   String get balanceTrend => 'بیلنس';
-
-  @override
-  String get net => 'خالص';
 
   @override
   String get other => 'دیگر';

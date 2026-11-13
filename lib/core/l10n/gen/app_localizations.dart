@@ -1340,6 +1340,84 @@ abstract class AppLocalizations {
   /// **'Custom'**
   String get periodCustom;
 
+  /// No description provided for @customRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range…'**
+  String get customRange;
+
+  /// No description provided for @kindSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending'**
+  String get kindSpending;
+
+  /// No description provided for @whereItWent.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it went'**
+  String get whereItWent;
+
+  /// No description provided for @whereItCameFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Where it came from'**
+  String get whereItCameFrom;
+
+  /// No description provided for @moreCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more'**
+  String moreCategories(int count);
+
+  /// No description provided for @dayByDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Day by day'**
+  String get dayByDay;
+
+  /// No description provided for @monthByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month by month'**
+  String get monthByMonth;
+
+  /// No description provided for @yearByYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year by year'**
+  String get yearByYear;
+
+  /// No description provided for @avgPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'avg {amount} a day'**
+  String avgPerDay(String amount);
+
+  /// No description provided for @avgPerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'avg {amount} a month'**
+  String avgPerMonth(String amount);
+
+  /// No description provided for @avgPerYear.
+  ///
+  /// In en, this message translates to:
+  /// **'avg {amount} a year'**
+  String avgPerYear(String amount);
+
+  /// No description provided for @changeVs.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% vs {period}'**
+  String changeVs(int pct, String period);
+
+  /// No description provided for @sameAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Same as {period}'**
+  String sameAs(String period);
+
   /// No description provided for @periodAll.
   ///
   /// In en, this message translates to:
@@ -1364,35 +1442,11 @@ abstract class AppLocalizations {
   /// **'Next'**
   String get nextPeriod;
 
-  /// No description provided for @spendingByCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Spending by category'**
-  String get spendingByCategory;
-
-  /// No description provided for @incomeByCategory.
-  ///
-  /// In en, this message translates to:
-  /// **'Income by category'**
-  String get incomeByCategory;
-
-  /// No description provided for @incomeVsSpending.
-  ///
-  /// In en, this message translates to:
-  /// **'Income vs spending'**
-  String get incomeVsSpending;
-
   /// No description provided for @balanceTrend.
   ///
   /// In en, this message translates to:
   /// **'Balance'**
   String get balanceTrend;
-
-  /// No description provided for @net.
-  ///
-  /// In en, this message translates to:
-  /// **'Net'**
-  String get net;
 
   /// No description provided for @other.
   ///

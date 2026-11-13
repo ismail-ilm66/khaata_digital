@@ -683,6 +683,57 @@ class AppLocalizationsEn extends AppLocalizations {
   String get periodCustom => 'Custom';
 
   @override
+  String get customRange => 'Custom range…';
+
+  @override
+  String get kindSpending => 'Spending';
+
+  @override
+  String get whereItWent => 'Where it went';
+
+  @override
+  String get whereItCameFrom => 'Where it came from';
+
+  @override
+  String moreCategories(int count) {
+    return '$count more';
+  }
+
+  @override
+  String get dayByDay => 'Day by day';
+
+  @override
+  String get monthByMonth => 'Month by month';
+
+  @override
+  String get yearByYear => 'Year by year';
+
+  @override
+  String avgPerDay(String amount) {
+    return 'avg $amount a day';
+  }
+
+  @override
+  String avgPerMonth(String amount) {
+    return 'avg $amount a month';
+  }
+
+  @override
+  String avgPerYear(String amount) {
+    return 'avg $amount a year';
+  }
+
+  @override
+  String changeVs(int pct, String period) {
+    return '$pct% vs $period';
+  }
+
+  @override
+  String sameAs(String period) {
+    return 'Same as $period';
+  }
+
+  @override
   String get periodAll => 'All';
 
   @override
@@ -695,19 +746,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nextPeriod => 'Next';
 
   @override
-  String get spendingByCategory => 'Spending by category';
-
-  @override
-  String get incomeByCategory => 'Income by category';
-
-  @override
-  String get incomeVsSpending => 'Income vs spending';
-
-  @override
   String get balanceTrend => 'Balance';
-
-  @override
-  String get net => 'Net';
 
   @override
   String get other => 'Other';

@@ -44,16 +44,36 @@ final class _Load extends ReportsEvent {
   const _Load();
 }
 
+/// Internal: (re)subscribes to the period before, for the comparison.
+final class _Compare extends ReportsEvent {
+  const _Compare();
+}
+
 class ReportsState extends Equatable {
-  const ReportsState({this.query, this.data});
+  const ReportsState({this.query, this.data, this.previous, this.before});
 
   final ReportQuery? query;
   final ReportData? data;
 
+  /// The period the figures are compared with ("vs Oct"); null where
+  /// there's none (all time, a custom range).
+  final ReportPeriod? previous;
+
+  /// Its figures, over the same number of days while [query]'s period is
+  /// still running, with the same filters.
+  final ReportData? before;
+
   bool get loading => data == null;
 
+  ReportsState copyWith({ReportData? data, ReportData? before}) => ReportsState(
+    query: query,
+    data: data ?? this.data,
+    previous: previous,
+    before: before ?? this.before,
+  );
+
   @override
-  List<Object?> get props => [query, data];
+  List<Object?> get props => [query, data, previous, before];
 }
 
 /// Reports tab (spec 3.2 #8): one period, the list's filters, live data.
@@ -64,10 +84,18 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
     on<_Load>(
       (e, emit) => emit.forEach<ReportData>(
         _repo.watch(state.query!),
-        onData: (d) => ReportsState(query: state.query, data: d),
+        onData: (d) => state.copyWith(data: d),
       ),
       transformer: restartable(),
     );
+    on<_Compare>((e, emit) async {
+      final period = _comparison(state.query!.period);
+      if (period == null) return;
+      await emit.forEach<ReportData>(
+        _repo.watch(state.query!.copyWith(period: period)),
+        onData: (d) => state.copyWith(before: d),
+      );
+    }, transformer: restartable());
     on<ReportsStarted>((e, emit) {
       _now = e.now ?? DateTime.now();
       _set(emit, ReportPeriod.month(_now));
@@ -80,8 +108,10 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
       (e, emit) => _set(emit, state.query!.period.shift(e.steps, _cycle.state)),
     );
     on<ReportFiltersChanged>((e, emit) {
-      emit(ReportsState(query: state.query!.copyWith(filters: e.filters)));
+      final query = state.query!.copyWith(filters: e.filters);
+      emit(ReportsState(query: query, previous: _previousOf(query.period)));
       add(const _Load());
+      add(const _Compare());
     });
   }
 
@@ -110,8 +140,37 @@ class ReportsBloc extends Bloc<ReportsEvent, ReportsState> {
           currency: _currency.state,
           filters: previous?.filters ?? const EntryQuery(),
         ),
+        previous: _previousOf(period),
       ),
     );
     add(const _Load());
+    add(const _Compare());
+  }
+
+  /// The same kind of period one step back; null for all time and custom
+  /// ranges, which have nothing before them to compare with.
+  ReportPeriod? _previousOf(ReportPeriod p) =>
+      p.canStep ? p.shift(-1, _cycle.state) : null;
+
+  /// What [p] is compared with: the period before, cut to the same number
+  /// of days while [p] is still running, so the first 13 days of November
+  /// meet the first 13 of October rather than all of it.
+  ReportPeriod? _comparison(ReportPeriod p) {
+    final before = _previousOf(p);
+    if (before == null) return null;
+    final cycle = _cycle.state;
+    final range = p.range(cycle)!;
+    final now = DateTime.now();
+    if (!range.contains(now)) return before;
+    final days = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).difference(range.start).inDays;
+    final start = before.range(cycle)!.start;
+    final last = DateTime(start.year, start.month, start.day + days);
+    return last.isBefore(before.range(cycle)!.lastDay)
+        ? ReportPeriod.custom(start, last)
+        : before;
   }
 }
