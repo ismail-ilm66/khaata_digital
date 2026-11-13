@@ -55,6 +55,9 @@ abstract interface class TransactionsRepository {
 
   Stream<PeriodTotals> watchTotals(DateRange range);
 
+  /// When the first and the last entry happened; null with none.
+  Stream<({DateTime first, DateTime last})?> watchSpan();
+
   /// Every tag name in use, alphabetical.
   Future<List<String>> tagNames();
 

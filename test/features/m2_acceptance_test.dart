@@ -100,9 +100,15 @@ void main() {
     ))!;
     await pumpApp(t);
 
+    // An old entry: Transactions opens on this month, so find it by search.
     await t.tap(tab('Transactions'));
     await t.pumpAndSettle();
-    await t.tap(find.widgetWithText(EntryTile, 'No category'));
+    await t.tap(find.byKey(const Key('searchButton')));
+    await t.pumpAndSettle();
+    await t.enterText(find.byKey(const Key('searchField')), 'Lunch');
+    await t.pump(const Duration(milliseconds: 300));
+    await t.pumpAndSettle();
+    await t.tap(find.widgetWithText(EntryTile, 'Lunch'));
     await t.pumpAndSettle();
     await t.tap(find.byKey(const Key('editEntry')));
     await t.pumpAndSettle();
@@ -194,7 +200,9 @@ void main() {
   });
 
   testWidgets('swipe left deletes with undo', (t) async {
-    await t.runAsync(() => ledger.expense(cash, 100));
+    await t.runAsync(
+      () => ledger.expense(cash, 100, at: DateTime.now().toUtc()),
+    );
     await pumpApp(t);
     await t.tap(tab('Transactions'));
     await t.pumpAndSettle();
@@ -256,7 +264,9 @@ void main() {
     // the tap (hit-test warnings are fatal here).
     await t.tap(tab('Transactions'));
     await t.pumpAndSettle();
-    await t.tap(find.text('Type'));
+    await t.tap(find.byKey(const Key('moreFilters')));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Account'));
     await t.pumpAndSettle();
     final done = find.widgetWithText(FilledButton, 'Done');
     expect(

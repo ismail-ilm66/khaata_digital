@@ -7,8 +7,7 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../core/theme/context_x.dart';
 import '../../../../core/widgets/app_icons.dart';
 import '../../../../core/widgets/feedback.dart';
-import '../../../../core/widgets/glass_surface.dart';
-import '../../../../core/widgets/surface_card.dart';
+import '../../../../core/widgets/tinted_badge.dart';
 import '../../../settings/presentation/cubit/preference_cubits.dart';
 import '../../domain/day_group.dart';
 import '../../domain/ledger_entry.dart';
@@ -18,44 +17,46 @@ import '../widgets/entry_tile.dart';
 import 'transaction_list_bloc.dart';
 import '../../../../core/widgets/app_sheet.dart';
 
-/// The grouped list body shared by Transactions and Search: a sticky
-/// header per budget cycle, day headers with totals, and swipeable rows
-/// (right = edit, left = delete with undo).
+/// The grouped list body shared by Transactions, Search and entry lists:
+/// one card per budget cycle with a small label for each day, and
+/// swipeable rows (right = edit, left = delete with undo). With
+/// [cycleHeaders] each cycle's card has its name above it.
 class EntryListSlivers extends StatelessWidget {
-  const EntryListSlivers({super.key, required this.days});
+  const EntryListSlivers({
+    super.key,
+    required this.days,
+    this.cycleHeaders = true,
+  });
 
   final List<DayGroup> days;
+
+  /// Off where the page already says which cycle it shows (Transactions'
+  /// month card).
+  final bool cycleHeaders;
 
   @override
   Widget build(BuildContext context) {
     final cycle = context.watch<BudgetCycleCubit>().state;
     final locale = Localizations.localeOf(context).toLanguageTag();
+    Widget card(List<DayGroup> days) => SliverPadding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.page,
+        AppSpacing.s,
+        AppSpacing.page,
+        0,
+      ),
+      sliver: SliverToBoxAdapter(child: _DaysCard(days)),
+    );
+    if (!cycleHeaders) return card(days);
     return SliverMainAxisGroup(
       slivers: [
         for (final section in CycleSection.of(days, cycle))
           SliverMainAxisGroup(
             slivers: [
-              PinnedHeaderSliver(
+              SliverToBoxAdapter(
                 child: _CycleHeader(cycle.label(section.cycle, locale: locale)),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.page,
-                ),
-                sliver: SliverList.list(
-                  children: [
-                    for (final day in section.days) ...[
-                      DayHeader(day),
-                      SurfaceCard(
-                        padding: EdgeInsets.zero,
-                        children: [
-                          for (final v in day.entries) _SwipeableEntry(v),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
+              card(section.days),
             ],
           ),
       ],
@@ -63,6 +64,48 @@ class EntryListSlivers extends StatelessWidget {
   }
 }
 
+/// Days in one card: each day's label, then its entries.
+class _DaysCard extends StatelessWidget {
+  const _DaysCard(this.days);
+
+  final List<DayGroup> days;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final radius = BorderRadius.circular(AppRadii.l);
+    final divider = Divider(
+      // Lines up with the text, past the badge.
+      indent: AppSpacing.l + 40 + kBadgeGap,
+      color: c.line.withValues(alpha: 0.7),
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: radius,
+        border: Border.all(color: c.line.withValues(alpha: 0.6)),
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final day in days) ...[
+              DayHeader(day),
+              for (var i = 0; i < day.entries.length; i++) ...[
+                if (i > 0) divider,
+                _SwipeableEntry(day.entries[i]),
+              ],
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A cycle's name above its card ("Oct 2026"). It scrolls with the list;
+/// a pinned one sat over the rows.
 class _CycleHeader extends StatelessWidget {
   const _CycleHeader(this.label);
 
@@ -71,26 +114,13 @@ class _CycleHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.page,
-        AppSpacing.s,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.page + AppSpacing.xs,
+        AppSpacing.l,
         AppSpacing.page,
         0,
       ),
-      child: Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: GlassSurface(
-          blur: 16,
-          borderRadius: BorderRadius.circular(AppRadii.l),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.m,
-              vertical: AppSpacing.xs + 2,
-            ),
-            child: Text(label, style: context.text.labelLarge),
-          ),
-        ),
-      ),
+      child: Text(label, style: context.text.titleSmall),
     );
   }
 }

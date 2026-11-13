@@ -15,7 +15,11 @@ class EntryQuery extends Equatable {
     this.range,
     this.limit = pageSize,
     this.excludeUdhaar = false,
-  });
+    this.onlyUdhaar = false,
+  }) : assert(
+         !(excludeUdhaar && onlyUdhaar),
+         'udhaar is either left out or the only thing shown',
+       );
 
   static const int pageSize = 60;
 
@@ -40,12 +44,16 @@ class EntryQuery extends Equatable {
   /// income / spent totals, which don't count them.
   final bool excludeUdhaar;
 
+  /// Only udhaar (person-linked) entries.
+  final bool onlyUdhaar;
+
   bool get hasFilters =>
       types.isNotEmpty ||
       accountIds.isNotEmpty ||
       categoryIds.isNotEmpty ||
       tags.isNotEmpty ||
-      personIds.isNotEmpty;
+      personIds.isNotEmpty ||
+      onlyUdhaar;
 
   EntryQuery copyWith({
     Set<TransactionType>? types,
@@ -54,7 +62,10 @@ class EntryQuery extends Equatable {
     Set<String>? tags,
     Set<String>? personIds,
     String? search,
+    DateRange? range,
     int? limit,
+    bool? excludeUdhaar,
+    bool? onlyUdhaar,
   }) => EntryQuery(
     types: types ?? this.types,
     accountIds: accountIds ?? this.accountIds,
@@ -62,9 +73,10 @@ class EntryQuery extends Equatable {
     tags: tags ?? this.tags,
     personIds: personIds ?? this.personIds,
     search: search ?? this.search,
-    range: range,
+    range: range ?? this.range,
     limit: limit ?? this.limit,
-    excludeUdhaar: excludeUdhaar,
+    excludeUdhaar: excludeUdhaar ?? this.excludeUdhaar,
+    onlyUdhaar: onlyUdhaar ?? this.onlyUdhaar,
   );
 
   /// Same filters, first page.
@@ -82,5 +94,6 @@ class EntryQuery extends Equatable {
     range,
     limit,
     excludeUdhaar,
+    onlyUdhaar,
   ];
 }

@@ -218,6 +218,34 @@ class AppLocalizationsEn extends AppLocalizations {
   String get filterType => 'Type';
 
   @override
+  String get filter => 'Filter';
+
+  @override
+  String get clearFilters => 'Clear filters';
+
+  @override
+  String get kindAll => 'All';
+
+  @override
+  String get kindExpenses => 'Expenses';
+
+  @override
+  String get kindTransfers => 'Transfers';
+
+  @override
+  String get noEntriesThisMonth => 'Nothing this month';
+
+  @override
+  String get noEntriesThisMonthBody =>
+      'Entries you add for this month show up here.';
+
+  @override
+  String get showPeriod => 'Show';
+
+  @override
+  String get pickMonth => 'Pick a month…';
+
+  @override
   String get filterAccount => 'Account';
 
   @override
@@ -1447,7 +1475,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tourTransactionsBody =>
-      'Every entry, newest first. Filter or search them. Swipe an entry right to edit it, left to delete it.';
+      'One month at a time, newest first. The arrows go to other months; the chips narrow it down, or search. Swipe an entry right to edit it, left to delete it.';
 
   @override
   String get tourReportsBody =>

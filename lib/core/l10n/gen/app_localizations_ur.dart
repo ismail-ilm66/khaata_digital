@@ -217,6 +217,33 @@ class AppLocalizationsUr extends AppLocalizations {
   String get filterType => 'قسم';
 
   @override
+  String get filter => 'فلٹر';
+
+  @override
+  String get clearFilters => 'فلٹر ہٹائیں';
+
+  @override
+  String get kindAll => 'سب';
+
+  @override
+  String get kindExpenses => 'اخراجات';
+
+  @override
+  String get kindTransfers => 'منتقلیاں';
+
+  @override
+  String get noEntriesThisMonth => 'اس مہینے کچھ نہیں';
+
+  @override
+  String get noEntriesThisMonthBody => 'اس مہینے کے اندراجات یہاں نظر آئیں گے۔';
+
+  @override
+  String get showPeriod => 'دکھائیں';
+
+  @override
+  String get pickMonth => 'مہینہ چنیں…';
+
+  @override
   String get filterAccount => 'اکاؤنٹ';
 
   @override
@@ -1440,7 +1467,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get tourTransactionsBody =>
-      'ہر اندراج، نیا پہلے۔ فلٹر یا تلاش کریں۔ ترمیم کے لیے دائیں، حذف کے لیے بائیں سوائپ کریں۔';
+      'ایک وقت میں ایک مہینہ، نئے پہلے۔ تیر دوسرے مہینوں پر لے جاتے ہیں؛ چِپس سے چھانٹیں یا تلاش کریں۔ کسی اندراج کو دائیں کھینچ کر بدلیں، بائیں کھینچ کر حذف کریں۔';
 
   @override
   String get tourReportsBody =>

@@ -90,10 +90,15 @@ class TransactionListBloc
       add(const _Subscribe());
     });
     on<FiltersChanged>((e, emit) {
+      // Another period: drop the old rows at once rather than show them
+      // under the new period's heading until the new ones arrive.
+      final moved = e.query.range != state.query.range;
       emit(
         state.copyWith(
           query: e.query.copyWith(limit: EntryQuery.pageSize),
           loading: true,
+          days: moved ? const [] : null,
+          hasMore: moved ? false : null,
         ),
       );
       add(const _Subscribe());

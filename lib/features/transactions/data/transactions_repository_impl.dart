@@ -35,6 +35,7 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
           tagNames: q.tags,
           personIds: q.personIds,
           excludeUdhaar: q.excludeUdhaar,
+          onlyUdhaar: q.onlyUdhaar,
           search: q.search,
           fromMillis: q.range?.startMillis,
           toMillis: q.range?.endMillis,
@@ -226,6 +227,16 @@ class TransactionsRepositoryImpl implements TransactionsRepository {
           );
         }
         return PeriodTotals(income: income, expense: expense);
+      });
+
+  @override
+  Stream<({DateTime first, DateTime last})?> watchSpan() =>
+      _dao.span().watchSingle().map((r) {
+        final (first: a, last: b) = r;
+        if (a == null || b == null) return null;
+        DateTime at(int ms) =>
+            DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
+        return (first: at(a), last: at(b));
       });
 
   @override

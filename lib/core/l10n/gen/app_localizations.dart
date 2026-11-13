@@ -506,6 +506,60 @@ abstract class AppLocalizations {
   /// **'Type'**
   String get filterType;
 
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter'**
+  String get filter;
+
+  /// No description provided for @clearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get clearFilters;
+
+  /// No description provided for @kindAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get kindAll;
+
+  /// No description provided for @kindExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get kindExpenses;
+
+  /// No description provided for @kindTransfers.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfers'**
+  String get kindTransfers;
+
+  /// No description provided for @noEntriesThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing this month'**
+  String get noEntriesThisMonth;
+
+  /// No description provided for @noEntriesThisMonthBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Entries you add for this month show up here.'**
+  String get noEntriesThisMonthBody;
+
+  /// No description provided for @showPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get showPeriod;
+
+  /// No description provided for @pickMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a month…'**
+  String get pickMonth;
+
   /// No description provided for @filterAccount.
   ///
   /// In en, this message translates to:
@@ -2651,7 +2705,7 @@ abstract class AppLocalizations {
   /// No description provided for @tourTransactionsBody.
   ///
   /// In en, this message translates to:
-  /// **'Every entry, newest first. Filter or search them. Swipe an entry right to edit it, left to delete it.'**
+  /// **'One month at a time, newest first. The arrows go to other months; the chips narrow it down, or search. Swipe an entry right to edit it, left to delete it.'**
   String get tourTransactionsBody;
 
   /// No description provided for @tourReportsBody.

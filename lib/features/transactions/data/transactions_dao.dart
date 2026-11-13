@@ -91,6 +91,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
     Set<String> tagNames = const {},
     Set<String> personIds = const {},
     bool excludeUdhaar = false,
+    bool onlyUdhaar = false,
     String search = '',
     int? fromMillis,
     int? toMillis,
@@ -117,6 +118,7 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
         toMillis: toMillis,
       ),
       if (excludeUdhaar) t.personId.isNull(),
+      if (onlyUdhaar) t.personId.isNotNull(),
       if (id != null) t.id.equals(id),
     ];
 
@@ -322,6 +324,18 @@ class TransactionsDao extends DatabaseAccessor<AppDatabase>
       (r) => (day: r.readNullable<String>('day'), delta: r.read<int>('delta')),
     );
   }
+
+  /// When the first and the last entry happened (UTC millis); both null
+  /// with no entries.
+  Selectable<({int? first, int? last})> span() =>
+      customSelect(
+        'SELECT MIN(occurred_at) AS a, MAX(occurred_at) AS b FROM transactions '
+        'WHERE deleted_at IS NULL',
+        readsFrom: {transactions},
+      ).map(
+        (r) =>
+            (first: r.readNullable<int>('a'), last: r.readNullable<int>('b')),
+      );
 
   /// Income and expense sums per currency in `[fromMillis, toMillis)`.
   Selectable<({TransactionType type, String currency, int total})> totals(

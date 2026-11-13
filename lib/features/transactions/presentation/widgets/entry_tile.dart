@@ -10,7 +10,8 @@ import '../../../people/presentation/person_badge.dart';
 import '../../domain/ledger_entry.dart';
 import '../../domain/transaction_type.dart';
 
-/// One transaction in a list: badge, what it was, where from, and amount.
+/// One transaction in a list: badge, what it was (the note when there is
+/// one), category and account, and amount.
 class EntryTile extends StatelessWidget {
   const EntryTile(this.view, {super.key, this.onTap});
 
@@ -24,17 +25,25 @@ class EntryTile extends StatelessWidget {
     final transfer = e.type == TransactionType.transfer;
 
     final udhaar = view.isUdhaar;
+    // What the user wrote is what they recognise: a note leads, with the
+    // category under it. Transfers and udhaar keep accounts / the person.
+    final noteLeads = !transfer && !udhaar && e.note.isNotEmpty;
     final title = transfer
         ? '${view.accountName} → ${view.toAccountName ?? '—'}'
         : udhaar
         ? view.personName ?? context.l10n.person
+        : noteLeads
+        ? e.note
         : context.categoryName(view.category);
     final subtitle = [
       if (udhaar)
         e.type == TransactionType.income
             ? context.l10n.iReceived
             : context.l10n.iGave,
-      if (e.note.isNotEmpty) e.note,
+      if (noteLeads)
+        context.categoryName(view.category)
+      else if (e.note.isNotEmpty)
+        e.note,
       if (!transfer) view.accountName,
     ].join(' · ');
 

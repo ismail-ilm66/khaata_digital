@@ -165,7 +165,9 @@ void main() {
   });
 
   testWidgets('swiping to delete asks; Cancel keeps the entry', (t) async {
-    await t.runAsync(() => TestLedger(db).expense(cash, 5000));
+    await t.runAsync(
+      () => TestLedger(db).expense(cash, 5000, at: DateTime.now().toUtc()),
+    );
     await start(t);
     await t.tap(
       find.descendant(

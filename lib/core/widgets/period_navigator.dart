@@ -16,6 +16,7 @@ class PeriodNavigator extends StatelessWidget {
     this.nextTooltip,
     this.dense = false,
     this.trailing,
+    this.onLabelTap,
   });
 
   final String label;
@@ -30,6 +31,9 @@ class PeriodNavigator extends StatelessWidget {
 
   /// Dense only: after the arrows (e.g. Home's expand chevron).
   final Widget? trailing;
+
+  /// Not dense: the label opens a choice of period (with a ▾ after it).
+  final VoidCallback? onLabelTap;
 
   @override
   Widget build(BuildContext context) {
@@ -97,12 +101,41 @@ class PeriodNavigator extends StatelessWidget {
           const Key('previousPeriod'),
         ),
         Flexible(
-          child: Text(
-            label,
-            key: const Key('periodLabel'),
-            textAlign: TextAlign.center,
-            style: context.text.titleMedium,
-          ),
+          child: onLabelTap == null
+              ? Text(
+                  label,
+                  key: const Key('periodLabel'),
+                  textAlign: TextAlign.center,
+                  style: context.text.titleMedium,
+                )
+              : InkWell(
+                  onTap: () {
+                    Haptics.selection();
+                    onLabelTap!();
+                  },
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 6,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            label,
+                            key: const Key('periodLabel'),
+                            textAlign: TextAlign.center,
+                            style: context.text.titleMedium,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(AppIcons.chevronDown, size: 16, color: c.inkMuted),
+                      ],
+                    ),
+                  ),
+                ),
         ),
         arrow(
           AppIcons.arrowRight,
