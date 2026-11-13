@@ -163,7 +163,8 @@ void main() {
 
   testWidgets('Hysab Kytab import: preview, roles, report', (t) async {
     await start(t);
-    await openMore(t, 'importTile');
+    await openMore(t, 'backupTile');
+    await revealAndTap(t, find.byKey(const Key('importTile')));
     expect(find.byType(ImportScreen), findsOneWidget);
     files.next = (
       name: 'Hysab Kytab_ExportAll.xls',
@@ -200,7 +201,8 @@ void main() {
     // Owner report: picking "HK Backup ….db" showed the column mapper over
     // a crashed (grey) screen. Any build error fails this test.
     await start(t);
-    await openMore(t, 'importTile');
+    await openMore(t, 'backupTile');
+    await revealAndTap(t, find.byKey(const Key('importTile')));
     files.next = (
       name: 'HK Backup 2026-10-11 14-31-02.db',
       bytes: File('test/fixtures/golden/v2/kharcha.db').readAsBytesSync(),
@@ -217,7 +219,8 @@ void main() {
 
   testWidgets('a generic CSV goes through the column mapper', (t) async {
     await start(t);
-    await openMore(t, 'importTile');
+    await openMore(t, 'backupTile');
+    await revealAndTap(t, find.byKey(const Key('importTile')));
     files.next = (
       name: 'bank.csv',
       bytes:

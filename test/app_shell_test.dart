@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/di/injection.dart';
@@ -9,6 +10,7 @@ import 'package:khaata_digital/features/reports/presentation/reports_screen.dart
 import 'package:khaata_digital/features/settings/presentation/cubit/locale_cubit.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/theme_cubit.dart';
 import 'package:khaata_digital/features/settings/presentation/more_screen.dart';
+import 'package:khaata_digital/features/settings/presentation/settings_screen.dart';
 import 'package:khaata_digital/features/transactions/presentation/form/entry_editor_screen.dart';
 import 'package:khaata_digital/features/transactions/presentation/transactions_screen.dart';
 
@@ -86,17 +88,18 @@ void main() {
     expect(Theme.of(ctx()).brightness, Brightness.light);
   });
 
-  testWidgets('theme selector on More switches theme', (tester) async {
+  testWidgets('theme selector in Settings switches theme', (tester) async {
     await pumpApp(tester);
     await tester.tap(_navLabel('More'));
     await tester.pumpAndSettle();
+    await revealAndTap(tester, find.byKey(const Key('settingsTile')));
 
     await reveal(tester, find.text('Dark'));
     await tester.tap(find.text('Dark'));
     await tester.pumpAndSettle();
     expect(getIt<ThemeCubit>().state, ThemeMode.dark);
     expect(
-      Theme.of(tester.element(find.byType(MoreScreen))).brightness,
+      Theme.of(tester.element(find.byType(SettingsScreen))).brightness,
       Brightness.dark,
     );
   });
@@ -107,6 +110,7 @@ void main() {
     await pumpApp(tester);
     await tester.tap(_navLabel('More'));
     await tester.pumpAndSettle();
+    await revealAndTap(tester, find.byKey(const Key('settingsTile')));
 
     await reveal(tester, find.text('اردو'));
     await tester.tap(find.text('اردو'));
@@ -114,21 +118,27 @@ void main() {
 
     expect(getIt<LocaleCubit>().state, LocaleCubit.urdu);
     expect(
-      Directionality.of(tester.element(find.byType(MoreScreen))),
+      Directionality.of(tester.element(find.byType(SettingsScreen))),
       TextDirection.rtl,
     );
+    // Back on More: the shell is in Urdu too.
+    tester.element(find.byType(SettingsScreen)).pop();
+    await tester.pumpAndSettle();
     for (final label in ['ہوم', 'لین دین', 'رپورٹس', 'مزید']) {
       expect(_navLabel(label), findsOneWidget, reason: label);
     }
     expect(find.bySemanticsLabel('شامل کریں'), findsOneWidget);
 
+    await revealAndTap(tester, find.byKey(const Key('settingsTile')));
     await reveal(tester, find.text('English'));
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
     expect(
-      Directionality.of(tester.element(find.byType(MoreScreen))),
+      Directionality.of(tester.element(find.byType(SettingsScreen))),
       TextDirection.ltr,
     );
+    tester.element(find.byType(SettingsScreen)).pop();
+    await tester.pumpAndSettle();
     expect(_navLabel('Home'), findsOneWidget);
   });
 
@@ -136,6 +146,7 @@ void main() {
     await pumpApp(tester);
     await tester.tap(_navLabel('More'));
     await tester.pumpAndSettle();
+    await revealAndTap(tester, find.byKey(const Key('settingsTile')));
     await reveal(tester, find.text('Dark'));
     await tester.tap(find.text('Dark'));
     await reveal(tester, find.text('اردو'));

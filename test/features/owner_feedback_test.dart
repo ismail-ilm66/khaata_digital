@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:khaata_digital/features/settings/presentation/settings_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
@@ -62,9 +63,10 @@ void main() {
       await start(t);
       expect(masked(t, const Key('netWorth')), isFalse);
 
-      // More → Hide balances: on at once, and saved.
+      // More → Settings → Hide balances: on at once, and saved.
       await t.tap(tab('More'));
       await t.pumpAndSettle();
+      await revealAndTap(t, find.byKey(const Key('settingsTile')));
       await reveal(t, find.byKey(const Key('hideBalanceTile')));
       await t.tap(
         find.descendant(
@@ -77,6 +79,8 @@ void main() {
       expect(hide().state.masked, isTrue);
 
       // A peek with the eye, then the app is closed while showing…
+      t.element(find.byType(SettingsScreen)).pop();
+      await t.pumpAndSettle();
       await t.tap(tab('Home'));
       await t.pumpAndSettle();
       await t.tap(find.byKey(const Key('hideBalance')));

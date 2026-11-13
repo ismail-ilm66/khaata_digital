@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:khaata_digital/features/settings/presentation/settings_screen.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/dates/budget_cycle.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
@@ -32,6 +34,7 @@ void main() {
     await t.pumpAndSettle();
 
     await tab(t, 'More');
+    await revealAndTap(t, find.byKey(const Key('settingsTile')));
     await revealAndTap(t, find.byKey(const Key('monthStartTile')));
     await revealAndTap(t, find.text('Last working day'));
 
@@ -50,6 +53,8 @@ void main() {
       findsOneWidget,
     );
 
+    t.element(find.byType(SettingsScreen)).pop();
+    await t.pumpAndSettle();
     await tab(t, 'Home');
     final now = DateTime.now();
     expect(find.text(payday.label(payday.idFor(now))), findsOneWidget);

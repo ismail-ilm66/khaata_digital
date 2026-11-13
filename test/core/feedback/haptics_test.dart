@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:khaata_digital/features/settings/presentation/settings_screen.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/feedback/haptics.dart';
@@ -86,6 +88,8 @@ void main() {
       await t.pumpAndSettle();
       expect(calls, ['HapticFeedbackType.selectionClick']);
 
+      // More → Settings → Haptics.
+      await revealAndTap(t, find.byKey(const Key('settingsTile')));
       await revealAndTap(t, find.byKey(const Key('hapticsTile')));
       await t.tap(
         find.descendant(
@@ -98,6 +102,8 @@ void main() {
         await t.runAsync(() => db.settingsDao.read(SettingKey.haptics)),
         'false',
       );
+      t.element(find.byType(SettingsScreen)).pop();
+      await t.pumpAndSettle();
       calls.clear();
       await t.tap(tab('Home'));
       await t.pumpAndSettle();

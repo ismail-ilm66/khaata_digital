@@ -79,6 +79,52 @@ class AppLocalizationsUr extends AppLocalizations {
   String get settingsAppearance => 'ظاہری شکل';
 
   @override
+  String get settingsTitle => 'سیٹنگز';
+
+  @override
+  String get settingsHint => 'کرنسی، پرائیویسی، تھیم، زبان';
+
+  @override
+  String get settingsMoney => 'رقم';
+
+  @override
+  String get settingsPrivacy => 'پرائیویسی';
+
+  @override
+  String get backupAndData => 'بیک اپ اور ڈیٹا';
+
+  @override
+  String get yourData => 'آپ کا ڈیٹا';
+
+  @override
+  String backedUpDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days دن پہلے بیک اپ ہوا',
+      one: 'کل بیک اپ ہوا',
+      zero: 'آج بیک اپ ہوا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetUsed(int pct) {
+    return '$pct% استعمال';
+  }
+
+  @override
+  String budgetCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count بجٹ',
+      one: '1 بجٹ',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get typeExpense => 'خرچ';
 
   @override
@@ -403,9 +449,6 @@ class AppLocalizationsUr extends AppLocalizations {
   String get yourMoney => 'آپ کا پیسہ';
 
   @override
-  String get accountsSubtitle => 'بینک، والیٹ اور نقد';
-
-  @override
   String get accountArchived => 'اکاؤنٹ آرکائیو ہو گیا';
 
   @override
@@ -450,9 +493,6 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get budgets => 'بجٹ';
-
-  @override
-  String get budgetsSubtitle => 'ہر مہینے کی حد';
 
   @override
   String get overallBudget => 'مجموعی';
@@ -515,9 +555,6 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get people => 'لوگ';
-
-  @override
-  String get peopleSubtitle => 'ادھار: کس نے کس کو دینا ہے';
 
   @override
   String get youllReceive => 'آپ کو ملنے ہیں';
@@ -619,9 +656,6 @@ class AppLocalizationsUr extends AppLocalizations {
   String get recurring => 'بار بار';
 
   @override
-  String get recurringSubtitle => 'دہرائے جانے والے بل اور ادائیگیاں';
-
-  @override
   String get noRecurring => 'ابھی کچھ نہیں دہرایا جا رہا';
 
   @override
@@ -660,9 +694,6 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get monthStartHint =>
       'آپ کا مہینہ کب شروع ہو: کوئی تاریخ یا آخری کاروباری دن';
-
-  @override
-  String get settingsGeneral => 'عمومی';
 
   @override
   String get periodDay => 'دن';
@@ -802,16 +833,7 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String get settingsData => 'ڈیٹا';
-
-  @override
   String get exportEverything => 'سب کچھ برآمد کریں';
-
-  @override
-  String get backupTitle => 'بیک اپ اور بحالی';
-
-  @override
-  String get backupTileHint => 'اپنا ریکارڈ فون اور ڈرائیو میں محفوظ رکھیں';
 
   @override
   String get lastBackup => 'آخری بیک اپ';
@@ -1358,9 +1380,6 @@ class AppLocalizationsUr extends AppLocalizations {
   String get toPay => 'ادا کرنا ہے';
 
   @override
-  String get toPaySubtitle => 'صدقہ، بل اور وعدے جو ابھی ادا کرنے ہیں';
-
-  @override
   String get toPayEmptyTitle => 'کچھ ادا کرنا باقی نہیں';
 
   @override
@@ -1469,9 +1488,6 @@ class AppLocalizationsUr extends AppLocalizations {
   String get howToUse => 'خرچہ کیسے استعمال کریں';
 
   @override
-  String get howToUseHint => 'مین اسکرین کا مختصر تعارف';
-
-  @override
   String tourProgress(int step, int total) {
     return '$total میں سے $step';
   }
@@ -1529,10 +1545,6 @@ class AppLocalizationsUr extends AppLocalizations {
   String get categories => 'کیٹیگریز';
 
   @override
-  String get categoriesHint =>
-      'شامل کریں، نام بدلیں، ترتیب دیں یا آرکائیو کریں';
-
-  @override
   String get addCategory => 'کیٹیگری شامل کریں';
 
   @override
@@ -1557,9 +1569,6 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get about => 'تعارف';
-
-  @override
-  String get aboutHint => 'ورژن، نیا کیا ہے اور رابطہ';
 
   @override
   String version(String version) {

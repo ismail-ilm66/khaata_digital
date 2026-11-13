@@ -1,33 +1,33 @@
-import '../../onboarding/presentation/home_tour.dart';
-import '../../../core/region/country.dart';
-import 'country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/dates/budget_cycle.dart';
+import '../../../core/dates/calendar_day.dart';
+import '../../../core/di/injection.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
-import '../../../core/widgets/app_sheet.dart';
+import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/page_scaffold.dart';
 import '../../../core/widgets/section.dart';
-import '../../../core/widgets/segmented_picker.dart';
 import '../../../core/widgets/surface_card.dart';
-import '../../import_export/presentation/export_sheet.dart';
-import 'cubit/locale_cubit.dart';
+import '../../../core/widgets/watch.dart';
+import '../../accounts/domain/account.dart';
+import '../../backup/data/backup_service.dart';
+import '../../backup/domain/backup.dart';
+import '../../backup/presentation/backup_health.dart';
+import '../../budgets/domain/budget.dart';
+import '../../budgets/presentation/budget_bar.dart';
+import '../../onboarding/presentation/home_tour.dart';
+import '../../people/domain/person.dart';
+import '../../recurring/domain/recurring_rule.dart';
+import '../../to_pay/domain/planned_payment.dart';
 import 'cubit/preference_cubits.dart';
-import 'cubit/theme_cubit.dart';
-import 'month_start_label.dart';
-import '../../../core/widgets/app_icons.dart';
-import '../../../core/di/injection.dart';
-import '../../../core/widgets/app_switch.dart';
-import '../../security/presentation/lock_cubit.dart';
-import '../../../core/money/currency.dart';
-import '../../security/presentation/reveal_balances.dart';
 
-/// More/Settings tab (spec 3.2 #10). Accounts and appearance for now; the
-/// rest of the settings land with their milestones.
+/// More tab: what you look after — your money and its backups — and one
+/// way into Settings. Each row says on the right what's worth knowing now:
+/// how many, how much of the budget is used, what's overdue, when the last
+/// backup left the phone.
 class MoreScreen extends StatelessWidget {
   const MoreScreen({super.key});
 
@@ -49,253 +49,83 @@ class MoreScreen extends StatelessWidget {
                       key: const Key('accountsTile'),
                       icon: AppIcons.accounts.filled,
                       title: l10n.accounts,
-                      subtitle: l10n.accountsSubtitle,
+                      trailing: _Count(
+                        () => getIt<AccountsRepository>().watchOverview().map(
+                          (o) => o.accounts.length,
+                        ),
+                      ),
                       onTap: () => context.push(Routes.accounts),
                     ),
                     SettingTile(
                       key: const Key('budgetsTile'),
                       icon: AppIcons.budgets.filled,
                       title: l10n.budgets,
-                      subtitle: l10n.budgetsSubtitle,
+                      trailing: const _BudgetUsed(),
                       onTap: () => context.push(Routes.budgets),
                     ),
                     SettingTile(
                       key: const Key('peopleTile'),
                       icon: AppIcons.people.filled,
                       title: l10n.people,
-                      subtitle: l10n.peopleSubtitle,
+                      trailing: _Count(
+                        () => getIt<PeopleRepository>().watchOverview().map(
+                          (o) => o.people.length,
+                        ),
+                      ),
                       onTap: () => context.push(Routes.people),
-                    ),
-                    SettingTile(
-                      key: const Key('categoriesTile'),
-                      icon: AppIcons.tag,
-                      title: l10n.categories,
-                      subtitle: l10n.categoriesHint,
-                      onTap: () => context.push(Routes.categories),
                     ),
                     SettingTile(
                       key: const Key('toPayTile'),
                       icon: AppIcons.toPay.filled,
                       title: l10n.toPay,
-                      subtitle: l10n.toPaySubtitle,
+                      trailing: const _ToPayDue(),
                       onTap: () => context.push(Routes.toPay),
                     ),
                     SettingTile(
                       key: const Key('recurringTile'),
                       icon: AppIcons.recurring.filled,
                       title: l10n.recurring,
-                      subtitle: l10n.recurringSubtitle,
+                      trailing: _Count(
+                        () => getIt<RecurringRepository>().watchAll().map(
+                          (rules) => rules.length,
+                        ),
+                      ),
                       onTap: () => context.push(Routes.recurring),
                     ),
-                  ],
-                ),
-              ),
-              Section(
-                title: l10n.settingsData,
-                child: SurfaceCard(
-                  children: [
                     SettingTile(
-                      key: const Key('backupTile'),
-                      icon: AppIcons.backup.filled,
-                      title: l10n.backupTitle,
-                      subtitle: l10n.backupTileHint,
-                      onTap: () => context.push(Routes.backup),
-                    ),
-                    SettingTile(
-                      key: const Key('importTile'),
-                      icon: AppIcons.importFile,
-                      title: l10n.importTile,
-                      subtitle: l10n.importTileHint,
-                      onTap: () => context.push(Routes.importData),
-                    ),
-                    SettingTile(
-                      key: const Key('exportTile'),
-                      icon: AppIcons.download,
-                      title: l10n.exportEverything,
-                      subtitle: l10n.exportAllSubtitle,
-                      onTap: () => showExportSheet(context),
-                    ),
-                  ],
-                ),
-              ),
-              Section(
-                title: l10n.settingsGeneral,
-                child: SurfaceCard(
-                  children: [
-                    BlocBuilder<CurrencyCubit, Currency>(
-                      builder: (context, currency) => SettingTile(
-                        key: const Key('currencyTile'),
-                        icon: AppIcons.accounts.filled,
-                        title: l10n.homeCurrency,
-                        subtitle: l10n.homeCurrencyHint,
-                        trailing: Text(
-                          currency.code,
-                          style: context.text.titleSmall,
-                        ),
-                        onTap: () async {
-                          final c = await pickOne<Currency>(
-                            context,
-                            title: l10n.homeCurrency,
-                            selected: currency,
-                            items: [
-                              for (final c in Currency.known)
-                                PickItem(
-                                  value: c,
-                                  title: c.code,
-                                  subtitle: c.symbol == c.code
-                                      ? null
-                                      : c.symbol,
-                                ),
-                            ],
-                          );
-                          if (c != null && context.mounted) {
-                            await context.read<CurrencyCubit>().set(c);
-                          }
-                        },
-                      ),
-                    ),
-                    BlocBuilder<CountryCubit, Country>(
-                      builder: (context, country) => SettingTile(
-                        key: const Key('countryTile'),
-                        icon: AppIcons.globe,
-                        title: l10n.country,
-                        subtitle: l10n.countryHint,
-                        trailing: CountryFlag(country),
-                        onTap: () async {
-                          final c = await pickCountry(context, country);
-                          if (c != null && context.mounted) {
-                            await context.read<CountryCubit>().set(c);
-                          }
-                        },
-                      ),
-                    ),
-                    BlocBuilder<HideBalanceCubit, BalancePrivacy>(
-                      builder: (context, privacy) => SettingTile(
-                        key: const Key('hideBalanceTile'),
-                        icon: AppIcons.hide,
-                        title: l10n.hideBalances,
-                        subtitle: l10n.hideBalancesHint,
-                        trailing: AppSwitch(
-                          value: privacy.always,
-                          onChanged: (on) => setHideBalances(context, on),
-                        ),
-                      ),
-                    ),
-                    BlocBuilder<LockCubit, AppLockState>(
-                      bloc: getIt<LockCubit>(),
-                      builder: (context, lock) => SettingTile(
-                        key: const Key('appLockTile'),
-                        icon: AppIcons.lock,
-                        title: l10n.appLock,
-                        subtitle: l10n.appLockHint,
-                        trailing: Text(
-                          lock.enabled ? l10n.on : l10n.off,
-                          style: context.text.titleSmall,
-                        ),
-                        onTap: () => context.push(Routes.appLock),
-                      ),
-                    ),
-                    BlocBuilder<HapticsCubit, bool>(
-                      bloc: getIt<HapticsCubit>(),
-                      builder: (context, on) => SettingTile(
-                        key: const Key('hapticsTile'),
-                        icon: AppIcons.haptics,
-                        title: l10n.haptics,
-                        subtitle: l10n.hapticsHint,
-                        trailing: AppSwitch(
-                          value: on,
-                          onChanged: getIt<HapticsCubit>().set,
-                        ),
-                      ),
-                    ),
-                    BlocBuilder<BudgetCycleCubit, BudgetCycle>(
-                      builder: (context, cycle) => SettingTile(
-                        key: const Key('monthStartTile'),
-                        icon: AppIcons.monthStart.filled,
-                        title: l10n.monthStart,
-                        subtitle: l10n.monthStartHint,
-                        trailing: Text(
-                          monthStartLabel(context, cycle),
-                          style: context.text.titleSmall,
-                        ),
-                        onTap: () async {
-                          final chosen = await pickOne<BudgetCycle>(
-                            context,
-                            searchable: false,
-                            title: l10n.monthStart,
-                            selected: cycle,
-                            items: [
-                              for (final c in BudgetCycle.choices)
-                                PickItem(
-                                  value: c,
-                                  title: monthStartLabel(context, c),
-                                ),
-                            ],
-                          );
-                          if (chosen != null && context.mounted) {
-                            await context.read<BudgetCycleCubit>().set(chosen);
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Section(
-                title: l10n.settingsAppearance,
-                child: SurfaceCard(
-                  children: [
-                    SettingTile(
-                      icon: AppIcons.theme.filled,
-                      title: l10n.settingsTheme,
-                      control: BlocBuilder<ThemeCubit, ThemeMode>(
-                        builder: (context, mode) => SegmentedPicker<ThemeMode>(
-                          key: const Key('themeSelector'),
-                          value: mode,
-                          onChanged: context.read<ThemeCubit>().set,
-                          options: [
-                            PickerOption(ThemeMode.system, l10n.themeSystem),
-                            PickerOption(ThemeMode.light, l10n.themeLight),
-                            PickerOption(ThemeMode.dark, l10n.themeDark),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SettingTile(
-                      icon: AppIcons.language.filled,
-                      title: l10n.settingsLanguage,
-                      control: BlocBuilder<LocaleCubit, Locale>(
-                        builder: (context, locale) => SegmentedPicker<Locale>(
-                          key: const Key('languageSelector'),
-                          value: locale,
-                          onChanged: context.read<LocaleCubit>().set,
-                          options: [
-                            PickerOption(
-                              LocaleCubit.english,
-                              l10n.languageEnglish,
-                            ),
-                            PickerOption(LocaleCubit.urdu, l10n.languageUrdu),
-                          ],
-                        ),
-                      ),
+                      key: const Key('categoriesTile'),
+                      icon: AppIcons.tag,
+                      title: l10n.categories,
+                      onTap: () => context.push(Routes.categories),
                     ),
                   ],
                 ),
               ),
               SurfaceCard(
                 children: [
+                  const _BackupTile(),
+                  SettingTile(
+                    key: const Key('settingsTile'),
+                    icon: AppIcons.theme.filled,
+                    title: l10n.settingsTitle,
+                    subtitle: l10n.settingsHint,
+                    onTap: () => context.push(Routes.settings),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              SurfaceCard(
+                children: [
                   SettingTile(
                     key: const Key('tourTile'),
                     icon: AppIcons.guide,
                     title: l10n.howToUse,
-                    subtitle: l10n.howToUseHint,
                     onTap: () => replayHomeTour(context),
                   ),
                   SettingTile(
                     key: const Key('aboutTile'),
                     icon: AppIcons.shield,
                     title: l10n.about,
-                    subtitle: l10n.aboutHint,
                     onTap: () => context.push(Routes.about),
                   ),
                 ],
@@ -304,6 +134,130 @@ class MoreScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// A row's value on the right: quiet, or [color] when it needs a look.
+class _Value extends StatelessWidget {
+  const _Value(this.text, {this.color});
+
+  final String text;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: context.text.bodyMedium!.copyWith(
+      color: color ?? context.colors.inkMuted,
+      fontWeight: FontWeight.w600,
+    ),
+  );
+}
+
+/// How many there are; nothing at zero (or until the count arrives).
+class _Count extends StatelessWidget {
+  const _Count(this.source);
+
+  final Stream<int> Function() source;
+
+  @override
+  Widget build(BuildContext context) => Watch<int>(
+    source,
+    builder: (context, n) =>
+        n == null || n == 0 ? const SizedBox.shrink() : _Value('$n'),
+  );
+}
+
+/// This month's overall budget, "55% used" (amber near the limit, red
+/// over it); with category budgets only, how many there are.
+class _BudgetUsed extends StatelessWidget {
+  const _BudgetUsed();
+
+  @override
+  Widget build(BuildContext context) {
+    final cycle = context.watch<BudgetCycleCubit>().state;
+    final currency = context.watch<CurrencyCubit>().state;
+    final id = cycle.idFor(DateTime.now());
+    return Watch<BudgetOverview>(
+      () => getIt<BudgetsRepository>().watch(id, cycle, currency),
+      sourceKey: (cycle, currency, id),
+      builder: (context, o) {
+        final l = context.l10n;
+        if (o == null || o.isEmpty) return const SizedBox.shrink();
+        final overall = o.overall;
+        if (overall == null) return _Value(l.budgetCount(o.lines.length));
+        return _Value(
+          l.budgetUsed((overall.permille / 10).round()),
+          color: overall.status == BudgetStatus.onTrack
+              ? null
+              : overall.status.color(context.colors),
+        );
+      },
+    );
+  }
+}
+
+/// What's still to pay: "1 overdue" in red, or how many are open.
+class _ToPayDue extends StatelessWidget {
+  const _ToPayDue();
+
+  @override
+  Widget build(BuildContext context) => Watch<List<PlannedPayment>>(
+    getIt<ToPayRepository>().watchOpen,
+    builder: (context, open) {
+      if (open == null || open.isEmpty) return const SizedBox.shrink();
+      final today = CalendarDay.of(DateTime.now());
+      final late = open
+          .where((p) => p.statusOn(today) == DueStatus.overdue)
+          .length;
+      return late == 0
+          ? _Value('${open.length}')
+          : _Value(
+              context.l10n.overdueCount(late),
+              color: context.colors.danger,
+            );
+    },
+  );
+}
+
+/// The latest backup that left the phone. Wrapped so "not loaded yet"
+/// (null) and "never" (`last` null) stay distinct.
+typedef _LastBackup = ({BackupRecord? last});
+
+/// Backup & data (backups, import, export): when the last backup left the
+/// phone, in amber once that's [backupQuietDays] ago or never.
+class _BackupTile extends StatelessWidget {
+  const _BackupTile();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    return Watch<_LastBackup>(
+      () => getIt<BackupService>()
+          .watchLast(offDevice: true)
+          .map((last) => (last: last)),
+      builder: (context, status) {
+        final last = status?.last;
+        final days = last == null
+            ? null
+            : DateTime.now().toUtc().difference(last.createdAt).inDays;
+        return SettingTile(
+          key: const Key('backupTile'),
+          icon: AppIcons.backup.filled,
+          title: l.backupAndData,
+          subtitle: status == null
+              ? null
+              : days == null
+              ? l.noBackupYet
+              : l.backedUpDays(days),
+          subtitleColor:
+              status != null && (days == null || days >= backupQuietDays)
+              ? context.colors.warning
+              : null,
+          onTap: () => context.push(Routes.backup),
+        );
+      },
     );
   }
 }

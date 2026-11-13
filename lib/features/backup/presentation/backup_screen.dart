@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../import_export/presentation/export_sheet.dart';
 
 import 'dart:io';
 
@@ -150,7 +151,7 @@ class _BackupViewState extends State<_BackupView> {
               )
             : null;
         return PageScaffold(
-          title: l.backupTitle,
+          title: l.backupAndData,
           slivers: [
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
@@ -270,6 +271,28 @@ class _BackupViewState extends State<_BackupView> {
                           title: l.restoreFromDevice,
                           subtitle: l.restoreFromDeviceHint,
                           onTap: _restoreFromDevice,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Moving data in and out, beside keeping it safe.
+                  Section(
+                    title: l.yourData,
+                    child: SurfaceCard(
+                      children: [
+                        SettingTile(
+                          key: const Key('importTile'),
+                          icon: AppIcons.importFile,
+                          title: l.importTile,
+                          subtitle: l.importTileHint,
+                          onTap: () => context.push(Routes.importData),
+                        ),
+                        SettingTile(
+                          key: const Key('exportTile'),
+                          icon: AppIcons.download,
+                          title: l.exportEverything,
+                          subtitle: l.exportAllSubtitle,
+                          onTap: () => showExportSheet(context),
                         ),
                       ],
                     ),

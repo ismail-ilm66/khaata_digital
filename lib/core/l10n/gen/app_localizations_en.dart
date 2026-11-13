@@ -81,6 +81,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsAppearance => 'Appearance';
 
   @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsHint => 'Currency, privacy, theme, language';
+
+  @override
+  String get settingsMoney => 'Money';
+
+  @override
+  String get settingsPrivacy => 'Privacy';
+
+  @override
+  String get backupAndData => 'Backup & data';
+
+  @override
+  String get yourData => 'Your data';
+
+  @override
+  String backedUpDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Backed up $days days ago',
+      one: 'Backed up yesterday',
+      zero: 'Backed up today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String budgetUsed(int pct) {
+    return '$pct% used';
+  }
+
+  @override
+  String budgetCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count budgets',
+      one: '1 budget',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get typeExpense => 'Expense';
 
   @override
@@ -406,9 +452,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get yourMoney => 'Your money';
 
   @override
-  String get accountsSubtitle => 'Banks, wallets and cash';
-
-  @override
   String get accountArchived => 'Account archived';
 
   @override
@@ -453,9 +496,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get budgets => 'Budgets';
-
-  @override
-  String get budgetsSubtitle => 'Limits for each month';
 
   @override
   String get overallBudget => 'Overall';
@@ -518,9 +558,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get people => 'People';
-
-  @override
-  String get peopleSubtitle => 'Udhaar: who owes whom';
 
   @override
   String get youllReceive => 'You\'ll receive';
@@ -621,9 +658,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurring => 'Recurring';
 
   @override
-  String get recurringSubtitle => 'Bills and payments that repeat';
-
-  @override
   String get noRecurring => 'Nothing repeating yet';
 
   @override
@@ -663,9 +697,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get monthStartHint =>
       'When your month begins: a date, or the last working day';
-
-  @override
-  String get settingsGeneral => 'General';
 
   @override
   String get periodDay => 'Day';
@@ -805,17 +836,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settingsData => 'Data';
-
-  @override
   String get exportEverything => 'Export everything';
-
-  @override
-  String get backupTitle => 'Backup & restore';
-
-  @override
-  String get backupTileHint =>
-      'Keep your records safe on your phone and in your Drive';
 
   @override
   String get lastBackup => 'Last backup';
@@ -1365,10 +1386,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toPay => 'To pay';
 
   @override
-  String get toPaySubtitle =>
-      'Charity, bills and promises you still have to pay';
-
-  @override
   String get toPayEmptyTitle => 'Nothing to pay';
 
   @override
@@ -1477,9 +1494,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get howToUse => 'How to use Kharcha';
 
   @override
-  String get howToUseHint => 'A quick tour of the main screen';
-
-  @override
   String tourProgress(int step, int total) {
     return '$step of $total';
   }
@@ -1537,9 +1551,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categories => 'Categories';
 
   @override
-  String get categoriesHint => 'Add, rename, reorder or archive';
-
-  @override
   String get addCategory => 'Add category';
 
   @override
@@ -1564,9 +1575,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get about => 'About';
-
-  @override
-  String get aboutHint => 'Version, what\'s new and contact';
 
   @override
   String version(String version) {

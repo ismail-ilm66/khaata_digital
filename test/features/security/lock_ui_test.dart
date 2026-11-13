@@ -53,6 +53,7 @@ void main() {
       ),
     );
     await t.pumpAndSettle();
+    await revealAndTap(t, find.byKey(const Key('settingsTile')));
     await revealAndTap(t, find.byKey(const Key('appLockTile')));
     await t.tap(find.byKey(const Key('turnOnLock')));
     await t.pumpAndSettle();
@@ -138,6 +139,7 @@ void main() {
       ),
     );
     await t.pumpAndSettle();
+    await revealAndTap(t, find.byKey(const Key('settingsTile')));
     await revealAndTap(t, find.byKey(const Key('appLockTile')));
     await t.tap(find.byKey(const Key('turnOnLock')));
     await t.pumpAndSettle();

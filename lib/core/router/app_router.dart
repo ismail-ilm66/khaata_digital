@@ -13,6 +13,7 @@ import '../../features/people/presentation/person_screen.dart';
 import '../../features/recurring/presentation/recurring_screen.dart';
 import '../../features/reports/presentation/reports_screen.dart';
 import '../../features/settings/presentation/more_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/transactions/presentation/entries_screen.dart';
 import '../../features/transactions/presentation/entry_detail_screen.dart';
 import '../../features/transactions/presentation/form/entry_editor_screen.dart';
@@ -142,6 +143,10 @@ GoRouter createRouter({String initialLocation = Routes.home}) {
       GoRoute(
         path: Routes.about,
         builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: Routes.settings,
+        builder: (context, state) => const SettingsScreen(),
       ),
       GoRoute(
         path: Routes.categories,

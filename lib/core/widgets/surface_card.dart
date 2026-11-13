@@ -46,7 +46,7 @@ class SurfaceCard extends StatelessWidget {
 /// A row inside a [SurfaceCard]: tinted icon badge (or any [leading]),
 /// title, optional subtitle and trailing widget; with [control], a
 /// full-width control sits underneath. Tappable when [onTap] is given
-/// (shows a chevron).
+/// (shows a chevron, after the trailing value if there is one).
 class SettingTile extends StatelessWidget {
   const SettingTile({
     super.key,
@@ -96,8 +96,11 @@ class SettingTile extends StatelessWidget {
           ),
         ),
         ?trailing,
-        if (onTap != null && trailing == null)
+        // Tappable rows say so, value or not ("4 ›", "PKR ›").
+        if (onTap != null) ...[
+          if (trailing != null) const SizedBox(width: AppSpacing.xs),
           DirectionalIcon(AppIcons.chevronRight, size: 16, color: c.inkMuted),
+        ],
       ],
     );
     final content = control == null

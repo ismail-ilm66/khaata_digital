@@ -33,9 +33,6 @@ class NeedsAttention extends StatelessWidget {
   final HomeState state;
   final bool masked;
 
-  /// Ask for a backup when none has left the phone in this many days.
-  static const int quietDays = 14;
-
   /// At most this many budget rows; the Budgets screen has the rest.
   static const int budgetsShown = 3;
 
@@ -75,7 +72,7 @@ class NeedsAttention extends StatelessWidget {
     final days = last == null
         ? null
         : DateTime.now().toUtc().difference(last.createdAt).inDays;
-    if (days != null && days < quietDays) return null;
+    if (days != null && days < backupQuietDays) return null;
     return SettingTile(
       key: const Key('backupNudge'),
       leading: TintedBadge(

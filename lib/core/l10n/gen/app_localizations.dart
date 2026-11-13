@@ -236,6 +236,60 @@ abstract class AppLocalizations {
   /// **'Appearance'**
   String get settingsAppearance;
 
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency, privacy, theme, language'**
+  String get settingsHint;
+
+  /// No description provided for @settingsMoney.
+  ///
+  /// In en, this message translates to:
+  /// **'Money'**
+  String get settingsMoney;
+
+  /// No description provided for @settingsPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsPrivacy;
+
+  /// No description provided for @backupAndData.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup & data'**
+  String get backupAndData;
+
+  /// No description provided for @yourData.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get yourData;
+
+  /// No description provided for @backedUpDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Backed up today} =1{Backed up yesterday} other{Backed up {days} days ago}}'**
+  String backedUpDays(int days);
+
+  /// No description provided for @budgetUsed.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% used'**
+  String budgetUsed(int pct);
+
+  /// No description provided for @budgetCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 budget} other{{count} budgets}}'**
+  String budgetCount(int count);
+
   /// No description provided for @typeExpense.
   ///
   /// In en, this message translates to:
@@ -866,12 +920,6 @@ abstract class AppLocalizations {
   /// **'Your money'**
   String get yourMoney;
 
-  /// No description provided for @accountsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Banks, wallets and cash'**
-  String get accountsSubtitle;
-
   /// No description provided for @accountArchived.
   ///
   /// In en, this message translates to:
@@ -931,12 +979,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Budgets'**
   String get budgets;
-
-  /// No description provided for @budgetsSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Limits for each month'**
-  String get budgetsSubtitle;
 
   /// No description provided for @overallBudget.
   ///
@@ -1033,12 +1075,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'People'**
   String get people;
-
-  /// No description provided for @peopleSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Udhaar: who owes whom'**
-  String get peopleSubtitle;
 
   /// No description provided for @youllReceive.
   ///
@@ -1232,12 +1268,6 @@ abstract class AppLocalizations {
   /// **'Recurring'**
   String get recurring;
 
-  /// No description provided for @recurringSubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Bills and payments that repeat'**
-  String get recurringSubtitle;
-
   /// No description provided for @noRecurring.
   ///
   /// In en, this message translates to:
@@ -1303,12 +1333,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'When your month begins: a date, or the last working day'**
   String get monthStartHint;
-
-  /// No description provided for @settingsGeneral.
-  ///
-  /// In en, this message translates to:
-  /// **'General'**
-  String get settingsGeneral;
 
   /// No description provided for @periodDay.
   ///
@@ -1550,29 +1574,11 @@ abstract class AppLocalizations {
   /// **'{percent}% of total'**
   String ofTotal(int percent);
 
-  /// No description provided for @settingsData.
-  ///
-  /// In en, this message translates to:
-  /// **'Data'**
-  String get settingsData;
-
   /// No description provided for @exportEverything.
   ///
   /// In en, this message translates to:
   /// **'Export everything'**
   String get exportEverything;
-
-  /// No description provided for @backupTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Backup & restore'**
-  String get backupTitle;
-
-  /// No description provided for @backupTileHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Keep your records safe on your phone and in your Drive'**
-  String get backupTileHint;
 
   /// No description provided for @lastBackup.
   ///
@@ -2492,12 +2498,6 @@ abstract class AppLocalizations {
   /// **'To pay'**
   String get toPay;
 
-  /// No description provided for @toPaySubtitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Charity, bills and promises you still have to pay'**
-  String get toPaySubtitle;
-
   /// No description provided for @toPayEmptyTitle.
   ///
   /// In en, this message translates to:
@@ -2696,12 +2696,6 @@ abstract class AppLocalizations {
   /// **'How to use Kharcha'**
   String get howToUse;
 
-  /// No description provided for @howToUseHint.
-  ///
-  /// In en, this message translates to:
-  /// **'A quick tour of the main screen'**
-  String get howToUseHint;
-
   /// No description provided for @tourProgress.
   ///
   /// In en, this message translates to:
@@ -2798,12 +2792,6 @@ abstract class AppLocalizations {
   /// **'Categories'**
   String get categories;
 
-  /// No description provided for @categoriesHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Add, rename, reorder or archive'**
-  String get categoriesHint;
-
   /// No description provided for @addCategory.
   ///
   /// In en, this message translates to:
@@ -2851,12 +2839,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'About'**
   String get about;
-
-  /// No description provided for @aboutHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Version, what\'s new and contact'**
-  String get aboutHint;
 
   /// No description provided for @version.
   ///

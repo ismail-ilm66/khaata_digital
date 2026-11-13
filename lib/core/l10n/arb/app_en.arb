@@ -23,6 +23,18 @@
   "reportsEmpty": "Charts for any date range, with your full history.",
   "addEmpty": "Log an expense in three taps.",
   "settingsAppearance": "Appearance",
+  "settingsTitle": "Settings",
+  "settingsHint": "Currency, privacy, theme, language",
+  "settingsMoney": "Money",
+  "settingsPrivacy": "Privacy",
+  "backupAndData": "Backup & data",
+  "yourData": "Your data",
+  "backedUpDays": "{days, plural, =0{Backed up today} =1{Backed up yesterday} other{Backed up {days} days ago}}",
+  "@backedUpDays": {"placeholders": {"days": {"type": "int"}}},
+  "budgetUsed": "{pct}% used",
+  "@budgetUsed": {"placeholders": {"pct": {"type": "int"}}},
+  "budgetCount": "{count, plural, =1{1 budget} other{{count} budgets}}",
+  "@budgetCount": {"placeholders": {"count": {"type": "int"}}},
   "typeExpense": "Expense",
   "typeIncome": "Income",
   "typeTransfer": "Transfer",
@@ -130,7 +142,6 @@
   "hideBalances": "Hide balances",
   "showBalances": "Show balances",
   "yourMoney": "Your money",
-  "accountsSubtitle": "Banks, wallets and cash",
   "accountArchived": "Account archived",
   "@rateLabel": {
     "placeholders": {
@@ -175,7 +186,6 @@
     }
   },
   "budgets": "Budgets",
-  "budgetsSubtitle": "Limits for each month",
   "overallBudget": "Overall",
   "overallBudgetHint": "Everything you spend this month",
   "addBudget": "Add budget",
@@ -192,7 +202,6 @@
   "previousCycle": "Previous month",
   "nextCycle": "Next month",
   "people": "People",
-  "peopleSubtitle": "Udhaar: who owes whom",
   "youllReceive": "You'll receive",
   "youOwe": "You owe",
   "addPerson": "Add person",
@@ -225,7 +234,6 @@
   "remindMe": "Remind me",
   "remindMeHint": "A notification on the due date",
   "recurring": "Recurring",
-  "recurringSubtitle": "Bills and payments that repeat",
   "noRecurring": "Nothing repeating yet",
   "noRecurringBody": "When adding an entry, tap Repeat to make it recur.",
   "nextOn": "Next: {date}",
@@ -237,7 +245,6 @@
   "monthStart": "Month starts on",
   "monthStartDay": "Day {day}",
   "monthStartHint": "When your month begins: a date, or the last working day",
-  "settingsGeneral": "General",
   "@copiedBudgets": {
     "placeholders": {
       "count": {
@@ -350,10 +357,7 @@
       }
     }
   },
-  "settingsData": "Data",
   "exportEverything": "Export everything",
-  "backupTitle": "Backup & restore",
-  "backupTileHint": "Keep your records safe on your phone and in your Drive",
   "lastBackup": "Last backup",
   "lastBackupAt": "{date} · {place}",
   "@lastBackupAt": {
@@ -617,7 +621,6 @@
   "mostUsedFirstOff": "Your own order: drag the handles to arrange",
   "yourOrder": "Your order",
   "toPay": "To pay",
-  "toPaySubtitle": "Charity, bills and promises you still have to pay",
   "toPayEmptyTitle": "Nothing to pay",
   "toPayEmptyBody": "Add what you still have to pay, like charity, a bill or money you promised, so it doesn't slip your mind.",
   "toPayAllDone": "All paid. Nothing left on the list.",
@@ -654,7 +657,6 @@
   "extrasLock": "Lock Kharcha with a PIN",
   "extrasLockHint": "Or your fingerprint or face",
   "howToUse": "How to use Kharcha",
-  "howToUseHint": "A quick tour of the main screen",
   "tourProgress": "{step} of {total}",
   "@tourProgress": {"placeholders": {"step": {"type": "int"}, "total": {"type": "int"}}},
   "tourAddTitle": "Add an entry",
@@ -672,7 +674,6 @@
   "next": "Next",
   "startUsing": "Start using Kharcha",
   "categories": "Categories",
-  "categoriesHint": "Add, rename, reorder or archive",
   "addCategory": "Add category",
   "editCategory": "Edit category",
   "categoryName": "Name",
@@ -688,7 +689,6 @@
   },
   "noCategories": "No categories here yet",
   "about": "About",
-  "aboutHint": "Version, what's new and contact",
   "version": "Version {version}",
   "@version": {
     "placeholders": {
