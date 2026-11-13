@@ -43,23 +43,32 @@ class SurfaceCard extends StatelessWidget {
   }
 }
 
-/// A row inside a [SurfaceCard]: tinted icon badge, title, optional
-/// subtitle and trailing widget; with [control], a full-width control sits
-/// underneath. Tappable when [onTap] is given (shows a chevron).
+/// A row inside a [SurfaceCard]: tinted icon badge (or any [leading]),
+/// title, optional subtitle and trailing widget; with [control], a
+/// full-width control sits underneath. Tappable when [onTap] is given
+/// (shows a chevron).
 class SettingTile extends StatelessWidget {
   const SettingTile({
     super.key,
-    required this.icon,
+    this.icon,
+    this.leading,
     required this.title,
     this.subtitle,
+    this.subtitleColor,
     this.trailing,
     this.control,
     this.onTap,
-  });
+  }) : assert(icon != null || leading != null, 'needs an icon or leading');
 
-  final IconData icon;
+  final IconData? icon;
+
+  /// In place of the icon badge (a category or account badge, size 32).
+  final Widget? leading;
   final String title;
   final String? subtitle;
+
+  /// For a subtitle that carries status (overdue, over budget).
+  final Color? subtitleColor;
   final Widget? trailing;
 
   /// Full-width control shown under the title (e.g. a [SegmentedPicker]).
@@ -71,7 +80,7 @@ class SettingTile extends StatelessWidget {
     final c = context.colors;
     final row = Row(
       children: [
-        TintedBadge(icon: icon, size: 32),
+        leading ?? TintedBadge(icon: icon, size: 32),
         const SizedBox(width: AppSpacing.m),
         Expanded(
           child: Column(
@@ -79,7 +88,10 @@ class SettingTile extends StatelessWidget {
             children: [
               Text(title, style: context.text.titleSmall),
               if (subtitle != null)
-                Text(subtitle!, style: context.text.bodySmall),
+                Text(
+                  subtitle!,
+                  style: context.text.bodySmall!.copyWith(color: subtitleColor),
+                ),
             ],
           ),
         ),

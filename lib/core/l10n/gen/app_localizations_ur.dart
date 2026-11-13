@@ -324,29 +324,29 @@ class AppLocalizationsUr extends AppLocalizations {
   String get spent => 'خرچ';
 
   @override
-  String get left => 'باقی';
+  String get spentThisMonth => 'اس مہینے کا خرچ';
+
+  @override
+  String spentIn(String period) {
+    return 'خرچ · $period';
+  }
 
   @override
   String get gotIt => 'ٹھیک ہے';
 
   @override
-  String get leftInfoTitle => '“باقی” کا مطلب';
-
-  @override
-  String get leftInfoBody =>
-      'باقی اس مہینے کی آمدنی میں سے آپ کا خرچ نکال کر بنتا ہے۔ یہ آپ کے اکاؤنٹس میں موجود رقم نہیں۔\n\nلوگوں کو دیا یا ان سے واپس ملا ادھار، اور اپنے اکاؤنٹس کے درمیان منتقلی، آمدنی یا خرچ نہیں، اس لیے یہاں شامل نہیں۔ البتہ ان سے اکاؤنٹس کا بیلنس بدلتا ہے۔\n\nکل مالیت وہ ہے جو اس وقت آپ کے اکاؤنٹس میں ہے، پچھلے مہینوں سمیت، اس لیے دونوں مختلف ہو سکتے ہیں۔';
-
-  @override
-  String get moneyInAndOut => 'آمدنی اور خرچ';
-
-  @override
   String get recent => 'حالیہ';
 
   @override
-  String get seeAll => 'سب دیکھیں';
+  String get needsAttention => 'توجہ طلب';
 
   @override
-  String get manage => 'انتظام';
+  String overdueCount(int count) {
+    return '$count کی تاریخ گزر گئی';
+  }
+
+  @override
+  String get seeAll => 'سب دیکھیں';
 
   @override
   String get hideBalances => 'بیلنس چھپائیں';
@@ -417,6 +417,9 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get addBudget => 'بجٹ شامل کریں';
+
+  @override
+  String get setBudget => 'بجٹ مقرر کریں';
 
   @override
   String get editBudget => 'بجٹ میں ترمیم';
@@ -1397,11 +1400,11 @@ class AppLocalizationsUr extends AppLocalizations {
       '+ دبائیں اور خرچ، آمدنی، اپنے اکاؤنٹس کے درمیان منتقلی، یا دیا اور واپس ملا ادھار لکھیں۔';
 
   @override
-  String get tourNetWorthTitle => 'آپ کی رقم ایک نظر میں';
+  String get tourSummaryTitle => 'آپ کا مہینہ ایک نظر میں';
 
   @override
-  String get tourNetWorthBody =>
-      'کل مالیت اس وقت آپ کے تمام اکاؤنٹس کی کل رقم ہے۔';
+  String get tourSummaryBody =>
+      'اس مہینے کا خرچ اور، بجٹ ہو تو، باقی رقم۔ کسی رقم پر ٹیپ کر کے اس کے اندراجات دیکھیں۔';
 
   @override
   String get tourEyeTitle => 'رقم چھپائیں یا دکھائیں';
@@ -1411,18 +1414,11 @@ class AppLocalizationsUr extends AppLocalizations {
       'آنکھ والا بٹن دبا کر بیلنس دوسروں سے چھپائیں۔ ہمیشہ چھپا کر کھولنے کے لیے \"مزید\" میں \"بیلنس چھپائیں\" آن کریں۔';
 
   @override
-  String get tourMonthTitle => 'اس مہینے';
-
-  @override
-  String get tourMonthBody =>
-      'کھولیں اور اس مہینے کی آمدنی، خرچ اور باقی رقم دیکھیں۔ کسی بھی رقم پر ٹیپ کر کے اس کے اندراجات دیکھیں۔';
-
-  @override
   String get tourAccountsTitle => 'آپ کے اکاؤنٹس';
 
   @override
   String get tourAccountsBody =>
-      'کیش، بینک اور والیٹ اپنے بیلنس کے ساتھ۔ نیا شامل کرنے یا بدلنے کے لیے \"انتظام\" دبائیں۔';
+      'کیش، بینک اور والیٹ اپنے بیلنس کے ساتھ۔ نیا شامل کرنے یا بدلنے کے لیے \"اکاؤنٹس\" دبائیں۔';
 
   @override
   String get tourTransactionsBody =>

@@ -4,6 +4,7 @@ import 'package:khaata_digital/features/categories/data/categories_repository_im
 import 'package:khaata_digital/features/settings/data/settings_repository_impl.dart';
 import 'package:khaata_digital/features/transactions/data/transactions_repository_impl.dart';
 
+import 'package:khaata_digital/features/backup/data/backup_service.dart';
 import 'package:khaata_digital/features/budgets/data/budgets_repository_impl.dart';
 import 'package:khaata_digital/features/home/presentation/home_cubit.dart';
 import 'package:khaata_digital/features/people/data/people_repository_impl.dart';
@@ -58,6 +59,8 @@ class TestRepos {
         transactions,
         budgets,
         people,
+        toPay,
+        BackupService(db, testReceiptStore()),
         cycle,
         currency ?? CurrencyCubit(settings),
       );

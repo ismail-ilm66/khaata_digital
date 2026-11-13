@@ -331,8 +331,6 @@ void main() {
 
   testWidgets('screenshots', (t) async {
     await boot(t);
-    await t.tap(find.byKey(const Key('summaryToggle')));
-    await t.pumpAndSettle();
     await compose(
       t,
       '1_home',

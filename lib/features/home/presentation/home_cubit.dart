@@ -6,12 +6,19 @@ import 'package:injectable/injectable.dart';
 
 import '../../../core/dates/budget_cycle.dart';
 import '../../accounts/domain/account.dart';
+import '../../backup/data/backup_service.dart';
+import '../../backup/domain/backup.dart';
 import '../../budgets/domain/budget.dart';
 import '../../people/domain/person.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
+import '../../to_pay/domain/planned_payment.dart';
 import '../../transactions/domain/entry_query.dart';
 import '../../transactions/domain/ledger_entry.dart';
 import '../../transactions/domain/transactions_repository.dart';
+
+/// The latest off-phone backup. Wrapped so "not loaded yet" (null) and
+/// "no backup ever" (`last` null) stay distinct.
+typedef BackupStatus = ({BackupRecord? last});
 
 class HomeState extends Equatable {
   const HomeState({
@@ -20,6 +27,8 @@ class HomeState extends Equatable {
     this.recent,
     this.budgets,
     this.people,
+    this.toPay,
+    this.backup,
     this.cycle,
     this.current,
   });
@@ -31,6 +40,10 @@ class HomeState extends Equatable {
   final List<EntryView>? recent;
   final BudgetOverview? budgets;
   final PeopleOverview? people;
+
+  /// What's still to pay, soonest first.
+  final List<PlannedPayment>? toPay;
+  final BackupStatus? backup;
 
   /// The cycle shown, and the one "now" is in.
   final CycleId? cycle;
@@ -44,7 +57,9 @@ class HomeState extends Equatable {
       totals == null ||
       recent == null ||
       budgets == null ||
-      people == null;
+      people == null ||
+      toPay == null ||
+      backup == null;
 
   HomeState copyWith({
     AccountsOverview? overview,
@@ -52,6 +67,8 @@ class HomeState extends Equatable {
     List<EntryView>? recent,
     BudgetOverview? budgets,
     PeopleOverview? people,
+    List<PlannedPayment>? toPay,
+    BackupStatus? backup,
     CycleId? cycle,
     CycleId? current,
   }) => HomeState(
@@ -60,6 +77,8 @@ class HomeState extends Equatable {
     recent: recent ?? this.recent,
     budgets: budgets ?? this.budgets,
     people: people ?? this.people,
+    toPay: toPay ?? this.toPay,
+    backup: backup ?? this.backup,
     cycle: cycle ?? this.cycle,
     current: current ?? this.current,
   );
@@ -71,13 +90,17 @@ class HomeState extends Equatable {
     recent,
     budgets,
     people,
+    toPay,
+    backup,
     cycle,
     current,
   ];
 }
 
-/// Home dashboard (spec 3.2 #2): net worth, this cycle, budgets, accounts,
-/// udhaar, recent. Follows the month-start setting via [BudgetCycleCubit].
+/// Home dashboard (spec 3.2 #2): this cycle's spending against its budget,
+/// net worth, accounts, what needs attention (backup, budgets, to pay,
+/// udhaar) and recent entries. Follows the month-start setting via
+/// [BudgetCycleCubit].
 @injectable
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit(
@@ -85,6 +108,8 @@ class HomeCubit extends Cubit<HomeState> {
     this._transactions,
     this._budgets,
     this._people,
+    this._toPay,
+    this._backups,
     this._cycle,
     this._currency,
   ) : super(const HomeState());
@@ -93,6 +118,8 @@ class HomeCubit extends Cubit<HomeState> {
   final TransactionsRepository _transactions;
   final BudgetsRepository _budgets;
   final PeopleRepository _people;
+  final ToPayRepository _toPay;
+  final BackupService _backups;
   final BudgetCycleCubit _cycle;
   final CurrencyCubit _currency;
 
@@ -119,6 +146,12 @@ class HomeCubit extends Cubit<HomeState> {
       )
       ..add(
         _people.watchOverview().listen((p) => emit(state.copyWith(people: p))),
+      )
+      ..add(_toPay.watchOpen().listen((o) => emit(state.copyWith(toPay: o))))
+      ..add(
+        _backups
+            .watchLast(offDevice: true)
+            .listen((b) => emit(state.copyWith(backup: (last: b)))),
       )
       ..add(_cycle.stream.listen((c) => _showCurrent(c, now())))
       // Budgets are read in the home currency: follow it when it changes.

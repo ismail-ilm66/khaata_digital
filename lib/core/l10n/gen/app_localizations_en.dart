@@ -326,29 +326,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get spent => 'Spent';
 
   @override
-  String get left => 'Left';
+  String get spentThisMonth => 'Spent this month';
+
+  @override
+  String spentIn(String period) {
+    return 'Spent · $period';
+  }
 
   @override
   String get gotIt => 'Got it';
 
   @override
-  String get leftInfoTitle => 'What “Left” means';
-
-  @override
-  String get leftInfoBody =>
-      'Left is this month’s income minus what you spent. It isn’t the money in your accounts.\n\nMoney you lend to people or get back, and transfers between your own accounts, aren’t income or spending, so they don’t count here. They do change your account balances.\n\nNet worth is what’s in your accounts right now, including everything from earlier months, so the two can differ.';
-
-  @override
-  String get moneyInAndOut => 'Money in & out';
-
-  @override
   String get recent => 'Recent';
 
   @override
-  String get seeAll => 'See all';
+  String get needsAttention => 'Needs attention';
 
   @override
-  String get manage => 'Manage';
+  String overdueCount(int count) {
+    return '$count overdue';
+  }
+
+  @override
+  String get seeAll => 'See all';
 
   @override
   String get hideBalances => 'Hide balances';
@@ -419,6 +419,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addBudget => 'Add budget';
+
+  @override
+  String get setBudget => 'Set a budget';
 
   @override
   String get editBudget => 'Edit budget';
@@ -1404,11 +1407,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap + to record money you spend or earn, a transfer between your accounts, or udhaar you give or get back.';
 
   @override
-  String get tourNetWorthTitle => 'Your money at a glance';
+  String get tourSummaryTitle => 'Your month at a glance';
 
   @override
-  String get tourNetWorthBody =>
-      'Net worth is the total in all your accounts right now.';
+  String get tourSummaryBody =>
+      'What you\'ve spent this month and, with a budget, what\'s left. Tap a figure to see its entries.';
 
   @override
   String get tourEyeTitle => 'Hide or show amounts';
@@ -1418,18 +1421,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap the eye to hide balances from people around you. To always open with them hidden, turn on Hide balances in More.';
 
   @override
-  String get tourMonthTitle => 'This month';
-
-  @override
-  String get tourMonthBody =>
-      'Open it to see this month\'s income, spending and what\'s left. Tap any figure to see the entries behind it.';
-
-  @override
   String get tourAccountsTitle => 'Your accounts';
 
   @override
   String get tourAccountsBody =>
-      'Cash, banks and wallets with their balances. Tap Manage to add one or change it.';
+      'Cash, banks and wallets with their balances. Tap Accounts to add one or change it.';
 
   @override
   String get tourTransactionsBody =>

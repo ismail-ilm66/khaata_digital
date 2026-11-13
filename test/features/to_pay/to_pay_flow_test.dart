@@ -73,7 +73,17 @@ void main() {
       ),
     );
     await t.pumpAndSettle();
+    // Home names it under Needs attention; the row opens the list.
     await reveal(t, find.byKey(const Key('homeToPay')));
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('homeToPay')),
+        matching: find.text('Charity'),
+      ),
+      findsOneWidget,
+    );
+    await t.tap(find.byKey(const Key('homeToPay')));
+    await t.pumpAndSettle();
     expect(find.byKey(const Key('toPay-Charity')), findsOneWidget);
 
     // Pay: the editor opens with the amount and the title as the note.
@@ -104,6 +114,8 @@ void main() {
     final paid = (await t.runAsync(() => repo().watchPaid().first))!.single;
     expect(paid.transactionId, entry.id, reason: 'linked to its entry');
     expect(await t.runAsync(() => repo().watchOpen().first), isEmpty);
+    t.element(find.byType(Scaffold).last).pop();
+    await t.pumpAndSettle();
     expect(find.byKey(const Key('homeToPay')), findsNothing, reason: 'paid');
   });
 

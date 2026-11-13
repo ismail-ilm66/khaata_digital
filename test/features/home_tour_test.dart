@@ -42,7 +42,7 @@ void main() {
       await t.pumpAndSettle();
       steps++;
     }
-    expect(steps, 8);
+    expect(steps, 7);
     expect(find.text('More'), findsWidgets);
     await t.tap(find.byKey(const Key('coachNext')));
     await t.pumpAndSettle();
@@ -103,7 +103,7 @@ void main() {
     addTearDown(t.platformDispatcher.clearTextScaleFactorTestValue);
     await t.pumpWidget(const KharchaApp());
     await t.pumpAndSettle();
-    for (var i = 0; i < 8; i++) {
+    for (var i = 0; i < 7; i++) {
       expect(callout(), findsOneWidget, reason: 'step ${i + 1}');
       expect(t.takeException(), isNull, reason: 'step ${i + 1}');
       await t.tap(find.byKey(const Key('coachNext')));

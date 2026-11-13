@@ -75,11 +75,6 @@ class BudgetLineView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n;
-    final over = line.left.isNegative;
-    final left = masked
-        ? '${line.left.currency.symbol} ${AmountText.maskedDigits}'
-        : const MoneyFormat().format(line.left.abs());
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -104,28 +99,51 @@ class BudgetLineView extends StatelessWidget {
         const SizedBox(height: AppSpacing.s),
         BudgetBar(line, height: barHeight),
         const SizedBox(height: AppSpacing.xs),
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                over ? l.budgetOver(left) : l.budgetLeft(left),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.text.bodySmall!.copyWith(
-                  color: line.status.color(context.colors),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            Text('/ ', style: context.text.bodySmall),
-            AmountText(
-              line.limit,
-              masked: masked,
-              style: context.text.bodySmall,
-            ),
-          ],
-        ),
+        BudgetLeftRow(line, masked: masked),
       ],
     );
   }
+}
+
+/// Under a [BudgetBar]: "Rs 6,000 left ······ / Rs 10,000", or "… over"
+/// in the status colour.
+class BudgetLeftRow extends StatelessWidget {
+  const BudgetLeftRow(this.line, {super.key, this.masked = false});
+
+  final BudgetLine line;
+  final bool masked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            budgetLeftLabel(context, line, masked: masked),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.text.bodySmall!.copyWith(
+              color: line.status.color(context.colors),
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Text('/ ', style: context.text.bodySmall),
+        AmountText(line.limit, masked: masked, style: context.text.bodySmall),
+      ],
+    );
+  }
+}
+
+/// "Rs 6,000 left" / "Rs 1,200 over", dots when balances are hidden.
+String budgetLeftLabel(
+  BuildContext context,
+  BudgetLine line, {
+  bool masked = false,
+}) {
+  final l = context.l10n;
+  final left = masked
+      ? '${line.left.currency.symbol} ${AmountText.maskedDigits}'
+      : const MoneyFormat().format(line.left.abs());
+  return line.left.isNegative ? l.budgetOver(left) : l.budgetLeft(left);
 }

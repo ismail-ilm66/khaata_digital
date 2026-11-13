@@ -283,16 +283,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i635.FileGateway>(),
       ),
     );
-    gh.factory<_i24.HomeCubit>(
-      () => _i24.HomeCubit(
-        gh<_i720.AccountsRepository>(),
-        gh<_i208.TransactionsRepository>(),
-        gh<_i608.BudgetsRepository>(),
-        gh<_i260.PeopleRepository>(),
-        gh<_i795.BudgetCycleCubit>(),
-        gh<_i795.CurrencyCubit>(),
-      ),
-    );
     gh.factory<_i276.CategoriesCubit>(
       () => _i276.CategoriesCubit(gh<_i420.CategoriesRepository>()),
     );
@@ -305,6 +295,18 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i556.ReportsBloc>(
       () => _i556.ReportsBloc(
         gh<_i318.ReportsRepository>(),
+        gh<_i795.BudgetCycleCubit>(),
+        gh<_i795.CurrencyCubit>(),
+      ),
+    );
+    gh.factory<_i24.HomeCubit>(
+      () => _i24.HomeCubit(
+        gh<_i720.AccountsRepository>(),
+        gh<_i208.TransactionsRepository>(),
+        gh<_i608.BudgetsRepository>(),
+        gh<_i260.PeopleRepository>(),
+        gh<_i617.ToPayRepository>(),
+        gh<_i122.BackupService>(),
         gh<_i795.BudgetCycleCubit>(),
         gh<_i795.CurrencyCubit>(),
       ),

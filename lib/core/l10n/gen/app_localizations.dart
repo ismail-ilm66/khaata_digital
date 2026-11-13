@@ -716,11 +716,17 @@ abstract class AppLocalizations {
   /// **'Spent'**
   String get spent;
 
-  /// No description provided for @left.
+  /// No description provided for @spentThisMonth.
   ///
   /// In en, this message translates to:
-  /// **'Left'**
-  String get left;
+  /// **'Spent this month'**
+  String get spentThisMonth;
+
+  /// No description provided for @spentIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Spent · {period}'**
+  String spentIn(String period);
 
   /// No description provided for @gotIt.
   ///
@@ -728,41 +734,29 @@ abstract class AppLocalizations {
   /// **'Got it'**
   String get gotIt;
 
-  /// No description provided for @leftInfoTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'What “Left” means'**
-  String get leftInfoTitle;
-
-  /// No description provided for @leftInfoBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Left is this month’s income minus what you spent. It isn’t the money in your accounts.\n\nMoney you lend to people or get back, and transfers between your own accounts, aren’t income or spending, so they don’t count here. They do change your account balances.\n\nNet worth is what’s in your accounts right now, including everything from earlier months, so the two can differ.'**
-  String get leftInfoBody;
-
-  /// No description provided for @moneyInAndOut.
-  ///
-  /// In en, this message translates to:
-  /// **'Money in & out'**
-  String get moneyInAndOut;
-
   /// No description provided for @recent.
   ///
   /// In en, this message translates to:
   /// **'Recent'**
   String get recent;
 
+  /// No description provided for @needsAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get needsAttention;
+
+  /// No description provided for @overdueCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} overdue'**
+  String overdueCount(int count);
+
   /// No description provided for @seeAll.
   ///
   /// In en, this message translates to:
   /// **'See all'**
   String get seeAll;
-
-  /// No description provided for @manage.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage'**
-  String get manage;
 
   /// No description provided for @hideBalances.
   ///
@@ -871,6 +865,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add budget'**
   String get addBudget;
+
+  /// No description provided for @setBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a budget'**
+  String get setBudget;
 
   /// No description provided for @editBudget.
   ///
@@ -2576,17 +2576,17 @@ abstract class AppLocalizations {
   /// **'Tap + to record money you spend or earn, a transfer between your accounts, or udhaar you give or get back.'**
   String get tourAddBody;
 
-  /// No description provided for @tourNetWorthTitle.
+  /// No description provided for @tourSummaryTitle.
   ///
   /// In en, this message translates to:
-  /// **'Your money at a glance'**
-  String get tourNetWorthTitle;
+  /// **'Your month at a glance'**
+  String get tourSummaryTitle;
 
-  /// No description provided for @tourNetWorthBody.
+  /// No description provided for @tourSummaryBody.
   ///
   /// In en, this message translates to:
-  /// **'Net worth is the total in all your accounts right now.'**
-  String get tourNetWorthBody;
+  /// **'What you\'ve spent this month and, with a budget, what\'s left. Tap a figure to see its entries.'**
+  String get tourSummaryBody;
 
   /// No description provided for @tourEyeTitle.
   ///
@@ -2600,18 +2600,6 @@ abstract class AppLocalizations {
   /// **'Tap the eye to hide balances from people around you. To always open with them hidden, turn on Hide balances in More.'**
   String get tourEyeBody;
 
-  /// No description provided for @tourMonthTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'This month'**
-  String get tourMonthTitle;
-
-  /// No description provided for @tourMonthBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Open it to see this month\'s income, spending and what\'s left. Tap any figure to see the entries behind it.'**
-  String get tourMonthBody;
-
   /// No description provided for @tourAccountsTitle.
   ///
   /// In en, this message translates to:
@@ -2621,7 +2609,7 @@ abstract class AppLocalizations {
   /// No description provided for @tourAccountsBody.
   ///
   /// In en, this message translates to:
-  /// **'Cash, banks and wallets with their balances. Tap Manage to add one or change it.'**
+  /// **'Cash, banks and wallets with their balances. Tap Accounts to add one or change it.'**
   String get tourAccountsBody;
 
   /// No description provided for @tourTransactionsBody.

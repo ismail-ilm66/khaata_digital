@@ -6,15 +6,21 @@ import 'package:go_router/go_router.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/di/injection.dart';
+import 'package:khaata_digital/core/money/currency.dart';
+import 'package:khaata_digital/core/money/money.dart';
 import 'package:khaata_digital/core/router/routes.dart';
 import 'package:khaata_digital/core/widgets/amount_text.dart';
 import 'package:khaata_digital/core/widgets/app_switch.dart';
 import 'package:khaata_digital/core/widgets/glass_nav_bar.dart';
+import 'package:khaata_digital/features/accounts/presentation/accounts_screen.dart';
+import 'package:khaata_digital/features/budgets/domain/budget.dart';
+import 'package:khaata_digital/features/budgets/presentation/budgets_screen.dart';
 import 'package:khaata_digital/features/people/presentation/people_screen.dart';
 import 'package:khaata_digital/features/security/domain/device_auth.dart';
 import 'package:khaata_digital/features/security/presentation/lock_cubit.dart';
 import 'package:khaata_digital/features/settings/domain/setting_key.dart';
 import 'package:khaata_digital/features/settings/presentation/cubit/preference_cubits.dart';
+import 'package:khaata_digital/features/transactions/presentation/transactions_screen.dart';
 import 'package:khaata_digital/features/transactions/presentation/widgets/entry_tile.dart';
 
 import '../helpers/fake_device_auth.dart';
@@ -78,12 +84,11 @@ void main() {
       expect(masked(t, const Key('netWorth')), isFalse);
       expect(hide().state.always, isTrue, reason: 'a peek keeps the setting');
 
-      // …and the next start is hidden again, income / spent / left too.
+      // …and the next start is hidden again, spent and income too.
       await t.runAsync(hide().load);
       await t.pumpAndSettle();
       expect(masked(t, const Key('netWorth')), isTrue);
-      await t.tap(find.byKey(const Key('summaryToggle')));
-      await t.pumpAndSettle();
+      expect(masked(t, const Key('spent')), isTrue);
       expect(
         t
             .widgetList<AmountText>(find.byType(AmountText))
@@ -179,9 +184,24 @@ void main() {
 
   testWidgets('Home: accounts sit right below the main card', (t) async {
     await start(t);
+    final card = t.getBottomLeft(find.byKey(const Key('homeNetWorth'))).dy;
     final accounts = t.getTopLeft(find.text('Accounts')).dy;
-    final budgets = t.getTopLeft(find.text('Budgets')).dy;
-    expect(accounts, lessThan(budgets));
+    final recent = t.getTopLeft(find.text('Recent')).dy;
+    expect(accounts, greaterThan(card));
+    expect(accounts, lessThan(recent));
+  });
+
+  testWidgets('Home: section titles open their screens', (t) async {
+    await t.runAsync(() => TestLedger(db).expense(cash, 5000));
+    await start(t);
+    expect(find.text('Manage'), findsNothing);
+    await t.tap(find.byKey(const Key('section-Accounts')));
+    await t.pumpAndSettle();
+    expect(find.byType(AccountsScreen), findsOneWidget);
+    t.element(find.byType(AccountsScreen)).pop();
+    await t.pumpAndSettle();
+    await revealAndTap(t, find.byKey(const Key('section-Recent')));
+    expect(find.byType(TransactionsScreen), findsOneWidget);
   });
 
   group('People tabs', () {
@@ -240,41 +260,65 @@ void main() {
   });
 
   group('Home: this month', () {
-    testWidgets('folded until the chevron is tapped', (t) async {
+    testWidgets('spending leads, open; arrows step back through months', (
+      t,
+    ) async {
       await start(t);
-      expect(find.byKey(const Key('statSpent')), findsNothing);
-      expect(find.byKey(const Key('previousPeriod')), findsNothing);
-      await t.tap(find.byKey(const Key('summaryToggle')));
-      await t.pumpAndSettle();
+      expect(find.text('Spent this month'), findsOneWidget);
       expect(find.byKey(const Key('statSpent')), findsOneWidget);
-      expect(find.byKey(const Key('previousPeriod')), findsOneWidget);
-      await t.tap(find.byKey(const Key('summaryToggle')));
+      expect(find.byKey(const Key('netWorth')), findsOneWidget);
+      expect(find.byKey(const Key('needsAttention')), findsNothing);
+      expect(find.byKey(const Key('homeSetBudget')), findsOneWidget);
+      expect(find.byKey(const Key('homeBudgets')), findsNothing);
+
+      await t.tap(find.byKey(const Key('previousPeriod')));
       await t.pumpAndSettle();
-      expect(find.byKey(const Key('statSpent')), findsNothing);
+      expect(find.textContaining('Spent · '), findsOneWidget);
+      await t.tap(find.byKey(const Key('nextPeriod')));
+      await t.pumpAndSettle();
+      expect(find.text('Spent this month'), findsOneWidget);
     });
 
-    testWidgets('Left has an ⓘ explaining it is not money in accounts', (
-      t,
-    ) async {
+    testWidgets('an overall budget shows its bar; a full category needs '
+        'attention', (t) async {
+      final now = DateTime.now();
+      await t.runAsync(() async {
+        final id = getIt<BudgetCycleCubit>().state.idFor(now);
+        final food = (await db.categoriesDao.active())
+            .firstWhere((c) => c.name == 'Food & Drink')
+            .id;
+        final budgets = getIt<BudgetsRepository>();
+        await budgets.set(id, Money.major(10000, Currency.pkr));
+        await budgets.set(
+          id,
+          Money.major(1000, Currency.pkr),
+          categoryId: food,
+        );
+        await TestLedger(
+          db,
+        ).expense(cash, 90000, categoryId: food, at: now.toUtc());
+      });
       await start(t);
-      await t.tap(find.byKey(const Key('summaryToggle')));
-      await t.pumpAndSettle();
-      await t.tap(find.byKey(const Key('info-Left')));
-      await t.pumpAndSettle();
-      expect(find.text('What “Left” means'), findsOneWidget);
+      // Amounts keep "Rs" and the number together with a no-break space.
       expect(
-        find.textContaining('isn’t the money in your accounts'),
+        find.text('Rs\u00a09,100 left'),
         findsOneWidget,
+        reason: 'overall',
       );
-      expect(find.byType(EntryTile), findsNothing, reason: 'ⓘ, not the list');
-      await t.tap(find.byKey(const Key('infoDone')));
+      expect(find.byKey(const Key('homeBudgets')), findsOneWidget);
+      expect(find.byKey(const Key('homeSetBudget')), findsNothing);
+      await reveal(t, find.byKey(const Key('attentionBudget-Food & Drink')));
+      expect(
+        find.text('Rs\u00a0100 left'),
+        findsOneWidget,
+        reason: '90 % used',
+      );
+      await t.tap(find.byKey(const Key('attentionBudget-Food & Drink')));
       await t.pumpAndSettle();
-      expect(find.text('What “Left” means'), findsNothing);
+      expect(find.byType(BudgetsScreen), findsOneWidget);
     });
 
-    testWidgets('Spent / Income / Left open the entries behind them', (
-      t,
-    ) async {
+    testWidgets('Spent / Income open the entries behind them', (t) async {
       final now = DateTime.now().toUtc();
       await t.runAsync(() async {
         final l = TestLedger(db);
@@ -293,8 +337,6 @@ void main() {
         );
       });
       await start(t);
-      await t.tap(find.byKey(const Key('summaryToggle')));
-      await t.pumpAndSettle();
 
       Future<int> rowsFor(Key stat) async {
         await t.tap(find.byKey(stat));
@@ -313,7 +355,6 @@ void main() {
             'nothing from another month',
       );
       expect(await rowsFor(const Key('statIncome')), 1);
-      expect(await rowsFor(const Key('statLeft')), 2);
     });
   });
 

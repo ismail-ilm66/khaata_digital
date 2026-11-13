@@ -1,31 +1,30 @@
-import '../../to_pay/presentation/to_pay_home.dart';
-import '../../accounts/presentation/ordered_accounts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../onboarding/presentation/home_tour.dart';
-import '../../backup/presentation/backup_nudge.dart';
+import '../../../core/app_refresh.dart';
 import '../../../core/di/injection.dart';
+import '../../../core/feedback/haptics.dart';
 import '../../../core/money/money.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
-import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/amount_text.dart';
 import '../../../core/widgets/app_icons.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/hero_card.dart';
-import '../../../core/widgets/pressable.dart';
 import '../../../core/widgets/page_scaffold.dart';
+import '../../../core/widgets/period_navigator.dart';
+import '../../../core/widgets/pressable.dart';
 import '../../../core/widgets/section.dart';
 import '../../../core/widgets/surface_card.dart';
 import '../../accounts/domain/account.dart';
 import '../../accounts/presentation/account_badge.dart';
 import '../../accounts/presentation/accounts_screen.dart';
-import '../../budgets/domain/budget.dart';
+import '../../accounts/presentation/ordered_accounts.dart';
 import '../../budgets/presentation/budget_bar.dart';
-import '../../people/presentation/people_screen.dart';
+import '../../onboarding/presentation/home_tour.dart';
+import '../../security/presentation/reveal_balances.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../transactions/domain/entry_query.dart';
 import '../../transactions/domain/transaction_type.dart';
@@ -33,12 +32,10 @@ import '../../transactions/presentation/entries_screen.dart';
 import '../../transactions/presentation/form/entry_editor_screen.dart';
 import '../../transactions/presentation/widgets/entry_tile.dart';
 import 'home_cubit.dart';
-import '../../../core/feedback/haptics.dart';
-import '../../../core/app_refresh.dart';
-import '../../../core/widgets/period_navigator.dart';
-import '../../security/presentation/reveal_balances.dart';
+import 'needs_attention.dart';
 
-/// Home (spec 3.2 #2). Budgets and Udhaar cards join in M3.
+/// Home (spec 3.2 #2): the month's spending, accounts, what needs
+/// attention, recent entries.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -78,7 +75,9 @@ class _HomeView extends StatelessWidget {
           ? l.greetingAfternoon
           : l.greetingEvening,
       // The current month's dates (they follow the month-start setting).
-      subtitle: s.cycle == null ? null : cycle.label(s.cycle!, locale: locale),
+      subtitle: s.current == null
+          ? null
+          : cycle.label(s.current!, locale: locale),
       onRefresh: () async {
         Haptics.selection();
         await getIt<AppRefresh>().recurring();
@@ -93,58 +92,24 @@ class _HomeView extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
             sliver: SliverList.list(
               children: [
-                KeyedSubtree(
-                  key: TourTargets.netWorth,
-                  child: _SummaryCard(state: s, masked: masked),
-                ),
-                BackupNudge(hasData: s.recent?.isNotEmpty ?? false),
+                _SummaryCard(state: s, masked: masked),
                 const SizedBox(height: AppSpacing.xl),
                 Section(
                   key: TourTargets.accounts,
                   title: l.accounts,
-                  trailing: TextButton(
-                    onPressed: () => context.push(Routes.accounts),
-                    child: Text(l.manage),
-                  ),
+                  onTap: () => context.push(Routes.accounts),
                   child: OrderedAccounts(
                     accounts: s.overview!.accounts,
                     builder: (context, accounts) =>
                         _AccountsCarousel(accounts: accounts, masked: masked),
                   ),
                 ),
-                Section(
-                  title: l.budgets,
-                  trailing: TextButton(
-                    onPressed: () => context.push(Routes.budgets),
-                    child: Text(l.manage),
-                  ),
-                  child: _BudgetsCard(overview: s.budgets!),
-                ),
-                Section(
-                  title: l.people,
-                  trailing: TextButton(
-                    onPressed: () =>
-                        context.push(Routes.peopleTab(PeopleTab.receive.name)),
-                    child: Text(l.manage),
-                  ),
-                  child: UdhaarTotals(
-                    overview: s.people!,
-                    masked: masked,
-                    onReceivable: () =>
-                        context.push(Routes.peopleTab(PeopleTab.receive.name)),
-                    onPayable: () =>
-                        context.push(Routes.peopleTab(PeopleTab.owe.name)),
-                  ),
-                ),
-                const ToPayHomeSection(),
+                NeedsAttention(state: s, masked: masked),
                 Section(
                   title: l.recent,
-                  trailing: s.recent!.isEmpty
+                  onTap: s.recent!.isEmpty
                       ? null
-                      : TextButton(
-                          onPressed: () => context.go(Routes.transactions),
-                          child: Text(l.seeAll),
-                        ),
+                      : () => context.go(Routes.transactions),
                   child: s.recent!.isEmpty
                       ? SurfaceCard(
                           children: [
@@ -179,30 +144,20 @@ class _HomeView extends StatelessWidget {
   }
 }
 
-/// Net worth (the headline) and, folded away until opened, this cycle's
-/// income / spent / left — each opening the entries behind it.
-class _SummaryCard extends StatefulWidget {
+/// The month at a glance. Spent is the headline; under it, the overall
+/// budget's bar and what's left of it, or income when there's no budget.
+/// Net worth closes the card. Every figure opens what's behind it, and the
+/// arrows step through earlier cycles.
+class _SummaryCard extends StatelessWidget {
   const _SummaryCard({required this.state, required this.masked});
 
   final HomeState state;
   final bool masked;
 
-  @override
-  State<_SummaryCard> createState() => _SummaryCardState();
-}
-
-class _SummaryCardState extends State<_SummaryCard> {
-  bool _open = false;
-
-  void _toggle() {
-    Haptics.selection();
-    setState(() => _open = !_open);
-  }
-
   /// The cycle's entries of [types], udhaar left out to match the totals.
-  void _show(String title, Set<TransactionType> types) {
+  void _show(BuildContext context, String title, Set<TransactionType> types) {
     final cycle = context.read<BudgetCycleCubit>().state;
-    final id = widget.state.cycle!;
+    final id = state.cycle!;
     context.push(
       Routes.entries,
       extra: EntriesArgs(
@@ -222,12 +177,13 @@ class _SummaryCardState extends State<_SummaryCard> {
 
   @override
   Widget build(BuildContext context) {
-    final state = widget.state;
-    final masked = widget.masked;
     final l = context.l10n;
     final currency = context.watch<CurrencyCubit>().state;
+    final cycle = context.watch<BudgetCycleCubit>().state;
     final income = state.totals!.incomeIn(currency);
     final spent = state.totals!.expenseIn(currency);
+    final budgets = state.budgets!;
+    final overall = budgets.overall;
     final net = state.overview!.netWorth;
     final others = [
       for (final e in net.entries)
@@ -235,131 +191,155 @@ class _SummaryCardState extends State<_SummaryCard> {
     ];
 
     return HeroCard(
-      // Read colours and text styles under the card, where they're white.
+      // Read colours and text styles under the card (white on the green).
       child: Builder(
         builder: (context) {
           final c = context.colors;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                l.netWorth,
-                style: context.text.bodyMedium!.copyWith(color: c.inkMuted),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              AmountText(
-                net[currency] ?? Money.zero(currency),
-                key: const Key('netWorth'),
-                masked: masked,
-                animated: true,
-                style: context.text.displayMedium,
-              ),
-              for (final m in others)
-                AmountText(
-                  m,
-                  masked: masked,
-                  style: context.text.titleMedium!.copyWith(color: c.inkMuted),
-                ),
-              const SizedBox(height: AppSpacing.l),
-              Divider(color: c.line),
-              const SizedBox(height: AppSpacing.xs),
+              // The tour's "your month" step: the headline, which fits a
+              // small phone where the whole card wouldn't.
               KeyedSubtree(
-                key: TourTargets.thisMonth,
-                child: InkWell(
-                  key: const Key('summaryToggle'),
-                  onTap: _toggle,
-                  borderRadius: BorderRadius.circular(AppRadii.s),
-                  child: PeriodNavigator(
-                    dense: true,
-                    label: state.isCurrent
-                        ? l.thisCycle
-                        : context.watch<BudgetCycleCubit>().state.label(
-                            state.cycle!,
-                            locale: Localizations.localeOf(
-                              context,
-                            ).toLanguageTag(),
-                          ),
-                    previousTooltip: l.previousPeriod,
-                    nextTooltip: l.nextPeriod,
-                    onPrevious: _open
-                        ? () => context.read<HomeCubit>().step(-1)
-                        : null,
-                    onNext: !_open || state.isCurrent
-                        ? null
-                        : () => context.read<HomeCubit>().step(1),
-                    trailing: AnimatedRotation(
-                      turns: _open ? 0.5 : 0,
-                      duration: AppMotion.of(context, AppMotion.base),
-                      curve: AppMotion.out,
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.s),
-                        child: Icon(
-                          AppIcons.chevronDown,
-                          size: 16,
-                          color: c.inkMuted,
-                        ),
+                key: TourTargets.summary,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    PeriodNavigator(
+                      dense: true,
+                      label: state.isCurrent
+                          ? l.spentThisMonth
+                          : l.spentIn(
+                              cycle.label(
+                                state.cycle!,
+                                locale: Localizations.localeOf(
+                                  context,
+                                ).toLanguageTag(),
+                              ),
+                            ),
+                      previousTooltip: l.previousPeriod,
+                      nextTooltip: l.nextPeriod,
+                      onPrevious: () => context.read<HomeCubit>().step(-1),
+                      onNext: state.isCurrent
+                          ? null
+                          : () => context.read<HomeCubit>().step(1),
+                    ),
+                    _Figure(
+                      key: const Key('statSpent'),
+                      onTap: () =>
+                          _show(context, l.spent, {TransactionType.expense}),
+                      child: AmountText(
+                        spent,
+                        key: const Key('spent'),
+                        masked: masked,
+                        animated: true,
+                        style: context.text.displayMedium,
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-              AnimatedSize(
-                duration: AppMotion.of(context, AppMotion.base),
-                curve: AppMotion.out,
-                alignment: AlignmentDirectional.topStart,
-                child: !_open
-                    ? const SizedBox(width: double.infinity)
-                    : Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.s),
-                        child: StatRow(
+              const SizedBox(height: AppSpacing.m),
+              if (overall != null)
+                _Figure(
+                  key: const Key('homeBudgets'),
+                  onTap: () => context.push(Routes.budgets),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      BudgetBar(overall),
+                      const SizedBox(height: AppSpacing.xs),
+                      BudgetLeftRow(overall, masked: masked),
+                    ],
+                  ),
+                )
+              else
+                // One line when it fits; on a narrow phone with large text
+                // the budget link drops below.
+                SizedBox(
+                  width: double.infinity,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: AppSpacing.m,
+                    children: [
+                      _Figure(
+                        key: const Key('statIncome'),
+                        onTap: () =>
+                            _show(context, l.income, {TransactionType.income}),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            StatTile(
-                              key: const Key('statIncome'),
-                              label: l.income,
-                              onTap: () =>
-                                  _show(l.income, {TransactionType.income}),
-                              value: AmountText(
-                                income,
-                                signed: true,
-                                colored: true,
-                                masked: masked,
-                                style: context.text.titleMedium,
-                              ),
-                            ),
-                            StatTile(
-                              key: const Key('statSpent'),
-                              label: l.spent,
-                              onTap: () =>
-                                  _show(l.spent, {TransactionType.expense}),
-                              value: AmountText(
-                                spent,
-                                masked: masked,
-                                style: context.text.titleMedium,
-                              ),
-                            ),
-                            StatTile(
-                              key: const Key('statLeft'),
-                              label: l.left,
-                              infoLabel: l.leftInfoTitle,
-                              onInfo: () => infoSheet(
-                                context,
-                                title: l.leftInfoTitle,
-                                message: l.leftInfoBody,
-                                doneLabel: l.gotIt,
-                              ),
-                              onTap: () => _show(l.moneyInAndOut, {
-                                TransactionType.income,
-                                TransactionType.expense,
-                              }),
-                              value: AmountText(
-                                income - spent,
-                                masked: masked,
-                                style: context.text.titleMedium,
+                            Text(l.income, style: context.text.bodySmall),
+                            const SizedBox(width: AppSpacing.s),
+                            // A huge figure shrinks rather than overflowing.
+                            Flexible(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: AmountText(
+                                  income,
+                                  signed: true,
+                                  colored: true,
+                                  masked: masked,
+                                  style: context.text.titleSmall,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
+                      // Only with no budget at all: a category budget is a
+                      // budget too.
+                      if (budgets.isEmpty)
+                        _Figure(
+                          key: const Key('homeSetBudget'),
+                          onTap: () => context.push(Routes.budgets),
+                          child: Text(
+                            l.setBudget,
+                            style: context.text.labelLarge!.copyWith(
+                              color: c.ink,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              const SizedBox(height: AppSpacing.l),
+              Divider(color: c.line),
+              _Figure(
+                key: const Key('homeNetWorth'),
+                onTap: () => context.push(Routes.accounts),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l.netWorth,
+                        style: context.text.bodyMedium!.copyWith(
+                          color: c.inkMuted,
+                        ),
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        AmountText(
+                          net[currency] ?? Money.zero(currency),
+                          key: const Key('netWorth'),
+                          masked: masked,
+                          animated: true,
+                          style: context.text.titleMedium,
+                        ),
+                        for (final m in others)
+                          AmountText(
+                            m,
+                            masked: masked,
+                            style: context.text.bodySmall,
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           );
@@ -367,6 +347,24 @@ class _SummaryCardState extends State<_SummaryCard> {
       ),
     );
   }
+}
+
+/// A figure on the summary card that opens what's behind it.
+class _Figure extends StatelessWidget {
+  const _Figure({super.key, required this.onTap, required this.child});
+
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+    onTap: onTap,
+    borderRadius: BorderRadius.circular(AppRadii.s),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: child,
+    ),
+  );
 }
 
 class _AccountsCarousel extends StatelessWidget {
@@ -463,64 +461,6 @@ class _AccountsCarousel extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-/// Budgets at a glance: the overall bar plus the three fullest categories.
-class _BudgetsCard extends StatelessWidget {
-  const _BudgetsCard({required this.overview});
-
-  final BudgetOverview overview;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = context.l10n;
-    if (overview.isEmpty) {
-      return SurfaceCard(
-        children: [
-          SettingTile(
-            key: const Key('homeSetBudget'),
-            icon: AppIcons.budgets.filled,
-            title: l.addBudget,
-            subtitle: l.noBudgetsBody,
-            onTap: () => context.push(Routes.budgets),
-          ),
-        ],
-      );
-    }
-    Widget row(String name, BudgetLine line) => BudgetLineView(
-      name: name,
-      line: line,
-      masked: context.watch<HideBalanceCubit>().state.masked,
-    );
-    return Pressable(
-      scale: 0.98,
-      child: Material(
-        color: context.colors.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadii.l),
-          side: BorderSide(color: context.colors.line.withValues(alpha: 0.6)),
-        ),
-        child: InkWell(
-          key: const Key('homeBudgets'),
-          borderRadius: BorderRadius.circular(AppRadii.l),
-          onTap: () => context.push(Routes.budgets),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.l),
-            child: Column(
-              children: [
-                if (overview.overall case final overall?)
-                  row(l.overallBudget, overall),
-                for (final line in overview.lines.take(3)) ...[
-                  const SizedBox(height: AppSpacing.l),
-                  row(line.category!.name, line),
-                ],
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

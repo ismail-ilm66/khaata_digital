@@ -37,6 +37,9 @@ class HeroCard extends StatelessWidget {
       ink: white,
       inkMuted: muted,
       income: const Color(0xFFB4F2CF),
+      // Pale enough to read on the green (a budget bar near or over).
+      warning: const Color(0xFFFFD98A),
+      danger: const Color(0xFFFFB3A6),
       brand: white,
       line: white.withValues(alpha: 0.18),
       surfaceMuted: white.withValues(alpha: 0.12),

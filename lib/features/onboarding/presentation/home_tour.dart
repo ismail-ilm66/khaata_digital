@@ -12,9 +12,8 @@ import '../../settings/domain/settings_repository.dart';
 /// What the how-to tour points at, attached by Home and the tab bar.
 abstract final class TourTargets {
   static final add = GlobalKey(debugLabel: 'tour-add');
-  static final netWorth = GlobalKey(debugLabel: 'tour-net-worth');
+  static final summary = GlobalKey(debugLabel: 'tour-summary');
   static final eye = GlobalKey(debugLabel: 'tour-eye');
-  static final thisMonth = GlobalKey(debugLabel: 'tour-this-month');
   static final accounts = GlobalKey(debugLabel: 'tour-accounts');
 
   /// Home, Transactions, Reports, More.
@@ -38,11 +37,11 @@ Future<void> maybeStartHomeTour(BuildContext context) async {
 Future<void> replayHomeTour(BuildContext context) async {
   context.go(Routes.home);
   // Wait for Home to be laid out with its data.
-  for (var i = 0; i < 60 && TourTargets.netWorth.currentContext == null; i++) {
+  for (var i = 0; i < 60 && TourTargets.summary.currentContext == null; i++) {
     await WidgetsBinding.instance.endOfFrame;
     await Future<void>.delayed(const Duration(milliseconds: 16));
   }
-  final home = TourTargets.netWorth.currentContext;
+  final home = TourTargets.summary.currentContext;
   if (home != null && home.mounted) await startHomeTour(home);
 }
 
@@ -66,19 +65,14 @@ Future<void> startHomeTour(BuildContext context) async {
           body: l.tourAddBody,
         ),
         CoachStep(
-          target: TourTargets.netWorth,
-          title: l.tourNetWorthTitle,
-          body: l.tourNetWorthBody,
+          target: TourTargets.summary,
+          title: l.tourSummaryTitle,
+          body: l.tourSummaryBody,
         ),
         CoachStep(
           target: TourTargets.eye,
           title: l.tourEyeTitle,
           body: l.tourEyeBody,
-        ),
-        CoachStep(
-          target: TourTargets.thisMonth,
-          title: l.tourMonthTitle,
-          body: l.tourMonthBody,
         ),
         CoachStep(
           target: TourTargets.accounts,
