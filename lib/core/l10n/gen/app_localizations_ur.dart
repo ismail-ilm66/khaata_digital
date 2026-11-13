@@ -130,6 +130,24 @@ class AppLocalizationsUr extends AppLocalizations {
   String get toAccount => 'کو';
 
   @override
+  String get paidFrom => 'کس اکاؤنٹ سے';
+
+  @override
+  String get receivedIn => 'کس اکاؤنٹ میں';
+
+  @override
+  String get whenLabel => 'کب';
+
+  @override
+  String get otherDay => 'کوئی اور';
+
+  @override
+  String get pickDay => 'دن چنیں';
+
+  @override
+  String get addMore => 'مزید شامل کریں';
+
+  @override
   String get date => 'تاریخ';
 
   @override

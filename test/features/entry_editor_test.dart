@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:khaata_digital/app.dart';
 import 'package:khaata_digital/core/db/app_database.dart';
 import 'package:khaata_digital/core/di/injection.dart';
@@ -18,6 +19,7 @@ import 'package:khaata_digital/features/transactions/domain/transactions_reposit
 
 import '../helpers/test_app.dart';
 import '../helpers/test_db.dart';
+import '../helpers/ui.dart';
 
 /// The add / edit screen: the phone's number pad for the amount, account
 /// chips instead of a picker sheet, and the note typed in place.
@@ -96,16 +98,37 @@ void main() {
     expect((await t.runAsync(entries))!, isEmpty);
   });
 
-  testWidgets('Save stays reachable above the keyboard', (t) async {
+  testWidgets('Save waits under the keyboard; a tap anywhere puts it away', (
+    t,
+  ) async {
     await openAdd(t);
+    bool typing() =>
+        FocusManager.instance.primaryFocus?.context
+            ?.findAncestorWidgetOfExactType<EditableText>() !=
+        null;
+    expect(typing(), isTrue, reason: 'a new entry opens typing');
+
+    // A tap on a plain label (nothing to press there) puts it away.
+    await t.tap(find.text('Paid from'));
+    await t.pumpAndSettle();
+    expect(typing(), isFalse);
+
     await t.enterText(amount(), '700');
     await t.tap(find.byKey(const Key('account-Cash')));
     await t.tap(find.byKey(const Key('category-Food & Drink')));
     t.view.viewInsets = const FakeViewPadding(bottom: 291 * 3);
     addTearDown(t.view.resetViewInsets);
     await t.pumpAndSettle();
+    expect(
+      find.byKey(const Key('saveEntry')),
+      findsNothing,
+      reason: 'not riding on top of the keyboard',
+    );
+
+    t.view.resetViewInsets();
+    await t.pumpAndSettle();
     final save = t.getRect(find.byKey(const Key('saveEntry')));
-    expect(save.bottom, lessThanOrEqualTo(640 - 291));
+    expect(save.bottom, greaterThan(640 - 80), reason: 'back at the bottom');
     await t.tap(find.byKey(const Key('saveEntry')));
     await t.pumpAndSettle();
     expect((await t.runAsync(entries))!.single.entry.amount.minor, 70000);
@@ -232,5 +255,51 @@ void main() {
     await t.pumpAndSettle();
     expect(editable(t, amount()).focusNode.hasFocus, isFalse);
     expect(find.text('2,520'), findsOneWidget);
+  });
+
+  testWidgets('Yesterday in one tap keeps the time; Other and the time '
+      'open one picker each', (t) async {
+    await openAdd(t);
+    await t.enterText(amount(), '700');
+    await t.tap(find.byKey(const Key('account-Cash')));
+    await t.tap(find.byKey(const Key('category-Grocery')));
+    FocusManager.instance.primaryFocus?.unfocus();
+    await t.pumpAndSettle();
+    String time() => t
+        .widget<Text>(
+          find.descendant(
+            of: find.byKey(const Key('timeChip')),
+            matching: find.byType(Text),
+          ),
+        )
+        .data!;
+    final before = time();
+
+    // Other: the calendar only, no clock after it. Cancel keeps the day.
+    await revealAndTap(t, find.byKey(const Key('dateChip')));
+    expect(find.byType(DatePickerDialog), findsOneWidget);
+    await t.tap(find.text('Cancel'));
+    await t.pumpAndSettle();
+    expect(find.byType(TimePickerDialog), findsNothing);
+
+    // The time: the clock only.
+    await revealAndTap(t, find.byKey(const Key('timeChip')));
+    expect(find.byType(TimePickerDialog), findsOneWidget);
+    expect(find.byType(DatePickerDialog), findsNothing);
+    await t.tap(find.text('Cancel'));
+    await t.pumpAndSettle();
+
+    await revealAndTap(t, find.byKey(const Key('dayYesterday')));
+    expect(time(), before, reason: 'the time is kept');
+    await t.tap(find.byKey(const Key('saveEntry')));
+    await t.pumpAndSettle();
+
+    final at = (await t.runAsync(entries))!.single.entry.occurredAt.toLocal();
+    final now = DateTime.now();
+    expect(
+      DateUtils.dateOnly(at),
+      DateUtils.addDaysToDate(DateUtils.dateOnly(now), -1),
+    );
+    expect(DateFormat.jm('en').format(at), before, reason: 'same time');
   });
 }

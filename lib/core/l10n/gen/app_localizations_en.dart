@@ -132,6 +132,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toAccount => 'To';
 
   @override
+  String get paidFrom => 'Paid from';
+
+  @override
+  String get receivedIn => 'Received in';
+
+  @override
+  String get whenLabel => 'When';
+
+  @override
+  String get otherDay => 'Other';
+
+  @override
+  String get pickDay => 'Pick a day';
+
+  @override
+  String get addMore => 'Add more';
+
+  @override
   String get date => 'Date';
 
   @override

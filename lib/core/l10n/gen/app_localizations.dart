@@ -338,6 +338,42 @@ abstract class AppLocalizations {
   /// **'To'**
   String get toAccount;
 
+  /// No description provided for @paidFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from'**
+  String get paidFrom;
+
+  /// No description provided for @receivedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Received in'**
+  String get receivedIn;
+
+  /// No description provided for @whenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'When'**
+  String get whenLabel;
+
+  /// No description provided for @otherDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get otherDay;
+
+  /// No description provided for @pickDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a day'**
+  String get pickDay;
+
+  /// No description provided for @addMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Add more'**
+  String get addMore;
+
   /// No description provided for @date.
   ///
   /// In en, this message translates to:

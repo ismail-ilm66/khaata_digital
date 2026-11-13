@@ -19,9 +19,19 @@ extension DateLabels on BuildContext {
     return pattern.format(day);
   }
 
+  /// "25 Sep" ("25 Sep 2025" when not this year).
+  String shortDate(DateTime local, {DateTime? now}) {
+    final thisYear = local.year == (now ?? DateTime.now()).year;
+    return (thisYear ? DateFormat.MMMd(_locale) : DateFormat.yMMMd(_locale))
+        .format(local);
+  }
+
+  /// "2:30 PM".
+  String timeLabel(DateTime local) => DateFormat.jm(_locale).format(local);
+
   /// "Today, 2:30 PM" / "Fri, 25 Sep, 2:30 PM".
   String dateTimeLabel(DateTime local, {DateTime? now}) =>
-      '${dayLabel(local, now: now)}, ${DateFormat.jm(_locale).format(local)}';
+      '${dayLabel(local, now: now)}, ${timeLabel(local)}';
 
   /// "Friday, 25 September 2026 · 2:30 PM" for detail screens.
   String longDateTime(DateTime local) =>

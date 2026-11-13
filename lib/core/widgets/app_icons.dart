@@ -68,6 +68,7 @@ abstract final class AppIcons {
   static const IconData search = PhosphorIconsRegular.magnifyingGlass;
   static const IconData filter = PhosphorIconsRegular.faders;
   static const IconData calendar = PhosphorIconsRegular.calendarBlank;
+  static const IconData clock = PhosphorIconsRegular.clock;
   static const IconData note = PhosphorIconsRegular.notePencil;
   static const IconData camera = PhosphorIconsRegular.camera;
   static const IconData gallery = PhosphorIconsRegular.images;

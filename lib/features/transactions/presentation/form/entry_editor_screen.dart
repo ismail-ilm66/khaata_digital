@@ -22,6 +22,7 @@ import '../../../../core/widgets/app_sheet.dart';
 import '../../../../core/widgets/feedback.dart';
 import '../../../../core/widgets/hero_amount_field.dart';
 import '../../../../core/widgets/pill_button.dart';
+import '../../../../core/widgets/pressable.dart';
 import '../../../../core/widgets/segmented_picker.dart';
 import '../../../../core/widgets/tinted_badge.dart';
 import '../../../accounts/domain/account.dart';
@@ -81,9 +82,9 @@ class EntryEditorArgs {
 /// Add / edit a transaction on its own screen (spec 3.2 #3).
 ///
 /// One job per area, top to bottom: what kind → how much → from which
-/// account → for what → note → extras, with Save always above the
-/// keyboard. Amounts and the note use the phone's own keyboard. The
-/// fastest path stays: + → type amount → category → Save.
+/// account → for what → note → when → extras, with Save at the bottom
+/// (under the keyboard while typing; a tap anywhere puts the keyboard
+/// away). Amounts and the note use the phone's own keyboard.
 class EntryEditorScreen extends StatelessWidget {
   const EntryEditorScreen({super.key, this.editId, this.args});
 
@@ -136,70 +137,85 @@ class _EditorState extends State<_Editor> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
       child: Scaffold(
-        body: AmbientBackground(
-          child: SafeArea(
-            child: BlocConsumer<TransactionFormBloc, TransactionFormState>(
-              listenWhen: (a, b) =>
-                  a.status != b.status ||
-                  (b.problem != null && a.problem != b.problem),
-              listener: (context, s) {
-                if (s.problem != null && s.status == FormStatus.ready) {
-                  Haptics.warning();
-                } else if (s.status == FormStatus.saved) {
-                  unawaited(Haptics.success());
-                  final messenger = ScaffoldMessenger.of(context);
-                  Navigator.pop(context);
-                  messenger.toast(context.l10n.saved);
-                } else if (s.status == FormStatus.failed) {
-                  Haptics.warning();
-                  showToast(context, context.l10n.receiptFailed);
-                }
-              },
-              builder: (context, s) {
-                if (s.status == FormStatus.loading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _Header(state: s),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        padding: const EdgeInsets.only(bottom: AppSpacing.l),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _AmountHero(state: s, typing: typing),
-                            if (s.isTransfer)
-                              _TransferAccounts(state: s)
-                            else
-                              _AccountStrip(
-                                key: const Key('accountStrip'),
-                                accounts: s.accountsByUse,
-                                selectedId: s.accountId,
-                                onSelected: (id) => context
-                                    .read<TransactionFormBloc>()
-                                    .add(AccountChanged(id)),
-                              ),
-                            const SizedBox(height: AppSpacing.l),
-                            if (s.isUdhaar)
-                              _UdhaarSection(state: s)
-                            else if (!s.isTransfer)
-                              _QuickCategories(state: s),
-                            const SizedBox(height: AppSpacing.l),
-                            _NoteField(state: s),
-                            const SizedBox(height: AppSpacing.m),
-                            _Extras(state: s),
-                          ],
+        // A tap on any empty part of the screen puts the keyboard away;
+        // fields do the same for taps on buttons and chips (onTapOutside).
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: AmbientBackground(
+            child: SafeArea(
+              child: BlocConsumer<TransactionFormBloc, TransactionFormState>(
+                listenWhen: (a, b) =>
+                    a.status != b.status ||
+                    (b.problem != null && a.problem != b.problem),
+                listener: (context, s) {
+                  if (s.problem != null && s.status == FormStatus.ready) {
+                    Haptics.warning();
+                  } else if (s.status == FormStatus.saved) {
+                    unawaited(Haptics.success());
+                    final messenger = ScaffoldMessenger.of(context);
+                    Navigator.pop(context);
+                    messenger.toast(context.l10n.saved);
+                  } else if (s.status == FormStatus.failed) {
+                    Haptics.warning();
+                    showToast(context, context.l10n.receiptFailed);
+                  }
+                },
+                builder: (context, s) {
+                  if (s.status == FormStatus.loading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _Header(state: s),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: const EdgeInsets.only(bottom: AppSpacing.l),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              _AmountHero(state: s, typing: typing),
+                              if (s.isTransfer)
+                                _TransferAccounts(state: s)
+                              else
+                                _AccountStrip(
+                                  key: const Key('accountStrip'),
+                                  label: s.type == TransactionType.income
+                                      ? context.l10n.receivedIn
+                                      : context.l10n.paidFrom,
+                                  accounts: s.accountsByUse,
+                                  selectedId: s.accountId,
+                                  onSelected: (id) => context
+                                      .read<TransactionFormBloc>()
+                                      .add(AccountChanged(id)),
+                                ),
+                              const SizedBox(height: AppSpacing.l),
+                              if (s.isUdhaar)
+                                _UdhaarSection(state: s)
+                              else if (!s.isTransfer) ...[
+                                _FieldLabel(context.l10n.category),
+                                _QuickCategories(state: s),
+                              ],
+                              const SizedBox(height: AppSpacing.l),
+                              _NoteField(state: s),
+                              const SizedBox(height: AppSpacing.l),
+                              _WhenSection(state: s),
+                              const SizedBox(height: AppSpacing.l),
+                              _AddMore(state: s),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    _SaveButton(state: s),
-                  ],
-                );
-              },
+                      // Under the keyboard, not riding on top of it: back
+                      // at the bottom once the keyboard is put away.
+                      if (!typing) _SaveButton(state: s),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -507,22 +523,7 @@ class _AccountStripState extends State<_AccountStrip> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (widget.label != null)
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              AppSpacing.page,
-              0,
-              AppSpacing.s,
-              AppSpacing.xs,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(widget.label!, style: context.text.labelMedium),
-                ),
-                ?widget.trailing,
-              ],
-            ),
-          ),
+          _FieldLabel(widget.label!, trailing: widget.trailing),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
@@ -714,9 +715,221 @@ class _PickCard extends StatelessWidget {
   }
 }
 
-/// When, tags, receipt and repeat: quiet until used.
-class _Extras extends StatelessWidget {
-  const _Extras({required this.state});
+/// A section's small label ("Paid from", "When"), with an optional action
+/// at the end (Transfer's swap).
+class _FieldLabel extends StatelessWidget {
+  const _FieldLabel(this.text, {this.trailing});
+
+  final String text;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsetsDirectional.fromSTEB(
+      AppSpacing.page,
+      0,
+      AppSpacing.s,
+      AppSpacing.xs,
+    ),
+    child: Row(
+      children: [
+        Expanded(
+          child: Text(
+            text,
+            style: context.text.labelMedium!.copyWith(
+              color: context.colors.inkMuted,
+            ),
+          ),
+        ),
+        ?trailing,
+      ],
+    ),
+  );
+}
+
+/// A choice in a row of equal tiles: a top line (a word or an icon) over a
+/// small caption, outlined when chosen. The day buttons and the extras.
+class _OptionTile extends StatelessWidget {
+  const _OptionTile({
+    super.key,
+    required this.top,
+    required this.caption,
+    required this.onTap,
+    this.selected = false,
+  });
+
+  final Widget top;
+  final String caption;
+  final VoidCallback onTap;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final fg = selected ? c.brand : c.ink;
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppRadii.m),
+      side: BorderSide(
+        color: selected ? c.brand.withValues(alpha: 0.35) : Colors.transparent,
+        width: 1.5,
+      ),
+    );
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Pressable(
+        child: Material(
+          color: selected ? c.brand.withValues(alpha: 0.12) : c.surface,
+          shape: shape,
+          child: InkWell(
+            customBorder: shape,
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xs,
+                vertical: AppSpacing.s,
+              ),
+              child: Column(
+                children: [
+                  // Words shrink rather than being cut off (Urdu, large
+                  // text, a narrow phone).
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: IconTheme.merge(
+                      data: IconThemeData(color: fg, size: 20),
+                      child: DefaultTextStyle.merge(
+                        style: context.text.titleSmall!.copyWith(color: fg),
+                        maxLines: 1,
+                        child: top,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      caption,
+                      maxLines: 1,
+                      style: context.text.labelSmall!.copyWith(
+                        color: selected ? c.brand : c.inkMuted,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Equal tiles in one row; [columns] keeps their width the same when some
+/// are missing (no Split on an income, no Repeat when editing).
+class _TileRow extends StatelessWidget {
+  const _TileRow({required this.children, this.columns});
+
+  final List<Widget> children;
+  final int? columns;
+
+  @override
+  Widget build(BuildContext context) {
+    final n = columns ?? children.length;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < n; i++) ...[
+            if (i > 0) const SizedBox(width: AppSpacing.s),
+            Expanded(
+              child: i < children.length ? children[i] : const SizedBox(),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// When: Today / Yesterday in one tap, any other day from the calendar,
+/// and the time on its own. Changing the day keeps the time and back.
+class _WhenSection extends StatelessWidget {
+  const _WhenSection({required this.state});
+
+  final TransactionFormState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final bloc = context.read<TransactionFormBloc>();
+    final l = context.l10n;
+    final at = state.occurredAt;
+    final today = DateUtils.dateOnly(DateTime.now());
+    final yesterday = DateUtils.addDaysToDate(today, -1);
+    final day = DateUtils.dateOnly(at);
+    final other = day != today && day != yesterday;
+
+    void moveTo(DateTime d) {
+      if (d == day) return;
+      Haptics.selection();
+      bloc.add(
+        DateChanged(DateTime(d.year, d.month, d.day, at.hour, at.minute)),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _FieldLabel(l.whenLabel),
+        _TileRow(
+          children: [
+            _OptionTile(
+              key: const Key('dayToday'),
+              top: Text(l.today),
+              caption: context.shortDate(today),
+              selected: day == today,
+              onTap: () => moveTo(today),
+            ),
+            _OptionTile(
+              key: const Key('dayYesterday'),
+              top: Text(l.yesterday),
+              caption: context.shortDate(yesterday),
+              selected: day == yesterday,
+              onTap: () => moveTo(yesterday),
+            ),
+            _OptionTile(
+              key: const Key('dateChip'),
+              top: Text(l.otherDay),
+              caption: other ? context.shortDate(day) : l.pickDay,
+              selected: other,
+              onTap: () => _chooseDay(context, state),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.s),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: PillButton(
+              key: const Key('timeChip'),
+              icon: AppIcons.clock,
+              label: context.timeLabel(at),
+              showChevron: true,
+              onTap: () => _chooseTime(context, state),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Receipt, tags, split and repeat as labelled tiles; each caption says
+/// what's set ("1 receipt", "Split · 2", "Monthly").
+class _AddMore extends StatelessWidget {
+  const _AddMore({required this.state});
 
   final TransactionFormState state;
 
@@ -726,103 +939,103 @@ class _Extras extends StatelessWidget {
     final l = context.l10n;
     final receipts = state.receiptCount;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.page),
-      child: Wrap(
-        spacing: AppSpacing.s,
-        runSpacing: AppSpacing.s,
-        children: [
-          PillButton(
-            key: const Key('dateChip'),
-            icon: AppIcons.calendar,
-            label: context.dateTimeLabel(state.occurredAt),
-            showChevron: true,
-            onTap: () => _chooseDate(context, state),
-          ),
-          if (state.canSplit)
-            PillButton(
-              key: const Key('splitChip'),
-              icon: AppIcons.people.regular,
-              label: state.isSplit
-                  ? '${l.split} · ${state.splitWith.length}'
-                  : l.split,
-              selected: state.isSplit,
-              onTap: () => _chooseSplitPeople(context, state),
-            ),
-          PillButton(
-            key: const Key('tagsChip'),
-            icon: AppIcons.tag,
-            label: state.tags.isEmpty ? l.tags : l.tagCount(state.tags.length),
-            selected: state.tags.isNotEmpty,
-            onTap: () async {
-              final text = await editTextSheet(
-                context,
-                title: l.tags,
-                initial: state.tags.join(', '),
-                hint: l.tagsHint,
-                doneLabel: l.done,
-              );
-              if (text != null) bloc.add(TagsChanged(text));
-            },
-          ),
-          PillButton(
-            key: const Key('receiptChip'),
-            icon: AppIcons.camera,
-            label: receipts == 0 ? l.receipt : l.receiptCount(receipts),
-            selected: receipts > 0,
-            onTap: () async {
-              if (receipts == 0) {
-                final path = await pickReceiptImage(context);
-                if (path != null) bloc.add(ReceiptAdded(path));
-                return;
-              }
-              await showAppSheet<void>(
-                context,
-                title: l.receipts,
-                builder: (_) => BlocProvider.value(
-                  value: bloc,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.xl,
-                      0,
-                      AppSpacing.xl,
-                      AppSpacing.xl,
-                    ),
-                    child:
-                        BlocBuilder<TransactionFormBloc, TransactionFormState>(
-                          builder: (context, s) => ReceiptStrip(
-                            receipts: [
-                              for (final a in s.keptAttachments)
-                                ReceiptRef.stored(a),
-                              for (final p in s.newReceiptPaths)
-                                ReceiptRef.picked(p),
-                            ],
-                            onAdd: (path) => bloc.add(ReceiptAdded(path)),
-                            onRemove: (r) => bloc.add(
-                              ReceiptRemoved(
-                                attachment: r.attachment,
-                                path: r.path,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _FieldLabel(l.addMore),
+        _TileRow(
+          columns: 4,
+          children: [
+            _OptionTile(
+              key: const Key('receiptChip'),
+              top: const Icon(AppIcons.camera),
+              caption: receipts == 0 ? l.receipt : l.receiptCount(receipts),
+              selected: receipts > 0,
+              onTap: () async {
+                if (receipts == 0) {
+                  final path = await pickReceiptImage(context);
+                  if (path != null) bloc.add(ReceiptAdded(path));
+                  return;
+                }
+                await showAppSheet<void>(
+                  context,
+                  title: l.receipts,
+                  builder: (_) => BlocProvider.value(
+                    value: bloc,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.xl,
+                        0,
+                        AppSpacing.xl,
+                        AppSpacing.xl,
+                      ),
+                      child:
+                          BlocBuilder<
+                            TransactionFormBloc,
+                            TransactionFormState
+                          >(
+                            builder: (context, s) => ReceiptStrip(
+                              receipts: [
+                                for (final a in s.keptAttachments)
+                                  ReceiptRef.stored(a),
+                                for (final p in s.newReceiptPaths)
+                                  ReceiptRef.picked(p),
+                              ],
+                              onAdd: (path) => bloc.add(ReceiptAdded(path)),
+                              onRemove: (r) => bloc.add(
+                                ReceiptRemoved(
+                                  attachment: r.attachment,
+                                  path: r.path,
+                                ),
                               ),
                             ),
                           ),
-                        ),
+                    ),
                   ),
-                ),
-              );
-            },
-          ),
-          if (!state.isEditing && !state.isSplit)
-            PillButton(
-              key: const Key('repeatChip'),
-              icon: AppIcons.recurring.regular,
-              label: state.repeat == null
-                  ? l.repeat
-                  : frequencyLabel(context, state.repeat!),
-              selected: state.repeat != null,
-              onTap: () => _chooseRepeat(context, state),
+                );
+              },
             ),
-        ],
-      ),
+            _OptionTile(
+              key: const Key('tagsChip'),
+              top: const Icon(AppIcons.tag),
+              caption: state.tags.isEmpty
+                  ? l.tags
+                  : l.tagCount(state.tags.length),
+              selected: state.tags.isNotEmpty,
+              onTap: () async {
+                final text = await editTextSheet(
+                  context,
+                  title: l.tags,
+                  initial: state.tags.join(', '),
+                  hint: l.tagsHint,
+                  doneLabel: l.done,
+                );
+                if (text != null) bloc.add(TagsChanged(text));
+              },
+            ),
+            if (state.canSplit)
+              _OptionTile(
+                key: const Key('splitChip'),
+                top: Icon(AppIcons.people.regular),
+                caption: state.isSplit
+                    ? '${l.split} · ${state.splitWith.length}'
+                    : l.split,
+                selected: state.isSplit,
+                onTap: () => _chooseSplitPeople(context, state),
+              ),
+            if (!state.isEditing && !state.isSplit)
+              _OptionTile(
+                key: const Key('repeatChip'),
+                top: Icon(AppIcons.recurring.regular),
+                caption: state.repeat == null
+                    ? l.repeat
+                    : frequencyLabel(context, state.repeat!),
+                selected: state.repeat != null,
+                onTap: () => _chooseRepeat(context, state),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -873,7 +1086,8 @@ class _SaveButton extends StatelessWidget {
   }
 }
 
-Future<void> _chooseDate(
+/// A new day, keeping the time.
+Future<void> _chooseDay(
   BuildContext context,
   TransactionFormState state,
 ) async {
@@ -885,14 +1099,36 @@ Future<void> _chooseDate(
     firstDate: DateTime(2000),
     lastDate: DateTime.now().add(const Duration(days: 366)),
   );
-  if (day == null || !context.mounted) return;
+  if (day == null) return;
+  bloc.add(
+    DateChanged(
+      DateTime(day.year, day.month, day.day, current.hour, current.minute),
+    ),
+  );
+}
+
+/// A new time, keeping the day.
+Future<void> _chooseTime(
+  BuildContext context,
+  TransactionFormState state,
+) async {
+  final bloc = context.read<TransactionFormBloc>();
+  final current = state.occurredAt;
   final time = await showTimePicker(
     context: context,
     initialTime: TimeOfDay.fromDateTime(current),
   );
-  final t = time ?? TimeOfDay.fromDateTime(current);
+  if (time == null) return;
   bloc.add(
-    DateChanged(DateTime(day.year, day.month, day.day, t.hour, t.minute)),
+    DateChanged(
+      DateTime(
+        current.year,
+        current.month,
+        current.day,
+        time.hour,
+        time.minute,
+      ),
+    ),
   );
 }
 

@@ -107,13 +107,14 @@ void main() {
     await t.tap(find.byKey(const Key('editEntry')));
     await t.pumpAndSettle();
 
-    final dateChip = t.widget<Text>(
+    expect(
       find.descendant(
         of: find.byKey(const Key('dateChip')),
-        matching: find.byType(Text),
+        matching: find.textContaining('2025'),
       ),
+      findsOneWidget,
+      reason: 'not reset to today',
     );
-    expect(dateChip.data, contains('2025'), reason: 'not reset to today');
     expect(find.text('2,520'), findsOneWidget);
 
     await t.enterText(find.byKey(const Key('amountField')), '25200');
