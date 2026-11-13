@@ -13,15 +13,19 @@ class AmbientBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    RadialGradient glow(Alignment at, double radius, double strength) =>
-        RadialGradient(
-          center: at,
-          radius: radius,
-          colors: [
-            c.glow.withValues(alpha: c.glow.a * strength),
-            c.glow.withValues(alpha: 0),
-          ],
-        );
+    // No glow in this theme (dark): plain paper. The tree keeps its shape
+    // so switching theme doesn't rebuild the page (and lose its scroll).
+    RadialGradient? glow(Alignment at, double radius, double strength) =>
+        c.glow.a == 0
+        ? null
+        : RadialGradient(
+            center: at,
+            radius: radius,
+            colors: [
+              c.glow.withValues(alpha: c.glow.a * strength),
+              c.glow.withValues(alpha: 0),
+            ],
+          );
 
     return DecoratedBox(
       decoration: BoxDecoration(color: c.paper),

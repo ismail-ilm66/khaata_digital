@@ -47,23 +47,26 @@ class AppColors extends ThemeExtension<AppColors> {
     heroEnd: Color(0xFF0A5A37),
   );
 
+  /// Ink, not neon: untinted greys, depth from lightness steps rather than
+  /// shadows, and green rationed to income and the one primary action. No
+  /// glow, no frosted tint, and the hero card is drawn flat (see HeroCard).
   static const dark = AppColors(
-    paper: Color(0xFF0E1412),
-    surface: Color(0xFF161E1B),
-    surfaceMuted: Color(0xFF1E2824),
-    ink: Color(0xFFE6ECE9),
-    inkMuted: Color(0xFF93A29B),
-    line: Color(0xFF2A3530),
-    brand: Color(0xFF3DBE7E),
-    income: Color(0xFF3DBE7E),
+    paper: Color(0xFF111111),
+    surface: Color(0xFF1A1A1A),
+    surfaceMuted: Color(0xFF242424),
+    ink: Color(0xFFEDEDED),
+    inkMuted: Color(0xFF9B9B9B),
+    line: Color(0xFF2E2E2E),
+    brand: Color(0xFF4DB383),
+    income: Color(0xFF4DB383),
     warning: Color(0xFFE0A53A),
-    danger: Color(0xFFF0705F),
-    glass: Color(0x9E1A2420),
-    glassEdge: Color(0x1FFFFFFF),
-    glow: Color(0x333DBE7E),
-    shadow: Color(0x66000000),
-    heroStart: Color(0xFF1A7A50),
-    heroEnd: Color(0xFF0D3F29),
+    danger: Color(0xFFE8705F),
+    glass: Color(0xF21A1A1A),
+    glassEdge: Color(0x14FFFFFF),
+    glow: Color(0x00000000),
+    shadow: Color(0x80000000),
+    heroStart: Color(0xFF1A1A1A),
+    heroEnd: Color(0xFF1A1A1A),
   );
 
   /// Page background.
@@ -96,13 +99,14 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color glassEdge;
 
   /// Ambient brand glow behind content, so glass has something to blur.
+  /// Transparent in dark, where a glow on near-black only reads as haze.
   final Color glow;
 
   /// Soft shadow under floating surfaces.
   final Color shadow;
 
   /// The headline card's brand gradient, top-start to bottom-end. Content
-  /// on it is white (see HeroCard).
+  /// on it is white (see HeroCard). Light only; dark draws the card flat.
   final Color heroStart;
   final Color heroEnd;
 

@@ -219,9 +219,10 @@ class _ActionButton extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [Color.lerp(c.brand, Colors.white, 0.18)!, c.brand],
                 ),
+                // A brand glow in light; none in dark, where glow is clear.
                 boxShadow: [
                   BoxShadow(
-                    color: c.brand.withValues(alpha: 0.35),
+                    color: c.glow.withValues(alpha: c.glow.a * 2),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),

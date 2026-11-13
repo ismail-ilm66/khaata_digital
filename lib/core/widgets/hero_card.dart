@@ -5,7 +5,7 @@ import '../theme/app_typography.dart';
 import '../theme/context_x.dart';
 
 /// The one bold surface on a page: a brand-green gradient card for the
-/// headline figure (net worth on Home).
+/// headline figure (net worth on Home). In dark mode it is a plain card.
 ///
 /// Everything inside is re-themed for the green: ink and muted text turn
 /// white, income turns a pale mint, and inputs/lines become translucent
@@ -25,6 +25,12 @@ class HeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final theme = Theme.of(context);
+    final radius = BorderRadius.circular(AppRadii.l);
+    // Dark: a flat card in the ordinary theme. A green block on near-black
+    // shouts; the headline figure carries the emphasis on its own. Same
+    // tree either way, so switching theme keeps the card's state.
+    final flat = theme.brightness == Brightness.dark;
+
     const white = Colors.white;
     final muted = white.withValues(alpha: 0.72);
     final on = c.copyWith(
@@ -36,52 +42,60 @@ class HeroCard extends StatelessWidget {
       surfaceMuted: white.withValues(alpha: 0.12),
       surface: white.withValues(alpha: 0.12),
     );
-    final radius = BorderRadius.circular(AppRadii.l);
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        gradient: LinearGradient(
-          begin: AlignmentDirectional.topStart,
-          end: AlignmentDirectional.bottomEnd,
-          colors: [c.heroStart, c.heroEnd],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: c.heroEnd.withValues(alpha: 0.28),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      decoration: flat
+          ? BoxDecoration(color: c.surface, borderRadius: radius)
+          : BoxDecoration(
+              borderRadius: radius,
+              gradient: LinearGradient(
+                begin: AlignmentDirectional.topStart,
+                end: AlignmentDirectional.bottomEnd,
+                colors: [c.heroStart, c.heroEnd],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: c.heroEnd.withValues(alpha: 0.28),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
       child: ClipRRect(
         borderRadius: radius,
         child: DecoratedBox(
           // A soft light falling from the top corner, and a hairline edge,
           // so the green has depth rather than reading as a flat block.
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            border: Border.all(color: white.withValues(alpha: 0.10)),
-            gradient: RadialGradient(
-              center: const Alignment(0.9, -1.2),
-              radius: 1.3,
-              colors: [
-                white.withValues(alpha: 0.16),
-                white.withValues(alpha: 0),
-              ],
-            ),
-          ),
+          decoration: flat
+              ? BoxDecoration(
+                  borderRadius: radius,
+                  border: Border.all(color: c.line),
+                )
+              : BoxDecoration(
+                  borderRadius: radius,
+                  border: Border.all(color: white.withValues(alpha: 0.10)),
+                  gradient: RadialGradient(
+                    center: const Alignment(0.9, -1.2),
+                    radius: 1.3,
+                    colors: [
+                      white.withValues(alpha: 0.16),
+                      white.withValues(alpha: 0),
+                    ],
+                  ),
+                ),
           child: Theme(
-            data: theme.copyWith(
-              extensions: [on],
-              textTheme: AppTypography.textTheme(white, muted),
-              iconTheme: theme.iconTheme.copyWith(color: white),
-              highlightColor: white.withValues(alpha: 0.08),
-              colorScheme: theme.colorScheme.copyWith(
-                onSurface: white,
-                onSurfaceVariant: muted,
-              ),
-            ),
+            data: flat
+                ? theme
+                : theme.copyWith(
+                    extensions: [on],
+                    textTheme: AppTypography.textTheme(white, muted),
+                    iconTheme: theme.iconTheme.copyWith(color: white),
+                    highlightColor: white.withValues(alpha: 0.08),
+                    colorScheme: theme.colorScheme.copyWith(
+                      onSurface: white,
+                      onSurfaceVariant: muted,
+                    ),
+                  ),
             child: Padding(padding: padding, child: child),
           ),
         ),

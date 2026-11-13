@@ -125,7 +125,7 @@ flutter:
 # Images come from tool/brand/render_brand_test.dart. Colours = AppColors.paper.
 flutter_native_splash:
   color: "#F4F6F5"
-  color_dark: "#0E1412"
+  color_dark: "#111111"
   image: assets/splash/mark.png
   branding: assets/splash/wordmark.png
   branding_dark: assets/splash/wordmark_dark.png
@@ -133,7 +133,7 @@ flutter_native_splash:
   android_12:
     image: assets/splash/mark_android12.png
     color: "#F4F6F5"
-    color_dark: "#0E1412"
+    color_dark: "#111111"
     branding: assets/splash/wordmark.png
     branding_dark: assets/splash/wordmark_dark.png
   ios_content_mode: center

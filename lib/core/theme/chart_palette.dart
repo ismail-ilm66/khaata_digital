@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Chart colours, validated with the dataviz palette checker against
-/// Kharcha's surfaces (#FFFFFF light, #161E1B dark): lightness band,
+/// Kharcha's surfaces (#FFFFFF light, #1A1A1A dark): lightness band,
 /// chroma floor, colour-blind separation (worst adjacent ΔE 9.1 light /
 /// 8.4 dark) and normal-vision floor all pass. In light mode three slots
 /// are under 3:1 contrast, so every chart pairs colour with a labelled
@@ -44,7 +44,7 @@ abstract final class ChartPalette {
   /// "Other" (folded small slices) — neutral, never a ninth hue.
   static Color other(BuildContext context) =>
       Theme.of(context).brightness == Brightness.dark
-      ? const Color(0xFF6E7A74)
+      ? const Color(0xFF737373)
       : const Color(0xFFA9B2AD);
 
   /// Assigns each entity a slot that follows the entity, not its rank:

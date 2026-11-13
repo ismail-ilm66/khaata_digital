@@ -60,7 +60,12 @@ class SegmentedPicker<T> extends StatelessWidget {
                 heightFactor: 1,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: dark ? c.line : c.surface,
+                    color: dark
+                        ? Color.alphaBlend(
+                            c.ink.withValues(alpha: 0.10),
+                            c.surfaceMuted,
+                          )
+                        : c.surface,
                     borderRadius: BorderRadius.circular(_height / 2),
                     boxShadow: [
                       BoxShadow(

@@ -23,15 +23,20 @@ class TintedBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = color ?? context.colors.brand;
+    final c = context.colors;
+    final tint = color ?? c.brand;
     final dark = Theme.of(context).brightness == Brightness.dark;
-    final fg = dark ? Color.lerp(tint, Colors.white, 0.25)! : tint;
+    final fg = dark ? Color.lerp(tint, Colors.white, 0.3)! : tint;
     return Container(
       width: size,
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: dark ? 0.22 : 0.13),
+        // Dark: a neutral chip with only a hint of the hue; a strong tint
+        // on near-black turns muddy. The glyph carries the colour.
+        color: dark
+            ? Color.alphaBlend(tint.withValues(alpha: 0.10), c.surfaceMuted)
+            : tint.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(size * 0.32),
       ),
       child: icon != null
