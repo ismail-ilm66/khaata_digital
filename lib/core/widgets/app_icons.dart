@@ -112,6 +112,9 @@ abstract final class AppIcons {
   static const IconData arrowUpRight = PhosphorIconsBold.arrowUpRight;
   static const IconData arrowDownLeft = PhosphorIconsBold.arrowDownLeft;
 
+  /// A debt let go (written off, or forgiven).
+  static const IconData writeOff = PhosphorIconsBold.prohibit;
+
   // Backup, restore and import.
   static const backup = AppIcon(
     PhosphorIconsRegular.cloudArrowUp,

@@ -6,25 +6,30 @@ import 'package:go_router/go_router.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/l10n/date_labels.dart';
 import '../../../core/money/money.dart';
+import '../../../core/money/money_format.dart';
 import '../../../core/router/routes.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/amount_text.dart';
 import '../../../core/widgets/app_icons.dart';
+import '../../../core/widgets/app_sheet.dart';
 import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/feedback.dart';
 import '../../../core/widgets/page_scaffold.dart';
 import '../../../core/widgets/pill_button.dart';
 import '../../../core/widgets/section.dart';
 import '../../../core/widgets/surface_card.dart';
+import '../../../core/widgets/tinted_badge.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../transactions/presentation/form/entry_editor_screen.dart';
 import '../domain/person.dart';
 import 'person_badge.dart';
+import 'write_off_sheet.dart';
 import '../../../core/widgets/watch.dart';
 
 /// One person's udhaar ledger (spec 3.2 #7): balance, I gave / I received /
-/// Settle up, and every entry with the running balance after it.
+/// Settle up (paid back, or written off), and every entry and write-off
+/// with the running balance after it.
 class PersonScreen extends StatelessWidget {
   const PersonScreen({super.key, required this.id});
 
@@ -64,6 +69,110 @@ class _PersonView extends StatelessWidget {
     Navigator.pop(context);
     await getIt<PeopleRepository>().archive(person.id);
     messenger.toast(l.personRemoved);
+  }
+
+  /// The balance now, in [like]'s currency (the newest line holds it).
+  Money _balanceIn(Money like) =>
+      lines
+          .where((x) => x.runningBalance.currency == like.currency)
+          .firstOrNull
+          ?.runningBalance ??
+      Money.zero(like.currency);
+
+  /// Settle up asks how the balance closed: paid back (an entry in an
+  /// account), or let go (a write-off, which touches no account).
+  Future<void> _settle(BuildContext context, Money balance) async {
+    final l = context.l10n;
+    final owed = balance.isPositive; // they owe me
+    final masked = context.read<HideBalanceCubit>().state.masked;
+    final choice = await pickOne<_Settle>(
+      context,
+      title: masked
+          ? l.settleUp
+          : l.settleAmount(const MoneyFormat().format(balance.abs())),
+      searchable: false,
+      items: [
+        PickItem(
+          value: _Settle.paid,
+          title: owed ? l.theyPaidBack : l.iPaidBack,
+          subtitle: owed ? l.theyPaidBackHint : l.iPaidBackHint,
+          leading: _ChoiceBadge(
+            owed ? AppIcons.arrowDownLeft : AppIcons.arrowUpRight,
+          ),
+        ),
+        PickItem(
+          value: _Settle.writeOff,
+          title: owed ? l.writeItOff : l.theyLetItGo,
+          subtitle: owed ? l.writeItOffHint : l.theyLetItGoHint,
+          leading: const _ChoiceBadge(AppIcons.writeOff),
+        ),
+      ],
+    );
+    if (choice == null || !context.mounted) return;
+    switch (choice) {
+      // They owe me → I receive it back; I owe → I give it.
+      case _Settle.paid:
+        await EntryEditor.udhaar(
+          context,
+          personId: person.id,
+          direction: owed ? UdhaarDirection.received : UdhaarDirection.gave,
+          amount: balance.abs(),
+        );
+      case _Settle.writeOff:
+        final result = await showWriteOffSheet(
+          context,
+          personName: person.name,
+          max: balance.abs(),
+          forgiven: !owed,
+        );
+        if (result is! WriteOffSaved) return;
+        await getIt<PeopleRepository>().writeOff(
+          person.id,
+          owed ? result.amount : -result.amount,
+          occurredAt: result.occurredAt,
+          note: result.note,
+        );
+    }
+  }
+
+  Future<void> _editWriteOff(
+    BuildContext context,
+    WriteOff w, {
+    required Money balance,
+  }) async {
+    final l = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
+    final repo = getIt<PeopleRepository>();
+    // As much as was open before this write-off: it can take all of that.
+    final before = balance + w.amount;
+    final max = before.isNegative == w.isForgiven && !before.isZero
+        ? before.abs()
+        : w.amount.abs();
+    final result = await showWriteOffSheet(
+      context,
+      personName: person.name,
+      max: max,
+      forgiven: w.isForgiven,
+      existing: w,
+    );
+    switch (result) {
+      case null:
+        return;
+      case WriteOffSaved(:final amount, :final occurredAt, :final note):
+        await repo.editWriteOff(
+          w.id,
+          w.isForgiven ? -amount : amount,
+          occurredAt: occurredAt,
+          note: note,
+        );
+      case WriteOffDeleted():
+        await repo.removeWriteOff(w.id);
+        messenger.undo(
+          message: l.writeOffDeleted,
+          undoLabel: l.undo,
+          onUndo: () => repo.restoreWriteOff(w.id),
+        );
+    }
   }
 
   @override
@@ -161,15 +270,7 @@ class _PersonView extends StatelessWidget {
                       icon: AppIcons.check,
                       label: l.settleUp,
                       selected: true,
-                      // They owe me → I receive it back; I owe → I give it.
-                      onTap: () => EntryEditor.udhaar(
-                        context,
-                        personId: person.id,
-                        direction: balance.isPositive
-                            ? UdhaarDirection.received
-                            : UdhaarDirection.gave,
-                        amount: balance.abs(),
-                      ),
+                      onTap: () => _settle(context, balance),
                     ),
                 ],
               ),
@@ -185,7 +286,17 @@ class _PersonView extends StatelessWidget {
                   title: l.navTransactions,
                   child: SurfaceCard(
                     padding: EdgeInsets.zero,
-                    children: [for (final line in lines) _LedgerRow(line)],
+                    children: [
+                      for (final line in lines)
+                        _LedgerRow(
+                          line,
+                          onWriteOffTap: () => _editWriteOff(
+                            context,
+                            line.writeOff!,
+                            balance: _balanceIn(line.writeOff!.amount),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
             ],
@@ -196,23 +307,43 @@ class _PersonView extends StatelessWidget {
   }
 }
 
+enum _Settle { paid, writeOff }
+
+/// The neutral icon square beside each Settle up choice.
+class _ChoiceBadge extends StatelessWidget {
+  const _ChoiceBadge(this.icon);
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) =>
+      TintedBadge(icon: icon, color: context.colors.inkMuted, size: 36);
+}
+
 class _LedgerRow extends StatelessWidget {
-  const _LedgerRow(this.line);
+  const _LedgerRow(this.line, {required this.onWriteOffTap});
 
   final LedgerLine line;
+  final VoidCallback onWriteOffTap;
 
   @override
   Widget build(BuildContext context) {
     final l = context.l10n;
-    final e = line.view.entry;
-    final gave = UdhaarDirection.of(e.type) == UdhaarDirection.gave;
+    final w = line.writeOff;
+    final e = line.view?.entry;
+    final gave =
+        e != null && UdhaarDirection.of(e.type) == UdhaarDirection.gave;
+    final note = w?.note ?? e!.note;
+    // A write-off moved no money, so there's no account to name.
     final subtitle = [
-      context.dayLabel(e.occurredAt.toLocal()),
-      line.view.accountName,
-      if (e.note.isNotEmpty) e.note,
+      context.dayLabel(line.occurredAt.toLocal()),
+      ?line.view?.accountName,
+      if (note.isNotEmpty) note,
     ].join(' · ');
     return InkWell(
-      onTap: () => context.push(Routes.entry(e.id)),
+      onTap: w != null
+          ? onWriteOffTap
+          : () => context.push(Routes.entry(e!.id)),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.l,
@@ -221,7 +352,11 @@ class _LedgerRow extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              gave ? AppIcons.arrowUpRight : AppIcons.arrowDownLeft,
+              w != null
+                  ? AppIcons.writeOff
+                  : gave
+                  ? AppIcons.arrowUpRight
+                  : AppIcons.arrowDownLeft,
               size: 18,
               color: context.colors.inkMuted,
             ),
@@ -231,7 +366,11 @@ class _LedgerRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    gave ? l.iGave : l.iReceived,
+                    w != null
+                        ? (w.isForgiven ? l.forgiven : l.writtenOff)
+                        : gave
+                        ? l.iGave
+                        : l.iReceived,
                     style: context.text.titleSmall,
                   ),
                   Text(
@@ -246,7 +385,10 @@ class _LedgerRow extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                AmountText(e.amount, style: context.text.titleSmall),
+                AmountText(
+                  w?.amount.abs() ?? e!.amount,
+                  style: context.text.titleSmall,
+                ),
                 // The running total gives the balance away.
                 AmountText(
                   line.runningBalance,

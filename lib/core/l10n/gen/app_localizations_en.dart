@@ -1743,4 +1743,88 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get saveSplit => 'Save split';
+
+  @override
+  String settleAmount(String amount) {
+    return 'Settle $amount';
+  }
+
+  @override
+  String get theyPaidBack => 'They paid me back';
+
+  @override
+  String get theyPaidBackHint =>
+      'Record the money you received, into one of your accounts';
+
+  @override
+  String get iPaidBack => 'I paid them back';
+
+  @override
+  String get iPaidBackHint =>
+      'Record the money you gave, from one of your accounts';
+
+  @override
+  String get writeItOff => 'Write it off';
+
+  @override
+  String get writeItOffHint => 'They won\'t pay it back. No account changes.';
+
+  @override
+  String get theyLetItGo => 'They let it go';
+
+  @override
+  String get theyLetItGoHint =>
+      'You don\'t owe it any more. No account changes.';
+
+  @override
+  String get writeOff => 'Write off';
+
+  @override
+  String writeOffBody(String name) {
+    return '$name won\'t pay this back.';
+  }
+
+  @override
+  String forgiveBody(String name) {
+    return '$name let it go. You don\'t owe this any more.';
+  }
+
+  @override
+  String get writeOffWhole => 'The whole balance. Lower it for part of it.';
+
+  @override
+  String writeOffTooMuch(String amount) {
+    return 'Up to $amount';
+  }
+
+  @override
+  String writeOffNoAccounts(String name) {
+    return 'Your accounts stay as they are. This only closes what $name owes you, and it isn\'t counted as spending.';
+  }
+
+  @override
+  String get forgiveNoAccounts =>
+      'Your accounts stay as they are. It isn\'t counted as income.';
+
+  @override
+  String writeOffAction(String amount) {
+    return 'Write off $amount';
+  }
+
+  @override
+  String forgiveAction(String amount) {
+    return 'Mark $amount forgiven';
+  }
+
+  @override
+  String get writtenOff => 'Written off';
+
+  @override
+  String get forgiven => 'Forgiven';
+
+  @override
+  String get writeOffDeleted => 'Write-off deleted';
+
+  @override
+  String get forgivenToYou => 'Forgiven to you';
 }

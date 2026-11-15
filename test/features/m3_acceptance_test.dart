@@ -135,8 +135,11 @@ void main() {
       expect(find.text('I gave'), findsWidgets);
       expect(find.text('I received'), findsWidgets);
 
-      // Settle up pre-fills Rs 3,000 received; saving zeroes the balance.
+      // Settle up → they paid me back pre-fills Rs 3,000 received; saving
+      // zeroes the balance.
       await t.tap(find.byKey(const Key('settleUp')));
+      await t.pumpAndSettle();
+      await t.tap(find.text('They paid me back'));
       await t.pumpAndSettle();
       expect(find.text('3,000'), findsOneWidget);
       await t.tap(find.byKey(const Key('account-Cash')));

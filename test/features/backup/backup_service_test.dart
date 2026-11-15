@@ -95,6 +95,15 @@ void main() {
     );
     await old.ledger.transfer(bank, cash, 500000);
     await old.ledger.expense(cash, 450000, personId: ali);
+    // Rs 1,500 of it written off: no account, only the balance.
+    await old.db.writeOffsDao.create(
+      WriteOffsCompanion.insert(
+        personId: ali,
+        amountMinor: 150000,
+        currencyCode: 'PKR',
+        occurredAt: DateTime.utc(2026, 10, 1),
+      ),
+    );
     await old.db.budgetsDao.setBudget(const CycleId(2026, 9), 5000000);
     await old.db.settingsDao.write(SettingKey.monthStartDay, '25');
   }
@@ -308,6 +317,20 @@ void main() {
         fresh.db.transactions,
       )..where((t) => t.id.equals(edited.id))).getSingle();
       expect(merged.note, 'edited later');
+    });
+
+    test('write-offs follow a person matched by name', () async {
+      await fillOldPhone();
+      final backup = await old.backups.create();
+      final mine = await fresh.db.peopleDao.create(name: 'Mudassir Bhai');
+
+      await fresh.backups.restore(backup.bytes, mode: RestoreMode.merge);
+
+      expect(await fresh.people(), {
+        'Mudassir Bhai': {'PKR': 450000 - 150000},
+      });
+      final w = await fresh.db.select(fresh.db.writeOffs).getSingle();
+      expect(w.personId, mine);
     });
   });
 

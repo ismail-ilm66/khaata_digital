@@ -238,3 +238,19 @@ class PlannedPayments extends Table with Entity, Timestamped, SoftDelete {
   @override
   List<String> get customConstraints => const ['CHECK (amount_minor > 0)'];
 }
+
+/// Schema v4. A debt let go: no money moved, so no account is touched and
+/// it isn't income or spending. [amountMinor] is signed like a person's
+/// balance: + I wrote off what they owed me, − they forgave what I owed.
+@DataClassName('WriteOffRow')
+@TableIndex(name: 'write_offs_person', columns: {#personId})
+class WriteOffs extends Table with Entity, Timestamped, SoftDelete {
+  TextColumn get personId => text().references(People, #id)();
+  IntColumn get amountMinor => integer()();
+  TextColumn get currencyCode => text().withLength(min: 3, max: 3)();
+  IntColumn get occurredAt => integer().map(const UtcMillisConverter())();
+  TextColumn get note => text().withDefault(const Constant(''))();
+
+  @override
+  List<String> get customConstraints => const ['CHECK (amount_minor <> 0)'];
+}

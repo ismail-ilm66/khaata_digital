@@ -3109,6 +3109,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save split'**
   String get saveSplit;
+
+  /// No description provided for @settleAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle {amount}'**
+  String settleAmount(String amount);
+
+  /// No description provided for @theyPaidBack.
+  ///
+  /// In en, this message translates to:
+  /// **'They paid me back'**
+  String get theyPaidBack;
+
+  /// No description provided for @theyPaidBackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the money you received, into one of your accounts'**
+  String get theyPaidBackHint;
+
+  /// No description provided for @iPaidBack.
+  ///
+  /// In en, this message translates to:
+  /// **'I paid them back'**
+  String get iPaidBack;
+
+  /// No description provided for @iPaidBackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Record the money you gave, from one of your accounts'**
+  String get iPaidBackHint;
+
+  /// No description provided for @writeItOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Write it off'**
+  String get writeItOff;
+
+  /// No description provided for @writeItOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They won\'t pay it back. No account changes.'**
+  String get writeItOffHint;
+
+  /// No description provided for @theyLetItGo.
+  ///
+  /// In en, this message translates to:
+  /// **'They let it go'**
+  String get theyLetItGo;
+
+  /// No description provided for @theyLetItGoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t owe it any more. No account changes.'**
+  String get theyLetItGoHint;
+
+  /// No description provided for @writeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Write off'**
+  String get writeOff;
+
+  /// No description provided for @writeOffBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} won\'t pay this back.'**
+  String writeOffBody(String name);
+
+  /// No description provided for @forgiveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} let it go. You don\'t owe this any more.'**
+  String forgiveBody(String name);
+
+  /// No description provided for @writeOffWhole.
+  ///
+  /// In en, this message translates to:
+  /// **'The whole balance. Lower it for part of it.'**
+  String get writeOffWhole;
+
+  /// No description provided for @writeOffTooMuch.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to {amount}'**
+  String writeOffTooMuch(String amount);
+
+  /// No description provided for @writeOffNoAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your accounts stay as they are. This only closes what {name} owes you, and it isn\'t counted as spending.'**
+  String writeOffNoAccounts(String name);
+
+  /// No description provided for @forgiveNoAccounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Your accounts stay as they are. It isn\'t counted as income.'**
+  String get forgiveNoAccounts;
+
+  /// No description provided for @writeOffAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Write off {amount}'**
+  String writeOffAction(String amount);
+
+  /// No description provided for @forgiveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {amount} forgiven'**
+  String forgiveAction(String amount);
+
+  /// No description provided for @writtenOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Written off'**
+  String get writtenOff;
+
+  /// No description provided for @forgiven.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgiven'**
+  String get forgiven;
+
+  /// No description provided for @writeOffDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Write-off deleted'**
+  String get writeOffDeleted;
+
+  /// No description provided for @forgivenToYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgiven to you'**
+  String get forgivenToYou;
 }
 
 class _AppLocalizationsDelegate

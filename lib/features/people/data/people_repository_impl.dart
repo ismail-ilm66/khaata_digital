@@ -1,6 +1,9 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:injectable/injectable.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 import '../../../core/db/app_database.dart';
+import '../../../core/dates/date_range.dart';
 import '../../../core/db/unique_guard.dart';
 import '../../../core/money/currency.dart';
 import '../../../core/money/money.dart';
@@ -10,6 +13,17 @@ import '../domain/person.dart';
 
 extension PersonRowMapping on PersonRow {
   Person toDomain() => Person(id: id, name: name, contactHint: contactHint);
+}
+
+extension WriteOffRowMapping on WriteOffRow {
+  WriteOff toDomain(String personName) => WriteOff(
+    id: id,
+    personId: personId,
+    personName: personName,
+    amount: Money(amountMinor, Currency.of(currencyCode)),
+    occurredAt: occurredAt,
+    note: note,
+  );
 }
 
 @LazySingleton(as: PeopleRepository)
@@ -53,5 +67,61 @@ class PeopleRepositoryImpl implements PeopleRepository {
   @override
   Stream<List<LedgerLine>> watchLedger(String personId) => _transactions
       .watch(EntryQuery(personIds: {personId}, limit: _ledgerLimit))
-      .map((page) => LedgerLine.build(page.items));
+      .combineLatest(
+        _watchWriteOffs(personId: personId),
+        (page, writeOffs) => LedgerLine.build(page.items, writeOffs),
+      );
+
+  @override
+  Future<String> writeOff(
+    String personId,
+    Money amount, {
+    required DateTime occurredAt,
+    String note = '',
+  }) => _db.writeOffsDao.create(
+    WriteOffsCompanion.insert(
+      personId: personId,
+      amountMinor: amount.minor,
+      currencyCode: amount.currency.code,
+      occurredAt: occurredAt.toUtc(),
+      note: Value(note.trim()),
+    ),
+  );
+
+  @override
+  Future<void> editWriteOff(
+    String id,
+    Money amount, {
+    required DateTime occurredAt,
+    String note = '',
+  }) => _db.writeOffsDao.change(
+    id,
+    WriteOffsCompanion(
+      amountMinor: Value(amount.minor),
+      currencyCode: Value(amount.currency.code),
+      occurredAt: Value(occurredAt.toUtc()),
+      note: Value(note.trim()),
+    ),
+  );
+
+  @override
+  Future<void> removeWriteOff(String id) => _db.writeOffsDao.remove(id);
+
+  @override
+  Future<void> restoreWriteOff(String id) => _db.writeOffsDao.restore(id);
+
+  @override
+  Stream<List<WriteOff>> watchWriteOffs({DateRange? range}) =>
+      _watchWriteOffs(range: range);
+
+  Stream<List<WriteOff>> _watchWriteOffs({
+    String? personId,
+    DateRange? range,
+  }) => _db.writeOffsDao
+      .watch(
+        personId: personId,
+        fromMillis: range?.startMillis,
+        toMillis: range?.endMillis,
+      )
+      .map((rows) => [for (final r in rows) r.row.toDomain(r.personName)]);
 }

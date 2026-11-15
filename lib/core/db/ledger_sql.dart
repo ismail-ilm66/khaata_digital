@@ -19,5 +19,9 @@ abstract final class LedgerSql {
       "CASE t.type WHEN 'expense' THEN t.amount_minor "
       "WHEN 'income' THEN -t.amount_minor ELSE 0 END";
 
+  /// A write-off's effect on a person (row aliased `w`): it cancels that
+  /// much of the balance, so + (owed to me) and − (I owed) both move to 0.
+  static const String writeOffDelta = '-w.amount_minor';
+
   static const String live = 't.deleted_at IS NULL';
 }

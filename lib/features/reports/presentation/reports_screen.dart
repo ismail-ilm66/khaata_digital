@@ -15,7 +15,10 @@ import '../../../core/widgets/empty_state.dart';
 import '../../../core/widgets/page_scaffold.dart';
 import '../../../core/widgets/period_card.dart';
 import '../../../core/widgets/pill_button.dart';
+import '../../../core/l10n/date_labels.dart';
+import '../../../core/widgets/amount_text.dart';
 import '../../categories/domain/category.dart';
+import '../../people/domain/person.dart';
 import '../../import_export/presentation/export_sheet.dart';
 import '../../settings/presentation/cubit/preference_cubits.dart';
 import '../../transactions/presentation/entries_screen.dart';
@@ -222,6 +225,9 @@ class _ReportsViewState extends State<_ReportsView> {
                       before?.income,
                       spending: false,
                     ),
+              footer: data == null || data.writeOffs.isEmpty
+                  ? null
+                  : _WriteOffLines(data.writeOffs),
             ),
           ),
         ),
@@ -349,6 +355,104 @@ class _ReportsViewState extends State<_ReportsView> {
               ],
             ),
           ),
+      ],
+    );
+  }
+}
+
+/// Under the totals: what was written off, and what was forgiven me, in
+/// the period. Apart from Spent and Income, as no money moved. Each opens
+/// the list, and each name there its person.
+class _WriteOffLines extends StatelessWidget {
+  const _WriteOffLines(this.writeOffs);
+
+  final List<WriteOff> writeOffs;
+
+  Future<void> _open(
+    BuildContext context,
+    String title,
+    List<WriteOff> ws,
+  ) async {
+    final personId = await pickOne<String>(
+      context,
+      title: title,
+      searchable: false,
+      items: [
+        for (final w in ws)
+          PickItem(
+            value: w.personId,
+            title: w.personName,
+            subtitle: [
+              context.dayLabel(w.occurredAt.toLocal()),
+              if (w.note.isNotEmpty) w.note,
+            ].join(' · '),
+            trailing: AmountText(w.amount.abs()),
+          ),
+      ],
+    );
+    if (personId != null && context.mounted) {
+      await context.push(Routes.person(personId));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n;
+    Widget line(Key key, String label, List<WriteOff> ws) {
+      final total = ws.fold(
+        Money.zero(ws.first.amount.currency),
+        (s, w) => s + w.amount.abs(),
+      );
+      final people = {for (final w in ws) w.personId}.length;
+      return InkWell(
+        key: key,
+        borderRadius: BorderRadius.circular(AppRadii.s),
+        onTap: () => _open(context, label, ws),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.s,
+            vertical: AppSpacing.s,
+          ),
+          child: Row(
+            children: [
+              Icon(AppIcons.writeOff, size: 16, color: context.colors.inkMuted),
+              const SizedBox(width: AppSpacing.s),
+              Expanded(
+                child: Text(
+                  '$label · ${l.peopleCount(people)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.bodySmall,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s),
+              AmountText(total, style: context.text.titleSmall),
+              const SizedBox(width: AppSpacing.xs),
+              Icon(
+                AppIcons.chevronRight,
+                size: 14,
+                color: context.colors.inkMuted,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final mine = [
+      for (final w in writeOffs)
+        if (!w.isForgiven) w,
+    ];
+    final theirs = [
+      for (final w in writeOffs)
+        if (w.isForgiven) w,
+    ];
+    return Column(
+      children: [
+        if (mine.isNotEmpty)
+          line(const Key('reportWrittenOff'), l.writtenOff, mine),
+        if (theirs.isNotEmpty)
+          line(const Key('reportForgiven'), l.forgivenToYou, theirs),
       ],
     );
   }

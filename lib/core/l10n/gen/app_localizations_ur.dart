@@ -1737,4 +1737,87 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get saveSplit => 'تقسیم محفوظ کریں';
+
+  @override
+  String settleAmount(String amount) {
+    return '$amount کا حساب برابر کریں';
+  }
+
+  @override
+  String get theyPaidBack => 'انہوں نے واپس کر دیے';
+
+  @override
+  String get theyPaidBackHint => 'ملی ہوئی رقم درج کریں، اپنے کسی اکاؤنٹ میں';
+
+  @override
+  String get iPaidBack => 'میں نے واپس کر دیے';
+
+  @override
+  String get iPaidBackHint => 'دی ہوئی رقم درج کریں، اپنے کسی اکاؤنٹ سے';
+
+  @override
+  String get writeItOff => 'معاف کر دیں';
+
+  @override
+  String get writeItOffHint =>
+      'یہ رقم واپس نہیں آئے گی۔ کسی اکاؤنٹ میں تبدیلی نہیں۔';
+
+  @override
+  String get theyLetItGo => 'انہوں نے معاف کر دیے';
+
+  @override
+  String get theyLetItGoHint =>
+      'اب آپ نے یہ نہیں دینے۔ کسی اکاؤنٹ میں تبدیلی نہیں۔';
+
+  @override
+  String get writeOff => 'معاف کریں';
+
+  @override
+  String writeOffBody(String name) {
+    return '$name یہ رقم واپس نہیں کریں گے۔';
+  }
+
+  @override
+  String forgiveBody(String name) {
+    return '$name نے یہ رقم معاف کر دی۔ اب آپ نے یہ نہیں دینی۔';
+  }
+
+  @override
+  String get writeOffWhole => 'پوری رقم۔ کچھ حصے کے لیے کم کریں۔';
+
+  @override
+  String writeOffTooMuch(String amount) {
+    return 'زیادہ سے زیادہ $amount';
+  }
+
+  @override
+  String writeOffNoAccounts(String name) {
+    return 'آپ کے اکاؤنٹس میں کوئی تبدیلی نہیں ہوگی۔ اس سے صرف $name کا حساب بند ہوگا، اور یہ خرچ میں شمار نہیں ہوگا۔';
+  }
+
+  @override
+  String get forgiveNoAccounts =>
+      'آپ کے اکاؤنٹس میں کوئی تبدیلی نہیں ہوگی۔ یہ آمدنی میں شمار نہیں ہوگا۔';
+
+  @override
+  String writeOffAction(String amount) {
+    return '$amount معاف کریں';
+  }
+
+  @override
+  String forgiveAction(String amount) {
+    return '$amount معاف شدہ درج کریں';
+  }
+
+  @override
+  String get writtenOff => 'معاف کیے';
+
+  @override
+  String get forgiven => 'انہوں نے معاف کیے';
+
+  @override
+  String get writeOffDeleted => 'معافی ہٹا دی گئی';
+
+  @override
+  String get forgivenToYou => 'آپ کو معاف ہوئے';
 }

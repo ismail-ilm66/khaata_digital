@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/dates/calendar_day.dart';
 import '../../../core/l10n/date_labels.dart';
-import '../../../core/money/fixed_point.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/amount_field.dart';
@@ -63,10 +62,7 @@ class _ToPaySheetState extends State<_ToPaySheet> {
   late final _amount = TextEditingController(
     text: widget.existing == null
         ? ''
-        : FixedPoint.format(
-            widget.existing!.amount.minor,
-            widget.existing!.amount.currency.decimals,
-          ),
+        : AmountField.textOf(widget.existing!.amount),
   );
   late final _note = TextEditingController(text: widget.existing?.note);
   late String? _categoryId = widget.existing?.categoryId;

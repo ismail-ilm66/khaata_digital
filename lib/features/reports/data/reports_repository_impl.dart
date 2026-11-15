@@ -7,6 +7,8 @@ import '../../../core/db/app_database.dart';
 import '../../../core/money/money.dart';
 import '../../categories/data/categories_repository_impl.dart';
 import '../../categories/domain/category.dart';
+import '../../people/data/people_repository_impl.dart';
+import '../../people/domain/person.dart';
 import '../../transactions/domain/transaction_type.dart';
 import '../domain/report.dart';
 
@@ -48,6 +50,19 @@ class ReportsRepositoryImpl implements ReportsRepository {
         .balanceChanges(q.currency.code, accountIds: f.accountIds)
         .watch();
     final categories = _db.categoriesDao.watchActive();
+    // Write-offs have no account, category or tag, so any filter leaves
+    // them out.
+    final writeOffs = f.hasFilters
+        ? Stream.value(const <WriteOff>[])
+        : _db.writeOffsDao
+              .watch(fromMillis: range?.startMillis, toMillis: range?.endMillis)
+              .map(
+                (rows) => [
+                  for (final r in rows)
+                    if (r.row.currencyCode == q.currency.code)
+                      r.row.toDomain(r.personName),
+                ],
+              );
 
     return daily
         .combineLatest(byCategory, (d, c) => (d, c))
@@ -57,7 +72,11 @@ class ReportsRepositoryImpl implements ReportsRepository {
           return _build(q, range, days, cats_, changes, {
             for (final c in cats) c.id: c.toDomain(),
           });
-        });
+        })
+        .combineLatest(
+          writeOffs,
+          (data, ws) => ws.isEmpty ? data : data.withWriteOffs(ws),
+        );
   }
 
   static DateTime _parseDay(String day) {

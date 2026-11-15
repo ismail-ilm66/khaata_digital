@@ -69,4 +69,13 @@ void main() {
     await t.enterText(find.byType(TextFormField), '-5');
     expect(controller.text, isEmpty);
   });
+
+  test('starting text drops a zero fraction, keeps paisa and the sign', () {
+    String text(int minor) => AmountField.textOf(Money(minor, Currency.pkr));
+    expect(text(500000), '5000');
+    expect(text(500050), '5000.50');
+    expect(text(-500000), '-5000');
+    expect(text(-500050), '-5000.50');
+    expect(text(5), '0.05');
+  });
 }

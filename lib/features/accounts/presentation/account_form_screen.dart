@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/di/injection.dart';
 import '../../../core/money/currency.dart';
-import '../../../core/money/fixed_point.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/theme/context_x.dart';
 import '../../../core/widgets/amount_field.dart';
@@ -73,10 +72,7 @@ class _AccountFormState extends State<_AccountForm> {
   late final _opening = TextEditingController(
     text: _cubit.state.draft.openingBalance.isZero
         ? ''
-        : FixedPoint.format(
-            _cubit.state.draft.openingBalance.minor,
-            _cubit.state.draft.currency.decimals,
-          ),
+        : AmountField.textOf(_cubit.state.draft.openingBalance),
   );
 
   @override

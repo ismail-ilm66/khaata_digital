@@ -15,25 +15,35 @@ class PersonBalance {
   final PersonRow person;
 
   /// Net udhaar per currency: positive = they owe me, negative = I owe them.
-  /// Derived from linked transactions; never stored (spec 3.3).
+  /// Derived from linked transactions and write-offs; never stored
+  /// (spec 3.3).
   final Map<String, int> byCurrency;
 }
 
-@DriftAccessor(tables: [People, Transactions])
+@DriftAccessor(tables: [People, Transactions, WriteOffs])
 class PeopleDao extends DatabaseAccessor<AppDatabase> with _$PeopleDaoMixin {
   PeopleDao(super.attachedDatabase);
 
   Selectable<({QueryRow row, PersonRow person})> _balances() {
     return customSelect(
       '''
-SELECT p.*, t.currency_code AS currency, SUM(${LedgerSql.personDelta}) AS net
+SELECT p.*, d.currency AS currency, SUM(d.delta) AS net
 FROM people p
-LEFT JOIN transactions t ON t.person_id = p.id AND ${LedgerSql.live}
+LEFT JOIN (
+  SELECT t.person_id, t.currency_code AS currency,
+    ${LedgerSql.personDelta} AS delta
+  FROM transactions t
+  WHERE t.person_id IS NOT NULL AND ${LedgerSql.live}
+  UNION ALL
+  SELECT w.person_id, w.currency_code, ${LedgerSql.writeOffDelta}
+  FROM write_offs w
+  WHERE w.deleted_at IS NULL
+) d ON d.person_id = p.id
 WHERE p.deleted_at IS NULL
-GROUP BY p.id, t.currency_code
+GROUP BY p.id, d.currency
 ORDER BY p.name COLLATE NOCASE
 ''',
-      readsFrom: {people, transactions},
+      readsFrom: {people, transactions, writeOffs},
     ).map((row) => (row: row, person: people.map(row.data)));
   }
 

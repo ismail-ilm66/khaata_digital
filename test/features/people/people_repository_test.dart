@@ -3,7 +3,6 @@ import 'package:khaata_digital/core/error/app_failure.dart';
 import 'package:khaata_digital/core/money/currency.dart';
 import 'package:khaata_digital/core/money/money.dart';
 import 'package:khaata_digital/features/people/data/people_repository_impl.dart';
-import 'package:khaata_digital/features/people/domain/person.dart';
 import 'package:khaata_digital/features/transactions/domain/entry_query.dart';
 
 import '../../helpers/test_repos.dart';
@@ -49,10 +48,7 @@ void main() {
 
     for (final p in o.people) {
       final ledger = await repo.watchLedger(p.person.id).first;
-      final sum = ledger.fold(
-        rs(0),
-        (acc, l) => acc + LedgerLine.effect(l.view.entry),
-      );
+      final sum = ledger.fold(rs(0), (acc, l) => acc + l.delta);
       expect(p.balance[Currency.pkr], sum, reason: p.person.name);
       expect(
         ledger.first.runningBalance,

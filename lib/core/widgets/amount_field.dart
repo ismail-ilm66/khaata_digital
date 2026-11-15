@@ -25,6 +25,7 @@ class AmountField extends StatelessWidget {
     required this.invalidMessage,
     this.allowNegative = false,
     this.autofocus = false,
+    this.validator,
   });
 
   final TextEditingController controller;
@@ -34,7 +35,19 @@ class AmountField extends StatelessWidget {
   final String invalidMessage;
   final bool allowNegative;
 
+  /// A further check on a valid amount (e.g. a limit); returns the error.
+  final String? Function(Money amount)? validator;
+
   static const String _minus = '-';
+
+  /// [money] as the field's starting text: "5000", or "5000.50" only when
+  /// there are paisa.
+  static String textOf(Money money) {
+    final unit = FixedPoint.pow10(money.currency.decimals);
+    return money.minor % unit == 0
+        ? '${money.minor ~/ unit}'
+        : FixedPoint.format(money.minor, money.currency.decimals);
+  }
 
   /// The parsed value of [controller], or null if invalid. Empty is zero.
   static Money? read(TextEditingController controller, Currency currency) {
@@ -103,7 +116,7 @@ class AmountField extends StatelessWidget {
         if (m == null || (!allowNegative && m.isNegative)) {
           return invalidMessage;
         }
-        return null;
+        return validator?.call(m);
       },
     );
   }
@@ -173,9 +186,7 @@ class _AmountSheet extends StatefulWidget {
 class _AmountSheetState extends State<_AmountSheet> {
   final _form = GlobalKey<FormState>();
   late final _controller = TextEditingController(
-    text: widget.initial == null
-        ? ''
-        : FixedPoint.format(widget.initial!.minor, widget.currency.decimals),
+    text: widget.initial == null ? '' : AmountField.textOf(widget.initial!),
   );
 
   @override

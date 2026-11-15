@@ -6,6 +6,7 @@ import '../../../core/dates/report_period.dart';
 import '../../../core/money/currency.dart';
 import '../../../core/money/money.dart';
 import '../../categories/domain/category.dart';
+import '../../people/domain/person.dart';
 import '../../transactions/domain/entry_query.dart';
 
 /// What to report on: a period, the same filters as the list, and the
@@ -90,6 +91,7 @@ class ReportData extends Equatable {
     required this.earning,
     required this.flow,
     required this.balance,
+    this.writeOffs = const [],
   });
 
   /// The period's range, or for all time the extent of the data.
@@ -107,6 +109,23 @@ class ReportData extends Equatable {
   final List<FlowPoint> flow;
   final List<BalancePoint> balance;
 
+  /// Debts let go in the period, in the report currency, newest first.
+  /// Apart from income and spending (no money moved); only when nothing
+  /// is filtered, as they have no account, category or tag.
+  final List<WriteOff> writeOffs;
+
+  ReportData withWriteOffs(List<WriteOff> writeOffs) => ReportData(
+    span: span,
+    bucketSize: bucketSize,
+    income: income,
+    expense: expense,
+    spending: spending,
+    earning: earning,
+    flow: flow,
+    balance: balance,
+    writeOffs: writeOffs,
+  );
+
   bool get isEmpty => income.isZero && expense.isZero;
 
   @override
@@ -119,6 +138,7 @@ class ReportData extends Equatable {
     earning,
     flow,
     balance,
+    writeOffs,
   ];
 }
 

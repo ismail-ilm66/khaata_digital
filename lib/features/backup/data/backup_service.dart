@@ -425,6 +425,7 @@ class BackupService {
       'transaction_events': ['event_id'],
       'budgets': ['category_id'],
       'planned_payments': ['category_id'],
+      'write_offs': ['person_id'],
     };
     const newerWins = {
       'accounts',
@@ -433,6 +434,7 @@ class BackupService {
       'transactions',
       'recurring_rules',
       'planned_payments',
+      'write_offs',
     };
     for (final t in _tables) {
       final cols = await _shared(t);

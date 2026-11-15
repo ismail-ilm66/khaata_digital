@@ -62,6 +62,32 @@ void main() {
             ),
           );
 
+      // v4: Rs 200 of Mudassir's Rs 700 written off, and a deleted
+      // write-off that must not count.
+      final mudassir = (await db.peopleDao.balances()).single.person.id;
+      await db
+          .into(db.writeOffs)
+          .insert(
+            WriteOffsCompanion.insert(
+              personId: mudassir,
+              amountMinor: 20000,
+              currencyCode: 'PKR',
+              occurredAt: DateTime.utc(2026, 11, 2),
+              note: const Value('Gave up on the rest'),
+            ),
+          );
+      await db
+          .into(db.writeOffs)
+          .insert(
+            WriteOffsCompanion.insert(
+              personId: mudassir,
+              amountMinor: 50000,
+              currencyCode: 'PKR',
+              occurredAt: DateTime.utc(2026, 11, 3),
+              deletedAt: Value(DateTime.utc(2026, 11, 3)),
+            ),
+          );
+
       final out = File('test/fixtures/golden/v${db.schemaVersion}/kharcha.db');
       expect(out.existsSync(), isFalse, reason: 'fixtures are frozen');
       out.parent.createSync(recursive: true);

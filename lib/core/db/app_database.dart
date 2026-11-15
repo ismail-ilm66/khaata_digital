@@ -8,6 +8,7 @@ import '../../features/budgets/data/budgets_dao.dart';
 import '../../features/categories/data/categories_dao.dart';
 import '../../features/categories/domain/category_kind.dart';
 import '../../features/people/data/people_dao.dart';
+import '../../features/people/data/write_offs_dao.dart';
 import '../../features/recurring/domain/recurrence.dart';
 import '../../features/settings/data/settings_dao.dart';
 import '../../features/transactions/data/attachments_dao.dart';
@@ -43,6 +44,7 @@ part 'app_database.g.dart';
     BackupMeta,
     ImportHashes,
     PlannedPayments,
+    WriteOffs,
   ],
   daos: [
     AccountsDao,
@@ -54,6 +56,7 @@ part 'app_database.g.dart';
     BudgetsDao,
     SettingsDao,
     ToPayDao,
+    WriteOffsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -70,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   );
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -86,6 +89,11 @@ class AppDatabase extends _$AppDatabase {
       // v3: the "To pay" list.
       from2To3: (m, schema) async {
         await m.createTable(schema.plannedPayments);
+      },
+      // v4: bad debts — write-offs and forgiven debts.
+      from3To4: (m, schema) async {
+        await m.createTable(schema.writeOffs);
+        await m.createIndex(schema.writeOffsPerson);
       },
     ),
     beforeOpen: (details) async {

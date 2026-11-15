@@ -20,6 +20,7 @@ class PeriodCard extends StatelessWidget {
     this.onNext,
     this.spentNote,
     this.incomeNote,
+    this.footer,
     this.masked = false,
   });
 
@@ -36,6 +37,9 @@ class PeriodCard extends StatelessWidget {
   /// Under each figure (Reports' comparison with the period before).
   final Widget? spentNote;
   final Widget? incomeNote;
+
+  /// Under the totals, after a rule (Reports' write-offs).
+  final Widget? footer;
   final bool masked;
 
   @override
@@ -128,6 +132,11 @@ class PeriodCard extends StatelessWidget {
                 ),
               ),
             ),
+            if (footer != null) ...[
+              const SizedBox(height: AppSpacing.s),
+              Divider(color: c.line.withValues(alpha: 0.7)),
+              footer!,
+            ],
           ],
         ),
       ),
